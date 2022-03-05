@@ -3,7 +3,7 @@ project(MandatoryExercise1)
 
 set(CMAKE_C_STANDARD 11)
 
-include_directories(MandatoryExercises/Exercise1)
+include_directories(MandatoryExercise1)
 
-add_executable(client MandatoryExercises/Exercise1/client.c)
-add_executable(server MandatoryExercises/Exercise1/server.c)
+add_executable(client MandatoryExercise1/client.c)
+add_executable(server MandatoryExercise1/server.c)
