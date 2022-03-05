@@ -1,2 +1,2 @@
-# Distributed_Systems
-Repo used for all exercises and projects in Distributed Systems
+# DS-MandatoryExercise1
+Repo used for Mandatory Exercise 1 in Distributed Systems

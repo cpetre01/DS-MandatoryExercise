@@ -5,5 +5,5 @@ set(CMAKE_C_STANDARD 11)
 
 include_directories(MandatoryExercise1)
 
-add_executable(client MandatoryExercise1/client.c)
-add_executable(server MandatoryExercise1/server.c)
+add_executable(client src/client.c)
+add_executable(server src/server.c)
