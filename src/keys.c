@@ -11,14 +11,11 @@ int init() {
     struct request request;
     request.msg_code = 'a';
 
-    /* error */
-    return -1;
-    /* once server responds */
     return 0;
 }
 
 int set_value(int key, char *value1, int value2, float value3){
-    struct message request;
+    struct request request;
     request.msg_code = 'b';
 
     /* error if the key already exists*/
@@ -59,7 +56,7 @@ int set_value(int key, char *value1, int value2, float value3){
 }
 
 int get_value(int key, char *value1, int *value2, float *value3){
-    struct message request;
+    struct request request;
     request.msg_code = 'c';
 
     /* creating new item */
@@ -96,7 +93,7 @@ int get_value(int key, char *value1, int *value2, float *value3){
 }
 
 int modify_value(int key, char *value1, int value2, float value3){
-    struct message request;
+    struct request request;
     request.msg_code = 'd';
 
     FILE *ptr;
@@ -112,7 +109,7 @@ int modify_value(int key, char *value1, int value2, float value3){
 }
 
 int delete_key(int key){
-    struct message request;
+    struct request request;
     request.msg_code = 'e';
 
     FILE *ptr;
@@ -134,7 +131,7 @@ int delete_key(int key){
 }
 
 int exist(int key){
-    struct message request;
+    struct request request;
     request.msg_code = 'f';
 
     FILE *ptr;
@@ -148,7 +145,7 @@ int exist(int key){
 }
 
 int num_items(){
-    struct message request;
+    struct request request;
     request.msg_code = 'g';
 
     int num_items;
