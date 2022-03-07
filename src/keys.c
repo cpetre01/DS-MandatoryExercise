@@ -7,8 +7,8 @@
 #include "message.h"
 
 
-int init(){
-    struct message request;
+int init() {
+    struct request request;
     request.msg_code = 'a';
 
     /* error */
@@ -21,8 +21,39 @@ int set_value(int key, char *value1, int value2, float value3){
     struct message request;
     request.msg_code = 'b';
 
-    /* error */
-    return -1;
+    /* error if the key already exists*/
+    FILE *ptr;
+    char keyname = key +'0';
+    if (fopen(keyname,"r") != NULL){
+        fclose(ptr);
+        perror("It already exists a file storing that key.\n");
+        return -1;
+    }
+
+
+    /* creating new item */
+    struct item new_entry;
+    new_entry.key= key;                             /* key attribute */
+    strcpy(new_entry.value1,value1);        /* string attribute */
+    new_entry.value2 = value2;                               /* int attribute */
+    new_entry.value3 = value3;                               /* float attribute */
+
+
+    /* storing the new item */
+    ptr = fopen(keyname,"w");
+    if(ptr == NULL){
+        perror("error while opening file\n");
+        /* error*/
+        return -1;
+    }
+
+    /* Write data to file in bytes */
+    fprintf(ptr, "%s\n%d\n%f\n", new_entry.value1, new_entry.value2, new_entry.value3);
+
+    /* Close file to save file data */
+    fclose(ptr);
+
+
     /* once server responds */
     return 0;
 }
@@ -68,33 +99,52 @@ int modify_value(int key, char *value1, int value2, float value3){
     struct message request;
     request.msg_code = 'd';
 
-    /* error */
-    return -1;
-    /* once server responds */
-    return 0;
+    FILE *ptr;
+    char keyname = key +'0';
+    /* error if there is no file associated with that key */
+    if (fopen(keyname,"r") == NULL){
+        fclose(ptr);
+        perror("It already exists a file storing that key.\n");
+        return -1;
+    }
+
+
 }
 
 int delete_key(int key){
     struct message request;
     request.msg_code = 'e';
 
-    /* error */
-    return -1;
-    /* once server responds */
-    return 0;
+    FILE *ptr;
+    char keyname = key +'0';
+    /* error if there is no file associated with that key */
+    if (fopen(keyname,"r") == NULL){
+        fclose(ptr);
+        perror("It does not exist a file storing that key.\n");
+        return -1;
+    }
+    if (remove(keyname) == 0) {
+        /* file was deleted successfully*/
+        return 0;
+    } else {
+        /* error*/
+        return -1;
+    }
+
 }
 
 int exist(int key){
     struct message request;
     request.msg_code = 'f';
 
-    /* error */
-    return -1;
-    /* once server responds */
-    /* not exists */
+    FILE *ptr;
+    char keyname = key +'0';
+
+    if (fopen(keyname,"r") == NULL){
+        fclose(ptr);
+        return -1;
+    }
     return 0;
-    /* does exist */
-    return 1;
 }
 
 int num_items(){
