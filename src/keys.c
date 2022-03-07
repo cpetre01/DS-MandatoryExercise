@@ -31,8 +31,35 @@ int get_value(int key, char *value1, int *value2, float *value3){
     struct message request;
     request.msg_code = 'c';
 
-    /* error */
-    return -1;
+    /* creating new item */
+    struct item new_entry;
+    new_entry.key= key;                             /* key attribute */
+
+    /* open file */
+    FILE *ptr;
+    char keyname[10];
+    sprintf(keyname, "%d\n", key);
+    ptr = fopen(keyname,"r");
+    if(ptr == NULL){
+        fclose(ptr);
+        perror("error while opening file\n");
+        /* error*/
+        return -1;
+    }
+
+    char keystr[10]; char value1str[255]; char value2str[255]; char value3str[255];
+
+    fgets(keystr, 10, (FILE*) ptr);
+    fgets(value1str, 255, (FILE*) ptr);
+    fgets(value2str, 255, (FILE*) ptr);
+    fgets(value3str, 255, (FILE*) ptr);
+
+    strcpy(new_entry.value1,value1str);
+    new_entry.value2 = atoi(value2str);
+    new_entry.value3 = atof(value3str);
+
+    /* not sure if values must also be returned ? */
+
     /* once server responds */
     return 0;
 }
