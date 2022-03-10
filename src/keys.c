@@ -198,15 +198,6 @@ int exist(int key){
     return 0;
 }
 
-int num_items(){
-    struct request request;
-    request.msg_code = 'g';
-
-    int num_items;
-
-    /* error */
-    return -1;
-    /* once server responds */
-    return num_items;
+int num_items() {
 
 }
