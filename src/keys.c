@@ -6,6 +6,39 @@
 #include <mqueue.h>
 #include "message.h"
 
+mqd_t server_q;  /*queue for server */
+mqd_t client_q;  /*queue for client*/
+struct mq_attr attr;
+char *client_q_name;
+
+/*initializing server queue*/
+void open_server_q(){
+    server_q = mq_open(SERVER_QUEUE_NAME, O_WRONLY);
+}
+/*initializing client queue*/
+void open_client_q(){
+    client_q = mq_open(client_q_name, O_CREAT|O_RDONLY,0777, &attr);
+}
+
+void close_server_q(){
+    mq_close(server_q);
+}
+
+void close_client_q(){
+    mq_close(client_q);
+}
+
+/*function to create each client's has its own queue */
+void initialize_name(char *name_client){
+    /*This function receives a parameter the name of the client, and creates the queue name */
+    client_q_name = malloc(strlen(GENERAL_NAME_CLIENT_QUEUE) + strlen(name_client) + 1);
+    strcpy(client_q_name,GENERAL_NAME_CLIENT_QUEUE);
+    strcat(client_q_name, name_client);
+    /*We will allow a maximum of 5 messages on the queue*/
+    attr.mq_maxmsg = 5;
+    /*The maximum message size will be the maximum size of the replies struct*/
+    attr.mq_msgsize = sizeof(struct reply);
+}
 
 int init() {
     struct request request;

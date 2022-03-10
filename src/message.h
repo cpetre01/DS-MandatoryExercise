@@ -1,6 +1,8 @@
 #ifndef DS_MANDATORY_EXERCISE_1_H
 #define DS_MANDATORY_EXERCISE_1_H
-#define MAXSIZE 256
+#define MAXSIZE 255
+#define SERVER_QUEUE_NAME "/server_queue"
+#define GENERAL_NAME_CLIENT_QUEUE "/client_"
 
 //struct request {
 //    int a;                    /* op. 1 */
