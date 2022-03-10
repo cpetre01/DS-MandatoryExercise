@@ -131,6 +131,11 @@ int delete_key(int key){
 }
 
 int exist(int key){
+    /*opening the queues*/
+    open_server_q();
+    open_client_q();
+    /* creating and sending the request*/
+
     struct request request;
     request.msg_code = 'f';
 
