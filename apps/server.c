@@ -3,7 +3,7 @@
 #include <mqueue.h>
 #include <string.h>
 #include <errno.h>
-#include "message.h"
+#include "include/message.h"
 #define MSG_QUEUE_SIZE 5
 #define TRUE 1
 #define FALSE 0

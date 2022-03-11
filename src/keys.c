@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <mqueue.h>
-#include "message.h"
+#include "include/message.h"
 
 mqd_t server_q;  /*queue for server */
 mqd_t client_q;  /*queue for client*/
