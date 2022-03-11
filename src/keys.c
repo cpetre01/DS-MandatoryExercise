@@ -159,50 +159,83 @@ int modify_value(int key, char *value1, int value2, float value3){
         perror("It already exists a file storing that key.\n");
         return -1;
     }
-
-
 }
+
 
 int delete_key(int key){
-    struct request request;
-    request.msg_code = 'e';
 
-    FILE *ptr;
-    char keyname = key +'0';
-    /* error if there is no file associated with that key */
-    if (fopen(keyname,"r") == NULL){
-        fclose(ptr);
-        perror("It does not exist a file storing that key.\n");
-        return -1;
-    }
-    if (remove(keyname) == 0) {
-        /* file was deleted successfully*/
-        return 0;
-    } else {
-        /* error*/
-        return -1;
-    }
-
-}
-
-int exist(int key){
     /*opening the queues*/
     open_server_q();
     open_client_q();
     /* creating and sending the request*/
+    struct request req;
+    req.msg_code = 'e';
+    strcpy(req.q_name,client_q_name);
+    memcpy(&req.item->key, &key, sizeof(int));
 
-    struct request request;
-    request.msg_code = 'f';
+    /* send request to server*/
+    if(mq_send(server_q,&req,sizeof(struct request),0)<0){
+        perror("Error sending request to server");
+    }
 
-    FILE *ptr;
-    char keyname = key +'0';
+    /*Wait for the response of the server*/
+    struct reply rep;
+    if(mq_receive(client_q,&rep,sizeof(struct reply),0)<0){
+        perror("Error receiving message from server");
+    }
 
-    if (fopen(keyname,"r") == NULL){
-        fclose(ptr);
+    /*Close the queues:*/
+    close_server_q();
+    close_client_q();
+
+    /* check value */
+    if(rep.msg_code==0){
+        /*succed, so return 0*/
+        return 0;
+    }else{
+        /*error, so return -1*/
         return -1;
     }
-    return 0;
 }
+
+
+
+int exist(int key){
+
+    /*opening the queues*/
+    open_server_q();
+    open_client_q();
+    /* creating and sending the request*/
+    struct request req;
+    req.msg_code = 'f';
+    strcpy(req.q_name,client_q_name);
+    memcpy(&req.item->key, &key, sizeof(int));
+
+    /* send request to sever */
+    if(mq_send(server_q,&req,sizeof(struct request),0)<0){
+        perror("Error sending request to server");
+    }
+
+    /*Wait for the response of the server*/
+    struct reply rep;
+    if(mq_receive(client_q,&rep,sizeof(struct reply),0)<0){
+        perror("Error receiving message from server");
+    }
+
+    /*Close the queues:*/
+    close_server_q();
+    close_client_q();
+
+    /* check value */
+    if(rep.msg_code==0){
+        /*succed, so return 0*/
+        return 0;
+    }else{
+        /*error, so return -1*/
+        return -1;
+    }
+}
+
 
 int num_items() {
     /*opening the queues*/
