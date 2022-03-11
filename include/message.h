@@ -1,5 +1,6 @@
 #ifndef DS_MANDATORY_EXERCISE_1_H
 #define DS_MANDATORY_EXERCISE_1_H
+
 #define MAXSIZE 255
 #define SERVER_QUEUE_NAME "/server_queue"
 #define GENERAL_NAME_CLIENT_QUEUE "/client_"

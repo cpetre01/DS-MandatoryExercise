@@ -14,17 +14,17 @@ int msg_not_copied = TRUE;
 pthread_cond_t cond_msg;
 const char *db_dir = "db";
 
-int start_db() {
-    /* deleting all files */
-    if (remove("*") == 0) {
-        /* files were deleted successfully*/
-        return 0;
-    } else {
-        /* error*/
-        return -1;
-    }
-    return 0;
-}
+//int start_db() {
+//    /* deleting all files */
+//    if (remove("*") == 0) {
+//        /* files were deleted successfully*/
+//        return 0;
+//    } else {
+//        /* error*/
+//        return -1;
+//    }
+//    return 0;
+//}
 
 void process_message(struct request *msg) {
     struct request msg_local;       /* local message */

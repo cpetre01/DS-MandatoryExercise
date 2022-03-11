@@ -5,6 +5,7 @@
 #include <pthread.h>
 #include <mqueue.h>
 #include "include/message.h"
+#include "include/keys.h"
 
 mqd_t server_q;  /*queue for server */
 mqd_t client_q;  /*queue for client*/
@@ -17,7 +18,7 @@ void open_server_q(){
 }
 /*initializing client queue*/
 void open_client_q(){
-    client_q = mq_open(client_q_name, O_CREAT|O_RDONLY,0777, &attr);
+    client_q = mq_open(client_q_name, O_CREAT|O_RDONLY, 0777, &attr);
 }
 
 void close_server_q(){
@@ -50,14 +51,14 @@ int init(){
     struct request req;
     req.msg_code = 'a';
     strcpy(req.q_name, client_q_name);
-    if(mq_send(server_q, &req, sizeof(struct request), 0) < 0){
+    if(mq_send(server_q, (const char *) &req, sizeof(struct request), 0) < 0){
         perror("Error sending request to server");
     }
 
     /*wait for receiving a reply*/
     struct reply rep;
 
-    if(mq_receive(client_q, &rep, sizeof(struct reply), 0) < 0){
+    if(mq_receive(client_q, (char *) &rep, sizeof(struct reply), 0) < 0){
         perror("Error receiving reply from server");
     }
 
@@ -152,11 +153,12 @@ int modify_value(int key, char *value1, int value2, float value3){
     request.msg_code = 'd';
 
     FILE *ptr;
-    char keyname = key +'0';
+    char keyname[MAXSIZE];
+    sprintf(keyname, "%d", key);
     /* error if there is no file associated with that key */
     if (fopen(keyname,"r") == NULL){
         fclose(ptr);
-        perror("It already exists a file storing that key.\n");
+        perror("A file already exists storing that key.\n");
         return -1;
     }
 }
@@ -174,13 +176,13 @@ int delete_key(int key){
     memcpy(&req.item->key, &key, sizeof(int));
 
     /* send request to server*/
-    if(mq_send(server_q,&req,sizeof(struct request),0)<0){
+    if(mq_send(server_q, (const char *) &req, sizeof(struct request), 0) < 0){
         perror("Error sending request to server");
     }
 
     /*Wait for the response of the server*/
     struct reply rep;
-    if(mq_receive(client_q,&rep,sizeof(struct reply),0)<0){
+    if(mq_receive(client_q, (char *) &rep, sizeof(struct reply), 0) < 0){
         perror("Error receiving message from server");
     }
 
@@ -212,13 +214,13 @@ int exist(int key){
     memcpy(&req.item->key, &key, sizeof(int));
 
     /* send request to sever */
-    if(mq_send(server_q,&req,sizeof(struct request),0)<0){
+    if(mq_send(server_q, (const char *) &req, sizeof(struct request), 0) < 0){
         perror("Error sending request to server");
     }
 
     /*Wait for the response of the server*/
     struct reply rep;
-    if(mq_receive(client_q,&rep,sizeof(struct reply),0)<0){
+    if(mq_receive(client_q, (char *) &rep, sizeof(struct reply), 0) < 0){
         perror("Error receiving message from server");
     }
 
