@@ -7,14 +7,18 @@ include_directories(.)
 
 # create dynamic libraries
 add_library(keys SHARED src/keys.c)
-add_library(dbms SHARED src/dbms/dbms.c)
+add_library(dbms STATIC src/dbms/dbms.c)
 
-# create executables for client and server
+# client and server apps
+
+# create executables
 add_executable(client apps/client.c)
 add_executable(server apps/server.c)
-add_executable(test_dir apps/test_dir.c)
 
 # link required libraries
 target_link_libraries(client rt keys)
-target_link_libraries(server rt pthread)
-target_link_libraries(test_dir dbms)
+target_link_libraries(server rt pthread dbms)
+
+# tests
+add_executable(db_tests tests/db_tests.c)
+target_link_libraries(db_tests dbms)
