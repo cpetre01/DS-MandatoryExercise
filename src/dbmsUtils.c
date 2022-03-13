@@ -11,27 +11,26 @@
 
 DIR *open_db(void) {
     errno = 0;
-    char db_dir_name[5] = "db";
 
-    /* open db directory */
-    DIR *db = opendir(db_dir_name);
+    /* open DB directory */
+    DIR *db = opendir(DB_NAME);
     if (db == NULL) {
         switch (errno) {
             case ENOENT:
                 /* create it if it doesn't exist*/
-                if (mkdir(db_dir_name, S_IRWXU) == -1) {
-                    perror("db directory could not be created");
+                if (mkdir(DB_NAME, S_IRWXU) == -1) {
+                    perror("DB directory could not be created");
                     return NULL;
                 }
                 /* and open it */
-                db = opendir(db_dir_name);
+                db = opendir(DB_NAME);
                 if (db == NULL) {
-                    perror("Could not open db directory after creating it");
+                    perror("Could not open DB directory after creating it");
                     return NULL;
                 }
                 break;
             default:
-                perror("Could not open db directory");
+                perror("Could not open DB directory");
                 return NULL;
         }
     }
@@ -42,13 +41,13 @@ DIR *open_db(void) {
 int open_key_file(const int key, const char mode) {
     int key_fd;
     char key_str[MAX_STR_SIZE];
-    sprintf(key_str, "db/%d", key);
+    sprintf(key_str, "%s/%d",DB_NAME , key);
 
     /* open key file */
     if (mode == READ)
         key_fd = open(key_str, O_RDONLY);
     else if (mode == CREATE)
-        key_fd = open(key_str, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+        key_fd = open(key_str, O_WRONLY | O_CREAT | O_EXCL, 0600);
     else if (mode == MODIFY)
         key_fd = open(key_str, O_WRONLY | O_TRUNC);
     else
@@ -118,7 +117,7 @@ ssize_t read_line(const int fd, void *buffer, const size_t n) {
 }
 
 
-int write_values(int key_fd, const char *value1, const int *value2, const float *value3) {
+int write_values(const int key_fd, const char *value1, const int *value2, const float *value3) {
     /* write item to key file, one value per line */
     if (dprintf(key_fd, "%s\n", value1) < 0) {
         fprintf(stderr, "Could not write value1\n");

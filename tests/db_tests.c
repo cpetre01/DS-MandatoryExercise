@@ -82,7 +82,7 @@ int main(void)
 
     }
 
-    printf("\nlist db entries\n");
+    printf("\nlist DB entries\n");
     result = list_db_entries();
     printf("return value: %d\n\n", result);
 
@@ -98,6 +98,9 @@ int main(void)
     printf("\ntest_modify_item (key file %d doesn't exist)\n\n", n+1);
     test_modify_item(n+1);
 
+    printf("\ntest_write_item (key file %d exists)\n\n", n);
+    test_write_item(n);
+
     printf("\ndeleting key file %d: expecting 0\n", n);
     result = delete_item(n);
     printf("return value: %d\n\n", result);
@@ -106,7 +109,7 @@ int main(void)
     result = delete_item(n+1);
     printf("return value: %d\n\n", result);
 
-    printf("\nlist db entries after deleting key file %d\n", n);
+    printf("\nlist DB entries after deleting key file %d\n", n);
     result = list_db_entries();
     printf("return value: %d\n\n", result);
 
@@ -114,7 +117,7 @@ int main(void)
     result = empty_db();
     printf("return value: %d\n\n", result);
 
-    printf("\nlist db entries after emptying it\n");
+    printf("\nlist DB entries after emptying it\n");
     result = list_db_entries();
     printf("return value: %d\n\n", result);
 

@@ -13,7 +13,7 @@ int list_db_entries(void) {
     DIR *db = open_db();
 
     if (db == NULL) {
-        perror("Could not open db directory");
+        perror("Could not open DB directory");
         return -1;
     }
 
@@ -28,23 +28,28 @@ int list_db_entries(void) {
 }
 
 
-int empty_db() {
+int empty_db(void) {
     struct dirent *dir_ent;
     DIR *db = open_db();
 
     if (db == NULL) {
-        perror("Could not open db directory");
+        perror("Could not open DB directory");
         return -1;
     }
 
-    /* change directory to db to manage inner files easily*/
-    chdir("db");
+    /* change to DB directory to manage inner files easily */
+    chdir(DB_NAME);
 
     /* go through and delete all key files */
     while ((dir_ent = readdir(db)) != NULL) {
         if (strcmp(dir_ent->d_name, ".") == 0 || strcmp(dir_ent->d_name, "..") == 0)
             continue;
-        remove(dir_ent->d_name);
+        if (remove(dir_ent->d_name) == -1) {
+            perror("Couldn't delete entire DB");
+            chdir("..");
+            closedir(db);
+            return -1;
+        }
     }
 
     /* change back to executable's directory */
@@ -110,7 +115,7 @@ int read_item(const int key, char *value1, int *value2, float *value3) {
 
     /* all three values were read at this point, so close file and return */
     close(key_fd);
-    return 1;
+    return 0;
 }
 
 
@@ -125,8 +130,17 @@ int write_item(const int key, const char *value1, const int *value2, const float
 
     /* error if there is no file associated with that key */
     if (key_fd == -1) {
-        perror("Error opening key file");
-        return -1;
+        switch (errno) {
+            /* set_value API call inserting existing key error */
+            case EEXIST:
+                perror("Key file already exists");
+                return -1;
+                break;
+            default:
+                perror("Error opening key file");
+                return -1;
+                break;
+        }
     }
 
     /* write item to key file, one value per line */
@@ -144,8 +158,11 @@ int delete_item(const int key) {
         return -1;
     else {                      /* key file does exist, so delete it */
         char key_file_name[MAX_STR_SIZE];
-        sprintf(key_file_name, "db/%d", key);
-        remove(key_file_name);
+        sprintf(key_file_name, "%s/%d", DB_NAME, key);
+        if (remove(key_file_name) == -1) {
+            perror("Couldn't delete key file");
+            return -1;
+        }
         return 0;
     }
 }

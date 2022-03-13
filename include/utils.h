@@ -2,6 +2,7 @@
 #define TRUE 1
 #define FALSE 0
 #define MAX_STR_SIZE 255
+#define DB_NAME "db"
 
 /* message queue stuff */
 #define MSG_QUEUE_SIZE 5
@@ -22,7 +23,7 @@
 #define SUCCESS 1
 #define INVALID_OP -1
 
-/* db key file modes */
+/* DB key file opening modes */
 #define READ 'r'
 #define CREATE 'c'
 #define MODIFY 'm'
@@ -35,7 +36,7 @@ int cast_value(const char *value_str, void *value, char type);
 struct item {
     /* item to be stored */
     int key;                    /* key attribute */
-    char *value1;               /* string attribute */
+    char value1[255];  /* string attribute */
     int value2;                 /* int attribute */
     float value3;               /* float attribute */
 };
