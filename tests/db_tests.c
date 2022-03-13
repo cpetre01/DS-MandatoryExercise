@@ -1,5 +1,7 @@
-#include "include/dbms.h"
+#include <stdio.h>
 #include "include/utils.h"
+#include "include/dbmsUtils.h"
+#include "include/dbms.h"
 
 
 void test_write_item(const int key)
@@ -13,7 +15,7 @@ void test_write_item(const int key)
     result = item_exists(key);
     printf("before creating key file: item_exists return value: %d\n", result);
 
-    result = write_item(key, value1, &value2, &value3);
+    result = write_item(key, value1, &value2, &value3, CREATE);
     printf("after creating key file: write_item return value: %d\n", result);
 
     result = item_exists(key);
@@ -33,7 +35,7 @@ void test_modify_item(const int key)
     printf("before modifying key file: item_exists return value: %d\n", result);
 
     if (result > 0) {
-        result = modify_item(key, value1, &value2, &value3);
+        result = write_item(key, value1, &value2, &value3, MODIFY);
         printf("after modifying key file: modify_item return value: %d\n", result);
     } else
         printf("key file doesn't exist\n");

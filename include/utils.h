@@ -22,6 +22,16 @@
 #define SUCCESS 1
 #define INVALID_OP -1
 
+/* db key file modes */
+#define READ 'r'
+#define CREATE 'c'
+#define MODIFY 'm'
+
+/* number casting stuff */
+#define INT 'i'
+#define FLOAT 'f'
+int cast_value(const char *value_str, void *value, char type);
+
 struct item {
     /* item to be stored */
     int key;                    /* key attribute */
@@ -34,7 +44,7 @@ struct item {
 struct request {
     /* client request */
     int id;                     /* transaction ID */
-    char msg_code;              /* operation code that indicates the client API
+    char op_code;              /* operation code that indicates the client API
  *                              function called*/
     struct item *item;        /* pointer to struct containing all required
  *                              elements of an item*/
@@ -46,7 +56,7 @@ struct request {
 struct reply {
     /* server reply */
     int id;                     /* transaction ID */
-    char msg_code;              /* operation code that indicates the client API
+    char op_code;              /* operation code that indicates the client API
  *                              function called*/
     char server_error_code;     /* error code returned by the server;
  *                              client API interprets it to figure out

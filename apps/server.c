@@ -1,10 +1,11 @@
 #include <stdio.h>
-#include <pthread.h>
-#include <mqueue.h>
 #include <string.h>
+#include <mqueue.h>
+#include <pthread.h>
 #include <errno.h>
 #include "include/utils.h"
 #include "include/dbms.h"
+
 
 /* mutex and condition variables for the message copy */
 pthread_mutex_t mutex_req;
@@ -16,7 +17,6 @@ void copy_request(struct request *local_req, const struct request *request) {
     /* thread copies request to local request */
     pthread_mutex_lock(&mutex_req);
     memcpy(local_req, request, sizeof(struct request));
-
     /* wake up server */
     req_not_copied = FALSE;
     pthread_cond_signal(&cond_req);
@@ -38,11 +38,11 @@ void init_db(struct request *request) {
     }
 
     /* execute client request */
-    int req_result = empty_db();
+    int req_error_code = empty_db();
 
     /* create server_reply */
     struct reply server_reply;
-    switch (req_result) {
+    switch (req_error_code) {
         case 0:
             server_reply.server_error_code = SUCCESS;
             break;
@@ -77,11 +77,11 @@ void insert_item(struct request *request) {
     }
 
     /* execute client request */
-    int req_result = ();
+    int req_error_code;
 
     /* create server_reply */
     struct reply server_reply;
-    switch (req_result) {
+    switch (req_error_code) {
         case 0:
             server_reply.server_error_code = SUCCESS;
             break;
@@ -139,21 +139,28 @@ int main(void)
         /* launch thread to process client request */
         pthread_t thid;
         /* parse request */
-        switch (request.msg_code) {
+        switch (request.op_code) {
             case INIT:
                 pthread_create(&thid, &th_attr, (void *(*)(void *)) init_db, &request);
+                break;
             case SET_VALUE:
                 pthread_create(&thid, &th_attr, (void *(*)(void *)) init_db, &request);
+                break;
             case GET_VALUE:
                 pthread_create(&thid, &th_attr, (void *(*)(void *)) init_db, &request);
+                break;
             case MODIFY_VALUE:
                 pthread_create(&thid, &th_attr, (void *(*)(void *)) init_db, &request);
+                break;
             case DELETE_KEY:
                 pthread_create(&thid, &th_attr, (void *(*)(void *)) init_db, &request);
+                break;
             case EXIST:
                 pthread_create(&thid, &th_attr, (void *(*)(void *)) init_db, &request);
+                break;
             case NUM_ITEMS:
                 pthread_create(&thid, &th_attr, (void *(*)(void *)) init_db, &request);
+                break;
             default:
                 /* invalid operation */
                 continue;
@@ -165,5 +172,5 @@ int main(void)
             pthread_cond_wait(&cond_req, &mutex_req);
         req_not_copied = TRUE;
         pthread_mutex_unlock(&mutex_req);
-    }   /* END while */
+    }   // END while
 }
