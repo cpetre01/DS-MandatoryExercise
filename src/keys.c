@@ -29,8 +29,8 @@ void close_client_q(){
     mq_close(client_q);
 }
 
-/*function to create each client's has its own queue */
-void initialize_name(char *name_client){
+/*function to create each client's queue */
+void init_name(char *name_client){
     /*This function receives a parameter the name of the client, and creates the queue name */
     client_q_name = malloc(strlen(GENERAL_NAME_CLIENT_QUEUE) + strlen(name_client) + 1);
     strcpy(client_q_name,GENERAL_NAME_CLIENT_QUEUE);
@@ -42,7 +42,7 @@ void initialize_name(char *name_client){
 }
 
 
-int init(){
+int init_queue(){
     /* function used to initialize the queues and wait for the responses*/
     open_server_q();
     open_client_q();
@@ -115,7 +115,7 @@ int get_value(int key, char *value1, int *value2, float *value3){
     /* we open the queues */
     open_server_q();
     open_client_q();
-    /*We create and sed the strcut*/
+    /* creating the struct*/
     struct request req;
     req.msg_code = 'c';
     memcpy(&req.item->key, &key, sizeof(int));
@@ -142,27 +142,46 @@ int get_value(int key, char *value1, int *value2, float *value3){
         return -1;
     }
 
-    /*Close both queues*/
+    /*Closing both queues*/
     close_server_q();
     close_client_q();
     return 0;
 }
 
 int modify_value(int key, char *value1, int value2, float value3){
-    struct request request;
-    request.msg_code = 'd';
+    struct request req;
+    req.msg_code = 'd';
 
-    FILE *ptr;
-    char keyname[MAXSIZE];
-    sprintf(keyname, "%d", key);
-    /* error if there is no file associated with that key */
-    if (fopen(keyname,"r") == NULL){
-        fclose(ptr);
-        perror("A file already exists storing that key.\n");
+    /*opening queues*/
+    open_server_q();
+    open_server_q();
+
+    memcpy(&req.item->key, &key, sizeof(int));
+    strcpy(req.item->value1, value1);
+    memcpy(&req.item->value2, &value2, sizeof(int));
+    memcpy(&req.item->value3, &value3, sizeof(float));
+    strcpy(req.q_name,client_q_name);
+
+
+    if(mq_send(server_q, (const char *) &req, sizeof(struct request), 0) < 0){
+        perror("Error sending message to server");
+    }
+    /*wait for server response*/
+    struct reply rep;
+    if(mq_receive(client_q, (char *) &rep, sizeof(struct reply), 0) < 0){
+        perror("Error receiving reply from server");
+    }
+    /*Closing queues*/
+    close_server_q();
+    close_client_q();
+
+    /*Finally, we check the reply from the server:*/
+    if(rep.server_error_code == 0){
+        return 0;
+    }else{
         return -1;
     }
 }
-
 
 int delete_key(int key){
 
@@ -192,10 +211,10 @@ int delete_key(int key){
 
     /* check value */
     if(rep.msg_code==0){
-        /*succed, so return 0*/
+        /*no error*/
         return 0;
     }else{
-        /*error, so return -1*/
+        /*error*/
         return -1;
     }
 }
@@ -230,10 +249,10 @@ int exist(int key){
 
     /* check value */
     if(rep.msg_code==0){
-        /*succed, so return 0*/
+        /* no error */
         return 0;
     }else{
-        /*error, so return -1*/
+        /*error*/
         return -1;
     }
 }
@@ -258,6 +277,7 @@ int num_items() {
     if(mq_receive(client_q, (char *) &rep, sizeof(struct reply), 0) < 0){
         perror("Error receiving reply from server");
     }
+
     int num_items;
     if(rep.server_error_code == -1){
         /*Closing the queues*/
@@ -271,7 +291,6 @@ int num_items() {
     /*Closing the queues*/
     close_server_q();
     close_client_q();
-
 
     return num_items;
 
