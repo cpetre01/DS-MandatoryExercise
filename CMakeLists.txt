@@ -7,7 +7,7 @@ include_directories(.)
 
 # create dynamic libraries
 add_library(keys SHARED src/keys.c)
-add_library(dbms STATIC src/dbms/dbms.c)
+add_library(dbms STATIC src/dbms.c)
 
 # client and server apps
 

@@ -1,16 +1,26 @@
-#ifndef DS_MANDATORY_EXERCISE_1_H
-#define DS_MANDATORY_EXERCISE_1_H
+/* utilities */
+#define TRUE 1
+#define FALSE 0
+#define MAX_STR_SIZE 255
 
-#define MAXSIZE 255
+/* message queue stuff */
+#define MSG_QUEUE_SIZE 5
 #define SERVER_QUEUE_NAME "/server_queue"
-#define GENERAL_NAME_CLIENT_QUEUE "/client_"
+#define CLIENT_QUEUE_NAME_TEMPLATE "/client_"
 
-//struct request {
-//    int a;                    /* op. 1 */
-//    int b;                    /* op. 2 */
-//    char q_name[MAXSIZE];     /* client queue name - this is
-// *                            where the server sends the reply to */
-//};
+/* operation codes */
+#define INIT 'a'
+#define SET_VALUE 'b'
+#define GET_VALUE 'c'
+#define MODIFY_VALUE 'd'
+#define DELETE_KEY 'e'
+#define EXIST 'f'
+#define NUM_ITEMS 'g'
+
+/* server error codes */
+#define ERROR 0
+#define SUCCESS 1
+#define INVALID_OP -1
 
 struct item {
     /* item to be stored */
@@ -24,11 +34,11 @@ struct item {
 struct request {
     /* client request */
     int id;                     /* transaction ID */
-    char msg_code;              /* message code that indicates the client API
+    char msg_code;              /* operation code that indicates the client API
  *                              function called*/
     struct item *item;        /* pointer to struct containing all required
  *                              elements of an item*/
-    char q_name[MAXSIZE];       /* client queue name - this is
+    char q_name[MAX_STR_SIZE];       /* client queue name - this is
  *                              where the server sends the reply to */
 
 };
@@ -36,7 +46,7 @@ struct request {
 struct reply {
     /* server reply */
     int id;                     /* transaction ID */
-    char msg_code;              /* message code that indicates the client API
+    char msg_code;              /* operation code that indicates the client API
  *                              function called*/
     char server_error_code;     /* error code returned by the server;
  *                              client API interprets it to figure out
@@ -46,5 +56,3 @@ struct reply {
     struct item *item;        /* pointer to struct containing all required
  *                              elements of an item*/
 };
-
-#endif //DS_MANDATORY_EXERCISE_1_H

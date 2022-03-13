@@ -2,9 +2,8 @@
 #include <sys/types.h>
 #include <string.h>
 #include <stdlib.h>
-#include <pthread.h>
 #include <mqueue.h>
-#include "include/message.h"
+#include "include/utils.h"
 #include "include/keys.h"
 
 mqd_t server_q;  /*queue for server */
@@ -12,28 +11,34 @@ mqd_t client_q;  /*queue for client*/
 struct mq_attr attr;
 char *client_q_name;
 
+
 /*initializing server queue*/
 void open_server_q(){
     server_q = mq_open(SERVER_QUEUE_NAME, O_WRONLY);
 }
+
+
 /*initializing client queue*/
 void open_client_q(){
     client_q = mq_open(client_q_name, O_CREAT|O_RDONLY, 0777, &attr);
 }
 
+
 void close_server_q(){
     mq_close(server_q);
 }
+
 
 void close_client_q(){
     mq_close(client_q);
 }
 
+
 /*function to create each client's queue */
 void init_name(char *name_client){
     /*This function receives a parameter the name of the client, and creates the queue name */
-    client_q_name = malloc(strlen(GENERAL_NAME_CLIENT_QUEUE) + strlen(name_client) + 1);
-    strcpy(client_q_name,GENERAL_NAME_CLIENT_QUEUE);
+    client_q_name = malloc(strlen(CLIENT_QUEUE_NAME_TEMPLATE) + strlen(name_client) + 1);
+    strcpy(client_q_name,CLIENT_QUEUE_NAME_TEMPLATE);
     strcat(client_q_name, name_client);
     /*We will allow a maximum of 5 messages on the queue*/
     attr.mq_maxmsg = 5;
@@ -81,7 +86,7 @@ int set_value(int key, char *value1, int value2, float value3){
     /* we open the queues */
     open_server_q();
     open_client_q();
-    /*We create and sed the strcut*/
+    /*We create and set the struct*/
     struct request req;
     req.msg_code = 'b';
     memcpy(&req.item->key, &key, sizeof(int));

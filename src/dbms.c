@@ -6,14 +6,10 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <dirent.h>
-#include "include/dbms/dbms.h"
+#include "include/utils.h"
+#include "include/dbms.h"
 
-#define MAXSIZE 255
-
-int write_values(int key_fd, const char *value1, const int *value2, const float *value3);
-
-DIR *open_db(void)
-{
+DIR *open_db(void) {
     errno = 0;
     char db_dir_name[5] = "db";
 
@@ -43,8 +39,7 @@ DIR *open_db(void)
 }
 
 
-int list_db_entries(void)
-{
+int list_db_entries(void) {
     struct dirent *dir_ent;
     DIR *db = open_db();
 
@@ -64,8 +59,7 @@ int list_db_entries(void)
 }
 
 
-int empty_db()
-{
+int empty_db() {
     struct dirent *dir_ent;
     DIR *db = open_db();
 
@@ -77,7 +71,7 @@ int empty_db()
     while ((dir_ent = readdir(db)) != NULL) {
         if (strcmp(dir_ent->d_name, ".") == 0 || strcmp(dir_ent->d_name, "..") == 0)
             continue;
-        char db_entry_name[MAXSIZE];
+        char db_entry_name[MAX_STR_SIZE];
         sprintf(db_entry_name, "db/%s", dir_ent->d_name);
         remove(db_entry_name);
     }
@@ -87,10 +81,9 @@ int empty_db()
 }
 
 
-int open_key_file(const int key, const char mode)
-{
+int open_key_file(const int key, const char mode) {
     int key_fd;
-    char key_str[MAXSIZE];
+    char key_str[MAX_STR_SIZE];
     sprintf(key_str, "db/%d", key);
 
     /* open key file */
@@ -107,8 +100,7 @@ int open_key_file(const int key, const char mode)
 }
 
 
-int item_exists(const int key)
-{
+int item_exists(const int key) {
     /* open item file */
     int key_fd = open_key_file(key, 'r');
 
@@ -124,8 +116,7 @@ int item_exists(const int key)
 }
 
 
-int read_item(const int key, char *value1, int *value2, float *value3)
-{
+int read_item(const int key, char *value1, int *value2, float *value3) {
     errno = 0;
     /* open key file */
     int key_fd = open_key_file(key, 'r');
@@ -141,7 +132,7 @@ int read_item(const int key, char *value1, int *value2, float *value3)
     ssize_t bytes_read;     /* used for error handling of read_line calls */
 
     /* now read value1 */
-    bytes_read = read_line(key_fd, value1, MAXSIZE);
+    bytes_read = read_line(key_fd, value1, MAX_STR_SIZE);
     if (bytes_read == -1) {
         perror("Error reading line");
         close(key_fd);
@@ -153,8 +144,8 @@ int read_item(const int key, char *value1, int *value2, float *value3)
     }
 
     /* now read value2 */
-    char value2_str[MAXSIZE];
-    bytes_read = read_line(key_fd, value2_str, MAXSIZE);
+    char value2_str[MAX_STR_SIZE];
+    bytes_read = read_line(key_fd, value2_str, MAX_STR_SIZE);
     if (bytes_read == -1) {
         perror("Error reading line");
         close(key_fd);
@@ -185,8 +176,8 @@ int read_item(const int key, char *value1, int *value2, float *value3)
     *value2 = value2_str_to_int;
 
     /* now read value3 */
-    char value3_str[MAXSIZE];
-    bytes_read = read_line(key_fd, value3_str, MAXSIZE);
+    char value3_str[MAX_STR_SIZE];
+    bytes_read = read_line(key_fd, value3_str, MAX_STR_SIZE);
     if (bytes_read == -1) {
         perror("Error reading line");
         close(key_fd);
@@ -220,8 +211,7 @@ int read_item(const int key, char *value1, int *value2, float *value3)
 }
 
 
-int write_item(const int key, const char *value1, const int *value2, const float *value3)
-{
+int write_item(const int key, const char *value1, const int *value2, const float *value3) {
     /* open key file */
     int key_fd = open_key_file(key, 'w');
 
@@ -240,8 +230,7 @@ int write_item(const int key, const char *value1, const int *value2, const float
 }
 
 
-int modify_item(int key, const char *value1, const int *value2, const float *value3)
-{
+int modify_item(int key, const char *value1, const int *value2, const float *value3) {
     /* open key file */
     int key_fd = open_key_file(key, 'e');
 
@@ -258,8 +247,7 @@ int modify_item(int key, const char *value1, const int *value2, const float *val
     return result;
 }
 
-int write_values(int key_fd, const char *value1, const int *value2, const float *value3)
-{
+int write_values(int key_fd, const char *value1, const int *value2, const float *value3) {
     /* write item to key file, one value per line */
     if (dprintf(key_fd, "%s\n", value1) < 0) {
         fprintf(stderr, "Could not write value1\n");
@@ -280,13 +268,12 @@ int write_values(int key_fd, const char *value1, const int *value2, const float 
 }
 
 
-int delete_item(const int key)
-{
+int delete_item(const int key) {
     int exists = item_exists(key);
     if (exists == 0)            /* key file doesn't exist */
         return -1;
     else {                      /* key file does exist, so delete it */
-        char key_file_name[MAXSIZE];
+        char key_file_name[MAX_STR_SIZE];
         sprintf(key_file_name, "db/%d", key);
         remove(key_file_name);
         return 0;
@@ -294,8 +281,7 @@ int delete_item(const int key)
 }
 
 
-ssize_t read_line(const int fd, void *buffer, const size_t n)
-{
+ssize_t read_line(const int fd, void *buffer, const size_t n) {
     ssize_t bytes_read;             /* num of bytes fetched by last read() */
     ssize_t bytes_read_total;       /* total bytes read so far */
     char *buf;
