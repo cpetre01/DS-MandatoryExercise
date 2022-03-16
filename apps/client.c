@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
 
     /* initializing server */
     if (init() == 0) {
-        printf("The server has been initialized");
+        printf("The server has been initialized\n");
     } else {
         perror("Server has not been initialized");
     }
@@ -27,10 +27,12 @@ int main(int argc, char *argv[]) {
         int action; char action_str[2];
         printf("The possible operations to perform are the following:"
                "\n1. Insert a new tuple\n2. Obtain an existing tuple\n3. Modify an existing tuple\n"
-               "4. Delete a tuple\n5. Check if a tuple is already stored\n6. How many tuples are stored?\n7. Exit");
+               "4. Delete a tuple\n5. Check if a tuple is already stored\n6. How many tuples are stored?\n7. Exit\n");
 
         /* ask for an action */
-        scanf("Please, insert the number of the operation to perform: %s", action_str);
+        printf("Please, insert the number of the operation to perform: ");
+        scanf("%s", action_str);
+        printf("action_str: %s\n", action_str);
         while ((cast_value(action_str, (void *) &action, INT) == -1) || (action < 1) || (action > 7)) {
             printf("Please, select one of the previous-defined actions");
             scanf("%s", action_str);
@@ -39,6 +41,7 @@ int main(int argc, char *argv[]) {
         /* continue with chosen action */
         switch (action) {
             case 1: {
+                printf("case 1\n");
                 /* insert a new tuple */
                 int key; char key_str[MAX_STR_SIZE];
                 char value1[MAX_STR_SIZE];
@@ -46,18 +49,22 @@ int main(int argc, char *argv[]) {
                 float value3; char value3_str[MAX_STR_SIZE];
 
                 /* ask for the values and key */
-                scanf("Introduce the value for the key: %s", key_str);
+                printf("Introduce the value for the key: ");
+                scanf("%s", key_str);
                 if (cast_value(key_str, (void *) &key, INT) == -1) {
                     printf("Please introduce an integer\n");
                     continue;
                 }
-                scanf("Introduce value1: %s", value1);
-                scanf("Introduce value2: %s", value2_str);
+                printf("Introduce value1: ");
+                scanf("%s", value1);
+                printf("Introduce value2: ");
+                scanf("%s", value2_str);
                 if (cast_value(value2_str, (void *) &value2, INT) == -1) {
                     printf("Please introduce an integer\n");
                     continue;
                 }
-                scanf("Introduce value3: %s", value3_str);
+                printf("Introduce value3: ");
+                scanf("%s", value3_str);
                 if (cast_value(value3_str, (void *) &value3, FLOAT) == -1) {
                     printf("Please introduce a float\n");
                     continue;
@@ -73,6 +80,7 @@ int main(int argc, char *argv[]) {
                 break;
             } // end case 1
             case 2: {
+                printf("case 2\n");
                 /* obtain an existing tuple */
                 int key; char key_str[MAX_STR_SIZE];
                 char value1[MAX_STR_SIZE];
@@ -96,6 +104,7 @@ int main(int argc, char *argv[]) {
                 break;
             } // end case 2
             case 3: {
+                printf("case 3\n");
                 /* modify an existing tuple */
                 int key; char key_str[MAX_STR_SIZE];
                 char value1[MAX_STR_SIZE];
@@ -133,6 +142,7 @@ int main(int argc, char *argv[]) {
                 break;
             }//end case 3
             case 4: {
+                printf("case 4\n");
                 /* delete a tuple */
                 int key; char key_str[MAX_STR_SIZE];
 
@@ -153,6 +163,7 @@ int main(int argc, char *argv[]) {
                 break;
             }// end case 4
             case 5: {
+                printf("case 5\n");
                 /* check if a tuple exists */
                 int key; char key_str[MAX_STR_SIZE];
 
@@ -173,6 +184,7 @@ int main(int argc, char *argv[]) {
                 break;
             }// end case 5
             case 6: {
+                printf("case 6\n");
                 /* how many tuples are stored? */
                 int num_tuples = num_items();
                 if(num_tuples >= 0) {
@@ -183,11 +195,13 @@ int main(int argc, char *argv[]) {
                 break;
             } // end case 6
             case 7: {
+                printf("case 7\n");
                 /* exit by changing the control var to 0 */
                 control_var = 0;
                 break;
             }// end case 7
             default:
+                printf("default\n");
                 break;
         } // end switch
     }// end outer while

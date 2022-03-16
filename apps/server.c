@@ -9,7 +9,7 @@
 
 /* mutex and condition variables for the message copy */
 pthread_mutex_t mutex_req;
-int req_not_copied = TRUE;
+int req_copied = FALSE;
 pthread_cond_t cond_req;
 
 
@@ -18,7 +18,7 @@ void copy_request(struct request *local_req, const struct request *request) {
     pthread_mutex_lock(&mutex_req);
     memcpy(local_req, request, sizeof(struct request));
     /* wake up server */
-    req_not_copied = FALSE;
+    req_copied = TRUE;
     pthread_cond_signal(&cond_req);
     pthread_mutex_unlock(&mutex_req);
 }
@@ -168,9 +168,9 @@ int main(void)
 
         /* wait for launched thread to copy request */
         pthread_mutex_lock(&mutex_req);
-        while (req_not_copied)
+        while (!req_copied)
             pthread_cond_wait(&cond_req, &mutex_req);
-        req_not_copied = TRUE;
+        req_copied = FALSE;
         pthread_mutex_unlock(&mutex_req);
     }   // END while
 }

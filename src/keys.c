@@ -90,11 +90,15 @@ int set_value(int key, char *value1, int value2, float value3) {
     /*We create and set the struct*/
     struct request req;
     req.op_code = SET_VALUE;
+
+    /* these memory copying calls are throwing seg faults;
+     * need to look into this */
     memcpy(&req.item->key, &key, sizeof(int));
     strcpy(req.item->value1, value1);
     memcpy(&req.item->value2, &value2, sizeof(int));
     memcpy(&req.item->value3, &value3, sizeof(float));
     strcpy(req.q_name,client_q_name);
+
     if(mq_send(server_q, (const char *) &req, sizeof(struct request), 0) < 0) {
         perror("Error sending message to server");
     }

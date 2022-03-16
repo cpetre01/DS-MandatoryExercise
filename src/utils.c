@@ -16,6 +16,11 @@ int cast_value(const char *value_str, void *value, const char type) {
     int value2_str_to_int;
     float value3_str_to_float;
 
+    if (strlen(value_str) == 0) {
+        fprintf(stderr, "String is empty\n");
+        return -1;
+    }
+
     /* cast value */
     switch (type) {
         case INT:
