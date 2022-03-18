@@ -205,7 +205,7 @@ int delete_key(int key) {
     struct request req;
     req.op_code = DELETE_KEY;
     strcpy(req.q_name,client_q_name);
-    memcpy(&req.item->key, &key, sizeof(int));
+    req.item.key = key;
 
     /* send request to server*/
     if(mq_send(server_q, (const char *) &req, sizeof(struct request), 0) < 0) {
@@ -242,7 +242,7 @@ int exist(int key) {
     struct request req;
     req.op_code = EXIST;
     strcpy(req.q_name,client_q_name);
-    memcpy(&req.item->key, &key, sizeof(int));
+    req.item.key = key;
 
     /* send request to sever */
     if(mq_send(server_q, (const char *) &req, sizeof(struct request), 0) < 0) {

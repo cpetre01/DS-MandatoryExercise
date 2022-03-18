@@ -7,12 +7,13 @@
 #include "include/dbms.h"
 
 
+
 /* mutex and condition variables for the message copy */
 pthread_mutex_t mutex_req;
 int req_copied = FALSE;
 pthread_cond_t cond_req;
 
-
+/* extra functions */
 void copy_request(struct request *local_req, const struct request *request) {
     /* thread copies request to local request */
     pthread_mutex_lock(&mutex_req);
@@ -24,6 +25,8 @@ void copy_request(struct request *local_req, const struct request *request) {
 }
 
 
+
+/* required functions */
 void init_db(struct request *request) {
     /* make a local copy of the client request */
     struct request local_req;
@@ -90,6 +93,216 @@ void insert_item(struct request *request) {
             break;
         default:
             break;
+    }
+
+    /* send server_reply */
+    if (mq_send(client_q, (char *) &server_reply, sizeof(struct reply), 0) == -1) {
+        perror("Error sending server reply");
+        mq_close(client_q);
+        pthread_exit((void *) -1);
+    }
+    pthread_exit(0);
+}
+
+
+void get_item(struct request *request) {
+    /* make a local copy of the client request */
+    struct request local_req;
+    printf("insert_item: before copy_request\n");
+    copy_request(&local_req, request);
+    printf("insert_item: after copy_request\n");
+
+    /* open client queue */
+    mqd_t client_q;
+    client_q = mq_open(local_req.q_name, O_WRONLY);
+    if (client_q == -1) {
+        perror("Can't open client queue");
+        pthread_exit((void *) -1);
+    }
+
+    /* execute client request */
+    pthread_mutex_lock(&mutex_db);
+    int req_error_code = db_read_item(local_req.item.key, local_req.item.value1,
+                                       &(local_req.item.value2),
+                                       &(local_req.item.value3));
+    pthread_mutex_unlock(&mutex_db);
+
+    /* create server_reply */
+    struct reply server_reply;
+    switch (req_error_code) {
+        case 0:
+            server_reply.server_error_code = SUCCESS;
+            break;
+        case -1:
+            server_reply.server_error_code = ERROR;
+            break;
+        default:
+            break;
+    }
+
+    /* send server_reply */
+    if (mq_send(client_q, (char *) &server_reply, sizeof(struct reply), 0) == -1) {
+        perror("Error sending server reply");
+        mq_close(client_q);
+        pthread_exit((void *) -1);
+    }
+    pthread_exit(0);
+}
+
+
+void modify_item(struct request *request){
+    /* make a local copy of the client request */
+    struct request local_req;
+    printf("insert_item: before copy_request\n");
+    copy_request(&local_req, request);
+    printf("insert_item: after copy_request\n");
+
+    /* open client queue */
+    mqd_t client_q;
+    client_q = mq_open(local_req.q_name, O_WRONLY);
+    if (client_q == -1) {
+        perror("Can't open client queue");
+        pthread_exit((void *) -1);
+    }
+
+    /* execute client request */
+    pthread_mutex_lock(&mutex_db);
+    int req_error_code = db_write_item(local_req.item.key, local_req.item.value1,
+                                       &(local_req.item.value2),
+                                       &(local_req.item.value3), MODIFY);
+    pthread_mutex_unlock(&mutex_db);
+
+    /* create server_reply */
+    struct reply server_reply;
+    switch (req_error_code) {
+        case 0:
+            server_reply.server_error_code = SUCCESS;
+            break;
+        case -1:
+            server_reply.server_error_code = ERROR;
+            break;
+        default:
+            break;
+    }
+
+    /* send server_reply */
+    if (mq_send(client_q, (char *) &server_reply, sizeof(struct reply), 0) == -1) {
+        perror("Error sending server reply");
+        mq_close(client_q);
+        pthread_exit((void *) -1);
+    }
+    pthread_exit(0);
+}
+
+
+void delete_item(struct request *request) {
+    /* make a local copy of the client request */
+    struct request local_req;
+    copy_request(&local_req, request);
+
+    /* open client queue */
+    mqd_t client_q;
+    client_q = mq_open(local_req.q_name, O_WRONLY);
+    if (client_q == -1) {
+        perror("Can't open client queue");
+        pthread_exit((void *) -1);
+    }
+
+    /* execute client request */
+    pthread_mutex_lock(&mutex_db);
+    int req_error_code = db_delete_item(local_req.item.key);
+    pthread_mutex_unlock(&mutex_db);
+
+    /* create server_reply */
+    struct reply server_reply;
+    switch (req_error_code) {
+        case 0:
+            server_reply.server_error_code = SUCCESS;
+            break;
+        case -1:
+            server_reply.server_error_code = ERROR;
+            break;
+        default:
+            break;
+    }
+
+    /* send server_reply */
+    if (mq_send(client_q, (char *) &server_reply, sizeof(struct reply), 0) == -1) {
+        perror("Error sending server reply");
+        mq_close(client_q);
+        pthread_exit((void *) -1);
+    }
+    pthread_exit(0);
+}
+
+
+void item_exists(struct request *request) {
+    /* make a local copy of the client request */
+    struct request local_req;
+    copy_request(&local_req, request);
+
+    /* open client queue */
+    mqd_t client_q;
+    client_q = mq_open(local_req.q_name, O_WRONLY);
+    if (client_q == -1) {
+        perror("Can't open client queue");
+        pthread_exit((void *) -1);
+    }
+
+    /* execute client request */
+    pthread_mutex_lock(&mutex_db);
+    int req_error_code = db_item_exists(local_req.item.key);
+    pthread_mutex_unlock(&mutex_db);
+
+    /* create server_reply */
+    struct reply server_reply;
+    switch (req_error_code) {
+        case 0:
+            server_reply.server_error_code = SUCCESS;
+            break;
+        case -1:
+            server_reply.server_error_code = ERROR;
+            break;
+        default:
+            break;
+
+    }
+
+    /* send server_reply */
+    if (mq_send(client_q, (char *) &server_reply, sizeof(struct reply), 0) == -1) {
+        perror("Error sending server reply");
+        mq_close(client_q);
+        pthread_exit((void *) -1);
+    }
+    pthread_exit(0);
+}
+
+
+void get_num_items(struct request *request) {
+    /* make a local copy of the client request */
+    struct request local_req;
+    copy_request(&local_req, request);
+
+    /* open client queue */
+    mqd_t client_q;
+    client_q = mq_open(local_req.q_name, O_WRONLY);
+    if (client_q == -1) {
+        perror("Can't open client queue");
+        pthread_exit((void *) -1);
+    }
+
+    /* execute client request */
+    pthread_mutex_lock(&mutex_db);
+    int num_items = db_get_num_items();
+    pthread_mutex_unlock(&mutex_db);
+
+    /* create server_reply */
+    struct reply server_reply;
+    if (num_items == -1) {
+        server_reply.server_error_code = ERROR;
+    } else {
+        server_reply.num_items = num_items;
+        server_reply.server_error_code = SUCCESS;
     }
 
     /* send server_reply */
