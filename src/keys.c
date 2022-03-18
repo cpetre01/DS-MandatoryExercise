@@ -122,14 +122,14 @@ int set_value(int key, char *value1, int value2, float value3) {
 }
 
 
-int get_value(int key, char *value1, int *value2, float *value3) {
+int get_value(int key, char *value1, const int *value2, const float *value3) {
     /* we open the queues */
     open_server_q();
     open_client_q();
     /* creating the struct*/
     struct request req;
     req.op_code = GET_VALUE;
-    memcpy(&req.item->key, &key, sizeof(int));
+    req.item.key = key;
     strcpy(req.q_name,client_q_name);
     if(mq_send(server_q, (const char *) &req, sizeof(struct request), 0) < 0) {
         perror("Error sending message to server");
@@ -143,9 +143,9 @@ int get_value(int key, char *value1, int *value2, float *value3) {
     /*Finally, we check the rep from the server:*/
     if(rep.server_error_code == SUCCESS) {
         /*This means that the server included the message properly*/
-        strcpy(value1, rep.item->value1);
-        memcpy(&rep.item->value2, &value2, sizeof(int));
-        memcpy(&rep.item->value3, &value3, sizeof(float));
+        strcpy(value1, rep.item.value1);
+        rep.item.value2 = *value2;
+        rep.item.value3 = *value3;
     }else{
         /*Otherwise, there was an error*/
         close_server_q();

@@ -7,7 +7,7 @@ void close_client_q();
 void init_name(char *name_client);
 int init();
 int set_value(int key, char *value1, int value2, float value3);
-int get_value(int key, char *value1, int *value2, float *value3);
+int get_value(int key, char *value1, const int *value2, const float *value3);
 int modify_value(int key, char *value1, int value2, float value3);
 int delete_key(int key);
 int exist(int key);
