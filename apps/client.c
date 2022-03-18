@@ -88,7 +88,8 @@ int main(int argc, char *argv[]) {
                 float value3;
 
                 /* ask for the key */
-                scanf("Please, enter the key: %s", key_str);
+                printf("Please, enter the key: ");
+                scanf("%s", key_str);
                 if (cast_value(key_str, (void *) &key, INT) == -1) {
                     printf("Please introduce an integer\n");
                     continue;
@@ -112,19 +113,23 @@ int main(int argc, char *argv[]) {
                 float value3; char value3_str[MAX_STR_SIZE];
 
                 /* ask for the key */
-                scanf("Introduce the value for the key: %s", key_str);
+                printf("Introduce the value for the key: ");
+                scanf("%s", key_str);
                 if (cast_value(key_str, (void *) &key, INT) == -1) {
                     printf("Please introduce an integer\n");
                     continue;
                 }
                 /* ask for the new values */
-                scanf("Introduce value1: %s", value1);
-                scanf("Introduce value2: %s", value2_str);
+                printf("Introduce value1:");
+                scanf("%s", value1);
+                printf("Introduce value2:");
+                scanf("%s", value2_str);
                 if (cast_value(value2_str, (void *) &value2, INT) == -1) {
                     printf("Please introduce an integer\n");
                     continue;
                 }
-                scanf("Introduce value3: %s", value3_str);
+                printf("Introduce value3:");
+                scanf("%s", value3_str);
                 if (cast_value(value3_str, (void *) &value3, FLOAT) == -1) {
                     printf("Please introduce a float\n");
                     continue;
@@ -147,7 +152,8 @@ int main(int argc, char *argv[]) {
                 int key; char key_str[MAX_STR_SIZE];
 
                 /* ask for the key */
-                scanf("Please, introduce the key of the tuple to delete: %s", key_str);
+                printf("Please, introduce the key of the tuple to delete: ");
+                scanf("%s", key_str);
                 if (cast_value(key_str, (void *) &key, INT) == -1) {
                     printf("Please introduce an integer\n");
                     continue;
@@ -168,7 +174,8 @@ int main(int argc, char *argv[]) {
                 int key; char key_str[MAX_STR_SIZE];
 
                 /* ask for the key */
-                scanf("Please, introduce the key of the tuple to check: %s", key_str);
+                printf("Please, introduce the key of the tuple to check:");
+                scanf("%s", key_str);
                 if (cast_value(key_str, (void *) &key, INT) == -1) {
                     printf("Please introduce an integer\n");
                     continue;
