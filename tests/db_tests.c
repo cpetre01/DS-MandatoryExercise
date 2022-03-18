@@ -12,14 +12,14 @@ void test_write_item(const int key)
 
     int result;
 
-    result = item_exists(key);
-    printf("before creating key file: item_exists return value: %d\n", result);
+    result = db_item_exists(key);
+    printf("before creating key file: db_item_exists return value: %d\n", result);
 
-    result = write_item(key, value1, &value2, &value3, CREATE);
-    printf("after creating key file: write_item return value: %d\n", result);
+    result = db_write_item(key, value1, &value2, &value3, CREATE);
+    printf("after creating key file: db_write_item return value: %d\n", result);
 
-    result = item_exists(key);
-    printf("after creating key file: item_exists return value: %d\n", result);
+    result = db_item_exists(key);
+    printf("after creating key file: db_item_exists return value: %d\n", result);
 }
 
 
@@ -31,11 +31,11 @@ void test_modify_item(const int key)
 
     int result;
 
-    result = item_exists(key);
-    printf("before modifying key file: item_exists return value: %d\n", result);
+    result = db_item_exists(key);
+    printf("before modifying key file: db_item_exists return value: %d\n", result);
 
     if (result > 0) {
-        result = write_item(key, value1, &value2, &value3, MODIFY);
+        result = db_write_item(key, value1, &value2, &value3, MODIFY);
         printf("after modifying key file: modify_item return value: %d\n", result);
     } else
         printf("key file doesn't exist\n");
@@ -51,12 +51,12 @@ void test_read_item(const int key)
 
     int result;
 
-    result = item_exists(key);
-    printf("before reading key file: item_exists return value: %d\n", result);
+    result = db_item_exists(key);
+    printf("before reading key file: db_item_exists return value: %d\n", result);
 
     if (result > 0) {
-        result = read_item(key, value1, &value2, &value3);
-        printf("after reading key file: read_item return value: %d\n", result);
+        result = db_read_item(key, value1, &value2, &value3);
+        printf("after reading key file: db_read_item return value: %d\n", result);
 
         printf("\nvalue1: %s\nvalue2: %d\nvalue3: %f\n", value1, value2, value3);
     } else
@@ -83,7 +83,7 @@ int main(void)
     }
 
     printf("\nlist DB entries\n");
-    result = list_db_entries();
+    result = db_list_db_items();
     printf("return value: %d\n\n", result);
 
     printf("\ntest_read_item (key file %d doesn't exist)\n\n", n+1);
@@ -102,23 +102,23 @@ int main(void)
     test_write_item(n);
 
     printf("\ndeleting key file %d: expecting 0\n", n);
-    result = delete_item(n);
+    result = db_delete_item(n);
     printf("return value: %d\n\n", result);
 
     printf("\ndeleting key file %d (key file doesn't exist): expecting -1\n", n+1);
-    result = delete_item(n+1);
+    result = db_delete_item(n + 1);
     printf("return value: %d\n\n", result);
 
     printf("\nlist DB entries after deleting key file %d\n", n);
-    result = list_db_entries();
+    result = db_list_db_items();
     printf("return value: %d\n\n", result);
 
     printf("\ntest_empty_db\n");
-    result = empty_db();
+    result = db_empty_db();
     printf("return value: %d\n\n", result);
 
     printf("\nlist DB entries after emptying it\n");
-    result = list_db_entries();
+    result = db_list_db_items();
     printf("return value: %d\n\n", result);
 
     return 0;

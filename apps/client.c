@@ -32,16 +32,15 @@ int main(int argc, char *argv[]) {
         /* ask for an action */
         printf("Please, insert the number of the operation to perform: ");
         scanf("%s", action_str);
-        printf("action_str: %s\n", action_str);
         while ((cast_value(action_str, (void *) &action, INT) == -1) || (action < 1) || (action > 7)) {
             printf("Please, select one of the previous-defined actions");
             scanf("%s", action_str);
         } // end inner while
+        printf("\n");
 
         /* continue with chosen action */
         switch (action) {
             case 1: {
-                printf("case 1\n");
                 /* insert a new tuple */
                 int key; char key_str[MAX_STR_SIZE];
                 char value1[MAX_STR_SIZE];
@@ -77,10 +76,10 @@ int main(int argc, char *argv[]) {
                 } else {
                     printf("Error while inserting the tuple\n");
                 }
+                printf("\n");
                 break;
             } // end case 1
             case 2: {
-                printf("case 2\n");
                 /* obtain an existing tuple */
                 int key; char key_str[MAX_STR_SIZE];
                 char value1[MAX_STR_SIZE];
@@ -95,17 +94,19 @@ int main(int argc, char *argv[]) {
                     continue;
                 }
                 /* calling the function */
+                printf("before get_value\n");
                 int error = get_value(key, value1, &value2, &value3);
+                printf("after get_value\n");
                 if (error == 0) {
                     printf("The tuple with key %d stores value 1 = %s, value 2 = %d and value 3 = %f\n",
                            key, value1, value2, value3);
                 } else {
                     printf("An error happened when searching the tuple.\n");
                 }
+                printf("\n");
                 break;
             } // end case 2
             case 3: {
-                printf("case 3\n");
                 /* modify an existing tuple */
                 int key; char key_str[MAX_STR_SIZE];
                 char value1[MAX_STR_SIZE];
@@ -144,10 +145,10 @@ int main(int argc, char *argv[]) {
                 } else {
                     printf("Error modifying the tuple\n");
                 }
+                printf("\n");
                 break;
             }//end case 3
             case 4: {
-                printf("case 4\n");
                 /* delete a tuple */
                 int key; char key_str[MAX_STR_SIZE];
 
@@ -166,10 +167,10 @@ int main(int argc, char *argv[]) {
                 } else {
                     printf("Error deleting the tuple\n");
                 }
+                printf("\n");
                 break;
             }// end case 4
             case 5: {
-                printf("case 5\n");
                 /* check if a tuple exists */
                 int key; char key_str[MAX_STR_SIZE];
 
@@ -188,10 +189,10 @@ int main(int argc, char *argv[]) {
                 }else{
                     printf("There are no tuples with the key %d already stored.\n", key);
                 }
+                printf("\n");
                 break;
             }// end case 5
             case 6: {
-                printf("case 6\n");
                 /* how many tuples are stored? */
                 int num_tuples = num_items();
                 if(num_tuples >= 0) {
@@ -199,12 +200,13 @@ int main(int argc, char *argv[]) {
                 }else{
                     printf("Error counting the number of elements stored.\n");
                 }
+                printf("\n");
                 break;
             } // end case 6
             case 7: {
-                printf("case 7\n");
                 /* exit by changing the control var to 0 */
                 control_var = 0;
+                printf("\n");
                 break;
             }// end case 7
             default:

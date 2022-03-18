@@ -58,6 +58,7 @@ int init() {
     strcpy(req.q_name, client_q_name);
     if(mq_send(server_q, (const char *) &req, sizeof(struct request), 0) < 0) {
         perror("Error sending request to server");
+        return -1;
     }
 
     /*wait for receiving a reply*/
@@ -65,6 +66,7 @@ int init() {
 
     if(mq_receive(client_q, (char *) &rep, sizeof(struct reply), 0) < 0) {
         perror("Error receiving reply from server");
+        return -1;
     }
 
     /*close the queues*/
@@ -90,23 +92,23 @@ int set_value(int key, char *value1, int value2, float value3) {
     /*We create and set the struct*/
     struct request req;
     req.op_code = SET_VALUE;
-
-    /* these memory copying calls are throwing seg faults;
-     * need to look into this */
-    memcpy(&req.item->key, &key, sizeof(int));
-    strcpy(req.item->value1, value1);
-    memcpy(&req.item->value2, &value2, sizeof(int));
-    memcpy(&req.item->value3, &value3, sizeof(float));
+    req.item.key = key;
+    strcpy(req.item.value1, value1);
+    req.item.value2 = value2;
+    req.item.value3 = value3;
     strcpy(req.q_name,client_q_name);
 
     if(mq_send(server_q, (const char *) &req, sizeof(struct request), 0) < 0) {
         perror("Error sending message to server");
+        return -1;
     }
     /*wait for the rep of the server*/
     struct reply rep;
     if(mq_receive(client_q, (char *) &rep, sizeof(struct reply), 0) < 0) {
         perror("Error receiving reply from server");
+        return -1;
     }
+
     /*Close both queues*/
     close_server_q();
     close_client_q();
@@ -133,13 +135,17 @@ int get_value(int key, char *value1, const int *value2, const float *value3) {
     strcpy(req.q_name,client_q_name);
     if(mq_send(server_q, (const char *) &req, sizeof(struct request), 0) < 0) {
         perror("Error sending message to server");
+        return -1;
     }
     /*wait for the rep of the server*/
     struct reply rep;
+    printf("before mq_receive\n");
     if(mq_receive(client_q, (char *) &rep, sizeof(struct reply), 0) < 0) {
+        printf("mq_receive failed\n");
         perror("Error receiving reply from server");
+        return -1;
     }
-
+    printf("after mq_receive\n");
     /*Finally, we check the rep from the server:*/
     if(rep.server_error_code == SUCCESS) {
         /*This means that the server included the message properly*/
@@ -161,28 +167,31 @@ int get_value(int key, char *value1, const int *value2, const float *value3) {
 
 
 int modify_value(int key, char *value1, int value2, float value3) {
-    struct request req;
-    req.op_code = MODIFY_VALUE;
-
     /*opening queues*/
     open_server_q();
-    open_server_q();
+    open_client_q();
 
-    memcpy(&req.item->key, &key, sizeof(int));
-    strcpy(req.item->value1, value1);
-    memcpy(&req.item->value2, &value2, sizeof(int));
-    memcpy(&req.item->value3, &value3, sizeof(float));
+    /* creating the struct*/
+    struct request req;
+    req.op_code = MODIFY_VALUE;
+    req.item.key = key;
+    strcpy(req.item.value1, value1);
+    req.item.value2 = value2;
+    req.item.value3 = value3;
     strcpy(req.q_name,client_q_name);
-
 
     if(mq_send(server_q, (const char *) &req, sizeof(struct request), 0) < 0) {
         perror("Error sending message to server");
+        return -1;
     }
+
     /*wait for server response*/
     struct reply rep;
     if(mq_receive(client_q, (char *) &rep, sizeof(struct reply), 0) < 0) {
         perror("Error receiving reply from server");
+        return -1;
     }
+
     /*Closing queues*/
     close_server_q();
     close_client_q();
@@ -210,12 +219,14 @@ int delete_key(int key) {
     /* send request to server*/
     if(mq_send(server_q, (const char *) &req, sizeof(struct request), 0) < 0) {
         perror("Error sending request to server");
+        return -1;
     }
 
     /*Wait for the response of the server*/
     struct reply rep;
     if(mq_receive(client_q, (char *) &rep, sizeof(struct reply), 0) < 0) {
         perror("Error receiving message from server");
+        return -1;
     }
 
     /*Close the queues:*/
@@ -247,12 +258,14 @@ int exist(int key) {
     /* send request to sever */
     if(mq_send(server_q, (const char *) &req, sizeof(struct request), 0) < 0) {
         perror("Error sending request to server");
+        return -1;
     }
 
     /*Wait for the response of the server*/
     struct reply rep;
     if(mq_receive(client_q, (char *) &rep, sizeof(struct reply), 0) < 0) {
         perror("Error receiving message from server");
+        return -1;
     }
 
     /*Close the queues:*/
@@ -282,12 +295,14 @@ int num_items() {
 
     if(mq_send(server_q, (const char *) &req, sizeof(struct request), 0) < 0) {
         perror("Error sending request to server");
+        return -1;
     }
 
     /*Waiting for server reply*/
     struct reply rep;
     if(mq_receive(client_q, (char *) &rep, sizeof(struct reply), 0) < 0) {
         perror("Error receiving reply from server");
+        return -1;
     }
 
     int num_items;

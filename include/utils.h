@@ -45,9 +45,9 @@ struct item {
 struct request {
     /* client request */
     int id;                     /* transaction ID */
-    char op_code;              /* operation code that indicates the client API
+    char op_code;               /* operation code that indicates the client API
  *                              function called*/
-    struct item *item;        /* pointer to struct containing all required
+    struct item item;           /* pointer to struct containing all required
  *                              elements of an item*/
     char q_name[MAX_STR_SIZE];       /* client queue name - this is
  *                              where the server sends the reply to */
@@ -64,6 +64,6 @@ struct reply {
  *                              whether the transaction was successful*/
     int num_items;              /* total number of items stored;
  *                              filled in case of num_items API call */
-    struct item *item;        /* pointer to struct containing all required
+    struct item item;           /* pointer to struct containing all required
  *                              elements of an item*/
 };
