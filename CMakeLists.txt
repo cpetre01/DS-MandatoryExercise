@@ -22,7 +22,7 @@ add_executable(client apps/client.c)
 add_executable(server apps/server.c)
 
 # link required libraries
-target_link_libraries(client PUBLIC rt keys utils)
+target_link_libraries(client PUBLIC keys utils)
 target_link_libraries(server PUBLIC rt pthread dbms)
 
 

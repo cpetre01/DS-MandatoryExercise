@@ -40,10 +40,15 @@ int close_server_q() {
 
 
 int close_client_q() {
-    if (mq_close(client_q) == -1)
+    if (mq_close(client_q) == -1) {
+        mq_unlink(client_q_name);
         return -1;
-    else
+    } else {
+        if (mq_unlink(client_q_name) == -1) {
+            return -1;
+        }
         return 0;
+    }
 
 }
 
