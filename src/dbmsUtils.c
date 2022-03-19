@@ -67,7 +67,7 @@ int read_value(const int key_fd, char *value) {
         close(key_fd);
         return -1;
     } else if (bytes_read == 0) {
-        printf("Nothing was read\n");
+        fprintf(stderr, "Nothing was read\n");
         close(key_fd);
         return -1;
     }

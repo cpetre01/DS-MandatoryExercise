@@ -43,7 +43,6 @@ int db_get_num_items(void) {
         if (strcmp(dir_ent->d_name, ".") == 0 || strcmp(dir_ent->d_name, "..") == 0)
             continue;
         num_items++;
-//        printf("%s\n", dir_ent->d_name);
     }
 
     closedir(db);
