@@ -3,7 +3,7 @@ int open_server_q();
 int open_client_q();
 int close_server_q();
 int close_client_q();
-void init_name(char *name_client);
+void client_queue_init(char *client_name);
 /* client API
  * functions called by the client to perform services */
 int init();

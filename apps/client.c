@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
     }
 
     /* initializing the queue */
-    init_name(argv[1]);
+    client_queue_init(argv[1]);
 
     /* loop to control client requests */
     int control_var = TRUE;

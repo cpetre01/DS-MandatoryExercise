@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <mqueue.h>
 #include "include/utils.h"
@@ -9,7 +8,7 @@
 mqd_t server_q;         /* queue for server */
 mqd_t client_q;         /* queue for client */
 struct mq_attr attr;
-char *client_q_name;
+char client_q_name[MAX_STR_SIZE];
 
 
 int open_server_q() {
@@ -49,12 +48,12 @@ int close_client_q() {
 }
 
 
-void init_name(char *name_client) {
+void client_queue_init(char *client_name) {
     /* function to create each client's queue */
     /* This function receives as argument the name of the client, and creates the queue name */
-    client_q_name = malloc(strlen(CLIENT_QUEUE_NAME_TEMPLATE) + strlen(name_client) + 1);
     strcpy(client_q_name,CLIENT_QUEUE_NAME_TEMPLATE);
-    strcat(client_q_name, name_client);
+    strcat(client_q_name, client_name);
+
     /* We will allow a maximum of 5 messages on the queue */
     attr.mq_maxmsg = MSG_QUEUE_SIZE;
     /* The maximum message size will be the maximum size of the reply struct */
