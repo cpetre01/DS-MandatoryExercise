@@ -180,7 +180,7 @@ int db_delete_item(const int key) {
         return -1;
     else {                      /* key file does exist, so delete it */
         char key_file_name[MAX_STR_SIZE];
-        sprintf(key_file_name, "%s/%d", DB_NAME, key);
+        snprintf(key_file_name, MAX_STR_SIZE, "%s/%d", DB_NAME, key);
         if (remove(key_file_name) == -1) {
             perror("Couldn't delete key file");
             return -1;

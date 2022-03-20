@@ -41,7 +41,7 @@ DIR *open_db(void) {
 int open_key_file(const int key, const char mode) {
     int key_fd;
     char key_str[MAX_STR_SIZE];
-    sprintf(key_str, "%s/%d",DB_NAME , key);
+    snprintf(key_str, MAX_STR_SIZE, "%s/%d", DB_NAME, key);
 
     /* open key file */
     if (mode == READ)
