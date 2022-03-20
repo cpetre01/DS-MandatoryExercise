@@ -364,6 +364,7 @@ void get_num_items(struct request *request) {
 
 
 void shutdown_server() {
+    /* destroy server resources before shutting it down */
     pthread_mutex_destroy(&mutex_req);
     pthread_mutex_destroy(&mutex_db);
     pthread_cond_destroy(&cond_req);
@@ -397,11 +398,12 @@ int main(void)
     /* thread attributes */
     pthread_attr_setdetachstate(&th_attr, PTHREAD_CREATE_DETACHED);
 
-    struct sigaction act;
-    act.sa_handler = shutdown_server;
-    act.sa_flags = 0;
-    sigemptyset(&act.sa_mask);
-    sigaction(SIGINT, &act, NULL);
+    /* set up SIGINT (CTRL+C) signal handler to shut down server */
+    struct sigaction keyboard_interrupt;
+    keyboard_interrupt.sa_handler = shutdown_server;
+    keyboard_interrupt.sa_flags = 0;
+    sigemptyset(&keyboard_interrupt.sa_mask);
+    sigaction(SIGINT, &keyboard_interrupt, NULL);
 
 
     while (TRUE) {
