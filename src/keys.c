@@ -380,10 +380,11 @@ int exist(int key) {
 
     /* check value */
     if(rep.server_error_code == EXISTS) {
-        return 0;
-    }else{
+        return 1;
+    }
+    else if(rep.server_error_code == NOT_EXISTS){
         /*error*/
-        return -1;
+        return 0;
     }
 }
 

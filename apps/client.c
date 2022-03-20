@@ -183,16 +183,21 @@ int main(int argc, char *argv[]) {
                     fprintf(stderr, "Please introduce an integer\n");
                     continue;
                 }
-
+                /* calling exists function and check for errors*/
                 int error = exist(key);
-                /* And show if the operation was or not succeed: */
-                if(error == 0) {
+
+                if(error == 1) {
                     printf("A tuple with the key %d is already stored.\n", key);
-                }else{
+                }
+                else if (error == 0) {
                     fprintf(stderr, "There are no tuples with the key %d already stored.\n", key);
+                }
+                else {
+                    fprintf(stderr, "Communication error.\n", key);
                 }
                 printf("\n");
                 break;
+
             }// end case 6
             case 7: {
                 /* how many tuples are stored? */
