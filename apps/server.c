@@ -387,7 +387,7 @@ int main(void)
         perror("Can't create server queue");
         return -1;
     } else {
-        printf("Server running\n");
+        printf("Press Ctrl + C to shut down server\n");
     }
 
     pthread_mutex_init(&mutex_req, NULL);
