@@ -379,7 +379,7 @@ int exist(int key) {
     }
 
     /* check value */
-    if(rep.server_error_code == SUCCESS) {
+    if(rep.server_error_code == EXISTS) {
         return 0;
     }else{
         /*error*/
