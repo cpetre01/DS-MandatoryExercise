@@ -294,11 +294,11 @@ void item_exists(struct request *request) {
     server_reply.op_code = local_req.op_code;
 
     switch (req_error_code) {
-        case 0:
-            server_reply.server_error_code = SUCCESS;
+        case 1:
+            server_reply.server_error_code = EXISTS;
             break;
-        case -1:
-            server_reply.server_error_code = ERROR;
+        case 0:
+            server_reply.server_error_code = NOT_EXISTS;
             break;
         default:
             break;
@@ -389,6 +389,7 @@ int main(void)
             perror("server receiving error");
             continue;
         }
+
 
         /* launch thread to process client request */
         pthread_t thid;

@@ -21,6 +21,8 @@
 /* server error codes */
 #define ERROR 0
 #define SUCCESS 1
+#define EXISTS 1
+#define NOT_EXISTS 0
 #define INVALID_OP -1
 
 /* DB key file opening modes */
