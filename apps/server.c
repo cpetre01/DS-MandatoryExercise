@@ -1,7 +1,9 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <mqueue.h>
 #include <pthread.h>
+#include <signal.h>
 #include "include/utils.h"
 #include "include/dbms.h"
 
@@ -16,6 +18,12 @@ void modify_item(struct request *request);
 void delete_item(struct request *request);
 void item_exists(struct request *request);
 void get_num_items(struct request *request);
+
+
+/* server queue */
+mqd_t server_q;
+/* queue attributes */
+struct mq_attr q_attr;
 
 
 /* mutex and condition variables for the message copy */
@@ -355,11 +363,19 @@ void get_num_items(struct request *request) {
 }
 
 
+void shutdown_server() {
+    pthread_mutex_destroy(&mutex_req);
+    pthread_mutex_destroy(&mutex_db);
+    pthread_cond_destroy(&cond_req);
+    mq_close(server_q);
+    mq_unlink(SERVER_QUEUE_NAME);
+    exit(0);
+}
+
+
 int main(void)
 {
-    mqd_t server_q;                 /* server queue */
     /* queue attributes */
-    struct mq_attr q_attr;
     q_attr.mq_maxmsg = MSG_QUEUE_SIZE;
     q_attr.mq_msgsize = sizeof(struct request);
 
@@ -380,6 +396,12 @@ int main(void)
 
     /* thread attributes */
     pthread_attr_setdetachstate(&th_attr, PTHREAD_CREATE_DETACHED);
+
+    struct sigaction act;
+    act.sa_handler = shutdown_server;
+    act.sa_flags = 0;
+    sigemptyset(&act.sa_mask);
+    sigaction(SIGINT, &act, NULL);
 
 
     while (TRUE) {

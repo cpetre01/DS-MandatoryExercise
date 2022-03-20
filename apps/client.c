@@ -193,7 +193,7 @@ int main(int argc, char *argv[]) {
                     fprintf(stderr, "There are no tuples with the key %d already stored.\n", key);
                 }
                 else {
-                    fprintf(stderr, "Communication error.\n", key);
+                    fprintf(stderr, "Communication error.\n");
                 }
                 printf("\n");
                 break;

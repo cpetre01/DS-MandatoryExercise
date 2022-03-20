@@ -6,6 +6,7 @@
 
 
 int cast_value(const char *value_str, void *value, const char type) {
+    errno = 0;
     /* cast value to int or float */
     char * endptr;      /* used for strtol and strtof castings */
     char error[10];     /* used to display errors */
