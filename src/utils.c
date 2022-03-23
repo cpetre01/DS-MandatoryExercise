@@ -43,7 +43,7 @@ int cast_value(const char *value_str, void *value, const char type) {
     }
 
     /* check cast errors */
-    if (errno != 0) {
+    if (errno) {
         perror(error);
         return -1;
     }
