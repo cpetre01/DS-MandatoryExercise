@@ -83,7 +83,7 @@ int main(void)
     }
 
     printf("\nlist DB entries\n");
-    result = db_list_db_items();
+    result = db_list_items();
     printf("return value: %d\n\n", result);
 
     printf("\ntest_read_item (key file %d doesn't exist)\n\n", n+1);
@@ -110,7 +110,7 @@ int main(void)
     printf("return value: %d\n\n", result);
 
     printf("\nlist DB entries after deleting key file %d\n", n);
-    result = db_list_db_items();
+    result = db_list_items();
     printf("return value: %d\n\n", result);
 
     printf("\ntest_empty_db\n");
@@ -118,7 +118,7 @@ int main(void)
     printf("return value: %d\n\n", result);
 
     printf("\nlist DB entries after emptying it\n");
-    result = db_list_db_items();
+    result = db_list_items();
     printf("return value: %d\n\n", result);
 
     return 0;

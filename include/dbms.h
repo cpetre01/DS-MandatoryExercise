@@ -1,5 +1,5 @@
 /* functions called by the server to manage the DB */
-int db_list_db_items(void);
+int db_list_items(void);
 int db_get_num_items(void);
 int db_empty_db(void);
 int db_item_exists(int key);

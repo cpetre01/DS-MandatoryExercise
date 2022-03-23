@@ -4,7 +4,9 @@ int open_client_q();
 int close_server_q();
 int close_client_q();
 void client_queue_init(char *client_name);
-/* client API
+
+
+/* client API:
  * functions called by the client to perform services */
 int init();
 int set_value(int key, char *value1, int value2, float value3);

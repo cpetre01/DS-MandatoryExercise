@@ -38,7 +38,7 @@ DIR *open_db(void) {
 }
 
 
-int open_key_file(const int key, const char mode) {
+int open_keyfile(const int key, const char mode) {
     int key_fd;
     char key_str[MAX_STR_SIZE];
     snprintf(key_str, MAX_STR_SIZE, "%s/%d", DB_NAME, key);
@@ -57,7 +57,7 @@ int open_key_file(const int key, const char mode) {
 }
 
 
-int read_value(const int key_fd, char *value) {
+int read_value_from_keyfile(const int key_fd, char *value) {
     ssize_t bytes_read;     /* used for error handling of read_line calls */
 
     /* read value */
@@ -66,7 +66,7 @@ int read_value(const int key_fd, char *value) {
         perror("Error reading line");
         close(key_fd);
         return -1;
-    } else if (bytes_read == 0) {
+    } else if (!bytes_read) {
         fprintf(stderr, "Nothing was read\n");
         close(key_fd);
         return -1;
@@ -75,49 +75,7 @@ int read_value(const int key_fd, char *value) {
 }
 
 
-ssize_t read_line(const int fd, void *buffer, const size_t n) {
-    ssize_t bytes_read;             /* num of bytes fetched by last read() */
-    ssize_t bytes_read_total;       /* total bytes read so far */
-    char *buf;
-    char ch;
-
-    /* check arguments */
-    if (n <= 0 || buffer == NULL) {
-        errno = EINVAL;
-        return -1;
-    }
-
-    buf = buffer;
-    bytes_read_total = 0;
-    /* read from fd */
-    for (;;) {
-        bytes_read = read(fd, &ch, 1);	/* read a byte */
-        /* check what's been read */
-        if (bytes_read == -1) {
-            if (errno == EINTR)	                    /* interrupted -> restart read() */
-                continue;
-            else
-                return -1;		                    /* some other error */
-        } else if (bytes_read == 0) {	            /* EOF */
-            if (bytes_read_total == 0)	            /* no byres read; return 0 */
-                return 0;
-            else
-                break;
-        } else {			                        /* bytes_read must be 1 if we get here*/
-            if (ch == '\n' || ch == '\0')           /* break line or string end found, so line ends */
-                break;
-            if (bytes_read_total < n - 1) {		    /* discard > (n-1) bytes */
-                bytes_read_total++;
-                *buf++ = ch;
-            }
-        }
-    }
-    *buf = '\0';
-    return bytes_read_total;
-}
-
-
-int write_values(const int key_fd, const char *value1, const int *value2, const float *value3) {
+int write_values_to_keyfile(const int key_fd, const char *value1, const int *value2, const float *value3) {
     /* write item to key file, one value per line */
     if (dprintf(key_fd, "%s\n", value1) < 0) {
         fprintf(stderr, "Could not write value1\n");

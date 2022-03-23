@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
         switch (action) {
             case 1:
                 /* initializing server db */
-                if (init() == 0) {
+                if (!init()) {
                     printf("The Database has been initialized\n");
                 } else {
                     perror("The Database has not been initialized");
@@ -72,10 +72,11 @@ int main(int argc, char *argv[]) {
                     fprintf(stderr, "Please introduce a float\n");
                     continue;
                 }
+                printf("\n");
 
                 /* call the set_value function to perform the task */
                 int error = set_value(key, value1, value2, value3);
-                if (error == 0) {
+                if (!error) {
                     printf("The tuple was successfully inserted\n");
                 } else {
                     fprintf(stderr, "Error while inserting the tuple\n");
@@ -97,9 +98,11 @@ int main(int argc, char *argv[]) {
                     fprintf(stderr, "Please introduce an integer\n");
                     continue;
                 }
+                printf("\n");
+
                 /* calling the function */
                 int error = get_value(key, value1, &value2, &value3);
-                if (error == 0) {
+                if (!error) {
                     printf("The tuple with key %d stores value 1 = %s, value 2 = %d and value 3 = %f\n",
                            key, value1, value2, value3);
                 } else {
@@ -137,11 +140,12 @@ int main(int argc, char *argv[]) {
                     fprintf(stderr, "Please introduce a float\n");
                     continue;
                 }
+                printf("\n");
 
                 /* calling modify function */
                 int error = modify_value(key, value1, value2, value3);
 
-                if (error == 0) {
+                if (!error) {
                     printf("The tuple with key %d was modified to value 1 = %s, value 2 = %d and value 3 = %f\n",
                            key, value1, value2, value3);
                 } else {
@@ -161,10 +165,12 @@ int main(int argc, char *argv[]) {
                     fprintf(stderr, "Please introduce an integer\n");
                     continue;
                 }
+                printf("\n");
+
                 /* calling delete function */
                 int error = delete_key(key);
 
-                if (error == 0) {
+                if (!error) {
                     printf("The tuple with key %d was deleted.\n", key);
                 } else {
                     fprintf(stderr, "Error deleting the tuple\n");
@@ -183,13 +189,15 @@ int main(int argc, char *argv[]) {
                     fprintf(stderr, "Please introduce an integer\n");
                     continue;
                 }
+                printf("\n");
+
                 /* calling exists function and check for errors*/
                 int error = exist(key);
 
                 if(error == 1) {
                     printf("A tuple with the key %d is already stored.\n", key);
                 }
-                else if (error == 0) {
+                else if (!error) {
                     fprintf(stderr, "There are no tuples with the key %d already stored.\n", key);
                 }
                 else {

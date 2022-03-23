@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <errno.h>
 #include "include/utils.h"
 
@@ -17,7 +18,7 @@ int cast_value(const char *value_str, void *value, const char type) {
     int value2_str_to_int;
     float value3_str_to_float;
 
-    if (strlen(value_str) == 0) {
+    if (!strlen(value_str)) {
         fprintf(stderr, "String is empty\n");
         return -1;
     }
@@ -54,4 +55,46 @@ int cast_value(const char *value_str, void *value, const char type) {
     /* cast succeeded: set value */
     memcpy(value, cast_value, result_size);
     return 0;
+}
+
+
+ssize_t read_line(const int fd, void *buffer, const size_t n) {
+    ssize_t bytes_read;             /* num of bytes fetched by last read() */
+    ssize_t bytes_read_total;       /* total bytes read so far */
+    char *buf;
+    char ch;
+
+    /* check arguments */
+    if (n <= 0 || buffer == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    buf = buffer;
+    bytes_read_total = 0;
+    /* read from fd */
+    for (;;) {
+        bytes_read = read(fd, &ch, 1);	/* read a byte */
+        /* check what's been read */
+        if (bytes_read == -1) {
+            if (errno == EINTR)	                    /* interrupted -> restart read() */
+                continue;
+            else
+                return -1;		                    /* some other error */
+        } else if (!bytes_read) {	                /* EOF */
+            if (!bytes_read_total)	                /* no byres read; return 0 */
+                return 0;
+            else
+                break;
+        } else {			                        /* bytes_read must be 1 if we get here*/
+            if (ch == '\n' || ch == '\0')           /* break line or string end found, so line ends */
+                break;
+            if (bytes_read_total < n - 1) {		    /* discard > (n-1) bytes */
+                bytes_read_total++;
+                *buf++ = ch;
+            }
+        }
+    }
+    *buf = '\0';
+    return bytes_read_total;
 }

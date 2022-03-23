@@ -9,15 +9,15 @@
 
 
 /* prototypes */
-void copy_request(struct request *local_req, const struct request *request);
+void copy_request(request_t *local_req, const request_t *request);
 /* services */
-void init_db(struct request *request);
-void insert_item(struct request *request);
-void get_item(struct request *request);
-void modify_item(struct request *request);
-void delete_item(struct request *request);
-void item_exists(struct request *request);
-void get_num_items(struct request *request);
+void init_db(request_t *request);
+void insert_item(request_t *request);
+void get_item(request_t *request);
+void modify_item(request_t *request);
+void delete_item(request_t *request);
+void item_exists(request_t *request);
+void get_num_items(request_t *request);
 
 
 /* server queue */
@@ -34,13 +34,13 @@ pthread_mutex_t mutex_db;
 
 
 /* internal functions */
-void copy_request(struct request *local_req, const struct request *request) {
+void copy_request(request_t *local_req, const request_t *request) {
     /* thread copies request to local request */
     pthread_mutex_lock(&mutex_req);
 
     local_req->id = request->id;
     local_req->op_code = request->op_code;
-    memcpy(&(local_req->item), &(request->item), sizeof(struct item));
+    memcpy(&(local_req->item), &(request->item), sizeof(item_t));
     strcpy(local_req->q_name,request->q_name);
 
     /* wake up server */
@@ -51,9 +51,9 @@ void copy_request(struct request *local_req, const struct request *request) {
 
 
 /* required functions */
-void init_db(struct request *request) {
+void init_db(request_t *request) {
     /* make a local copy of the client request */
-    struct request local_req;
+    request_t local_req;
     copy_request(&local_req, request);
 
     /* open client queue */
@@ -70,7 +70,7 @@ void init_db(struct request *request) {
     pthread_mutex_unlock(&mutex_db);
 
     /* create server reply */
-    struct reply server_reply;
+    reply_t server_reply;
     server_reply.id = local_req.id;
     server_reply.op_code = local_req.op_code;
 
@@ -86,7 +86,7 @@ void init_db(struct request *request) {
     }
 
     /* send server reply */
-    if (mq_send(client_q, (char *) &server_reply, sizeof(struct reply), 0) == -1) {
+    if (mq_send(client_q, (char *) &server_reply, sizeof(reply_t), 0) == -1) {
         perror("Error sending server reply");
         mq_close(client_q);
         pthread_exit((void *) -1);
@@ -95,9 +95,9 @@ void init_db(struct request *request) {
 }
 
 
-void insert_item(struct request *request) {
+void insert_item(request_t *request) {
     /* make a local copy of the client request */
-    struct request local_req;
+    request_t local_req;
     copy_request(&local_req, request);
 
     /* open client queue */
@@ -115,7 +115,7 @@ void insert_item(struct request *request) {
     pthread_mutex_unlock(&mutex_db);
 
     /* create server reply */
-    struct reply server_reply;
+    reply_t server_reply;
     server_reply.id = local_req.id;
     server_reply.op_code = local_req.op_code;
 
@@ -131,7 +131,7 @@ void insert_item(struct request *request) {
     }
 
     /* send server reply */
-    if (mq_send(client_q, (char *) &server_reply, sizeof(struct reply), 0) == -1) {
+    if (mq_send(client_q, (char *) &server_reply, sizeof(reply_t), 0) == -1) {
         perror("Error sending server reply");
         mq_close(client_q);
         pthread_exit((void *) -1);
@@ -140,9 +140,9 @@ void insert_item(struct request *request) {
 }
 
 
-void get_item(struct request *request) {
+void get_item(request_t *request) {
     /* make a local copy of the client request */
-    struct request local_req;
+    request_t local_req;
     copy_request(&local_req, request);
 
     /* open client queue */
@@ -160,7 +160,7 @@ void get_item(struct request *request) {
     pthread_mutex_unlock(&mutex_db);
 
     /* create server reply */
-    struct reply server_reply;
+    reply_t server_reply;
     server_reply.id = local_req.id;
     server_reply.op_code = local_req.op_code;
 
@@ -180,7 +180,7 @@ void get_item(struct request *request) {
     }
 
     /* send server reply */
-    if (mq_send(client_q, (char *) &server_reply, sizeof(struct reply), 0) == -1) {
+    if (mq_send(client_q, (char *) &server_reply, sizeof(reply_t), 0) == -1) {
         perror("Error sending server reply");
         mq_close(client_q);
         pthread_exit((void *) -1);
@@ -189,9 +189,9 @@ void get_item(struct request *request) {
 }
 
 
-void modify_item(struct request *request){
+void modify_item(request_t *request){
     /* make a local copy of the client request */
-    struct request local_req;
+    request_t local_req;
     copy_request(&local_req, request);
 
     /* open client queue */
@@ -209,7 +209,7 @@ void modify_item(struct request *request){
     pthread_mutex_unlock(&mutex_db);
 
     /* create server reply */
-    struct reply server_reply;
+    reply_t server_reply;
     server_reply.id = local_req.id;
     server_reply.op_code = local_req.op_code;
 
@@ -225,7 +225,7 @@ void modify_item(struct request *request){
     }
 
     /* send server reply */
-    if (mq_send(client_q, (char *) &server_reply, sizeof(struct reply), 0) == -1) {
+    if (mq_send(client_q, (char *) &server_reply, sizeof(reply_t), 0) == -1) {
         perror("Error sending server reply");
         mq_close(client_q);
         pthread_exit((void *) -1);
@@ -234,9 +234,9 @@ void modify_item(struct request *request){
 }
 
 
-void delete_item(struct request *request) {
+void delete_item(request_t *request) {
     /* make a local copy of the client request */
-    struct request local_req;
+    request_t local_req;
     copy_request(&local_req, request);
 
     /* open client queue */
@@ -253,7 +253,7 @@ void delete_item(struct request *request) {
     pthread_mutex_unlock(&mutex_db);
 
     /* create server reply */
-    struct reply server_reply;
+    reply_t server_reply;
     server_reply.id = local_req.id;
     server_reply.op_code = local_req.op_code;
 
@@ -269,7 +269,7 @@ void delete_item(struct request *request) {
     }
 
     /* send server reply */
-    if (mq_send(client_q, (char *) &server_reply, sizeof(struct reply), 0) == -1) {
+    if (mq_send(client_q, (char *) &server_reply, sizeof(reply_t), 0) == -1) {
         perror("Error sending server reply");
         mq_close(client_q);
         pthread_exit((void *) -1);
@@ -278,9 +278,9 @@ void delete_item(struct request *request) {
 }
 
 
-void item_exists(struct request *request) {
+void item_exists(request_t *request) {
     /* make a local copy of the client request */
-    struct request local_req;
+    request_t local_req;
     copy_request(&local_req, request);
 
     /* open client queue */
@@ -297,7 +297,7 @@ void item_exists(struct request *request) {
     pthread_mutex_unlock(&mutex_db);
 
     /* create server reply */
-    struct reply server_reply;
+    reply_t server_reply;
     server_reply.id = local_req.id;
     server_reply.op_code = local_req.op_code;
 
@@ -314,7 +314,7 @@ void item_exists(struct request *request) {
     }
 
     /* send server reply */
-    if (mq_send(client_q, (char *) &server_reply, sizeof(struct reply), 0) == -1) {
+    if (mq_send(client_q, (char *) &server_reply, sizeof(reply_t), 0) == -1) {
         perror("Error sending server reply");
         mq_close(client_q);
         pthread_exit((void *) -1);
@@ -323,9 +323,9 @@ void item_exists(struct request *request) {
 }
 
 
-void get_num_items(struct request *request) {
+void get_num_items(request_t *request) {
     /* make a local copy of the client request */
-    struct request local_req;
+    request_t local_req;
     copy_request(&local_req, request);
 
     /* open client queue */
@@ -342,7 +342,7 @@ void get_num_items(struct request *request) {
     pthread_mutex_unlock(&mutex_db);
 
     /* create server reply */
-    struct reply server_reply;
+    reply_t server_reply;
     server_reply.id = local_req.id;
     server_reply.op_code = local_req.op_code;
 
@@ -354,7 +354,7 @@ void get_num_items(struct request *request) {
     }
 
     /* send server reply */
-    if (mq_send(client_q, (char *) &server_reply, sizeof(struct reply), 0) == -1) {
+    if (mq_send(client_q, (char *) &server_reply, sizeof(reply_t), 0) == -1) {
         perror("Error sending server reply");
         mq_close(client_q);
         pthread_exit((void *) -1);
@@ -378,7 +378,7 @@ int main(void)
 {
     /* queue attributes */
     q_attr.mq_maxmsg = MSG_QUEUE_SIZE;
-    q_attr.mq_msgsize = sizeof(struct request);
+    q_attr.mq_msgsize = sizeof(request_t);
 
     pthread_attr_t th_attr;         /* thread attributes */
 
@@ -408,8 +408,8 @@ int main(void)
 
     while (TRUE) {
         /* receive client request */
-        struct request request;
-        if (mq_receive(server_q, (char *) &request, sizeof(struct request), 0) == -1) {
+        request_t request;
+        if (mq_receive(server_q, (char *) &request, sizeof(request), 0) == -1) {
             perror("server receiving error");
             continue;
         }

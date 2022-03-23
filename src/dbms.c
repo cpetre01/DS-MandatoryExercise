@@ -8,7 +8,7 @@
 #include "include/dbms.h"
 
 
-int db_list_db_items(void) {
+int db_list_items(void) {
     struct dirent *dir_ent;
     DIR *db = open_db();
 
@@ -18,7 +18,7 @@ int db_list_db_items(void) {
     }
 
     while ((dir_ent = readdir(db)) != NULL) {
-        if (strcmp(dir_ent->d_name, ".") == 0 || strcmp(dir_ent->d_name, "..") == 0)
+        if (!strcmp(dir_ent->d_name, ".") || !strcmp(dir_ent->d_name, ".."))
             continue;
         printf("%s\n", dir_ent->d_name);
     }
@@ -40,7 +40,7 @@ int db_get_num_items(void) {
     int num_items = 0;
 
     while ((dir_ent = readdir(db)) != NULL) {
-        if (strcmp(dir_ent->d_name, ".") == 0 || strcmp(dir_ent->d_name, "..") == 0)
+        if (!strcmp(dir_ent->d_name, ".") || !strcmp(dir_ent->d_name, ".."))
             continue;
         num_items++;
     }
@@ -64,7 +64,7 @@ int db_empty_db(void) {
 
     /* go through and delete all key files */
     while ((dir_ent = readdir(db)) != NULL) {
-        if (strcmp(dir_ent->d_name, ".") == 0 || strcmp(dir_ent->d_name, "..") == 0)
+        if (!strcmp(dir_ent->d_name, ".") || !strcmp(dir_ent->d_name, ".."))
             continue;
         if (remove(dir_ent->d_name) == -1) {
             perror("Couldn't delete entire DB");
@@ -83,7 +83,7 @@ int db_empty_db(void) {
 
 int db_item_exists(const int key) {
     /* open key file */
-    int key_fd = open_key_file(key, READ);
+    int key_fd = open_keyfile(key, READ);
 
     /* error if there is no file associated with that key */
     if (key_fd == -1) {
@@ -100,7 +100,7 @@ int db_item_exists(const int key) {
 int db_read_item(const int key, char *value1, int *value2, float *value3) {
     errno = 0;
     /* open key file */
-    int key_fd = open_key_file(key, READ);
+    int key_fd = open_keyfile(key, READ);
 
     /* error if there is no file associated with that key */
     if (key_fd == -1) {
@@ -110,12 +110,12 @@ int db_read_item(const int key, char *value1, int *value2, float *value3) {
     }
 
     /* read value1 */
-    if (read_value(key_fd, value1) == -1)
+    if (read_value_from_keyfile(key_fd, value1) == -1)
         return -1;
 
     /* read value2 */
     char value2_str[MAX_STR_SIZE];
-    if (read_value(key_fd, value2_str) == -1)
+    if (read_value_from_keyfile(key_fd, value2_str) == -1)
         return -1;
 
     /* cast value2_str to int */
@@ -126,7 +126,7 @@ int db_read_item(const int key, char *value1, int *value2, float *value3) {
 
     /* now read value3 */
     char value3_str[MAX_STR_SIZE];
-    if (read_value(key_fd, value3_str) == -1)
+    if (read_value_from_keyfile(key_fd, value3_str) == -1)
         return -1;
 
     /* cast value3_str to float */
@@ -148,7 +148,7 @@ int db_write_item(const int key, const char *value1, const int *value2, const fl
     }
 
     /* open key file */
-    int key_fd = open_key_file(key, mode);
+    int key_fd = open_keyfile(key, mode);
 
     /* error if there is no file associated with that key */
     if (key_fd == -1) {
@@ -157,16 +157,14 @@ int db_write_item(const int key, const char *value1, const int *value2, const fl
             case EEXIST:
                 perror("Key file already exists");
                 return -1;
-                break;
             default:
                 perror("Error opening key file");
                 return -1;
-                break;
         }
     }
 
     /* write item to key file, one value per line */
-    int result = write_values(key_fd, value1, value2, value3);
+    int result = write_values_to_keyfile(key_fd, value1, value2, value3);
 
     /* all three values were written at this point, so close file and return */
     close(key_fd);
@@ -176,7 +174,7 @@ int db_write_item(const int key, const char *value1, const int *value2, const fl
 
 int db_delete_item(const int key) {
     int exists = db_item_exists(key);
-    if (exists == 0)            /* key file doesn't exist */
+    if (!exists)                /* key file doesn't exist */
         return -1;
     else {                      /* key file does exist, so delete it */
         char key_file_name[MAX_STR_SIZE];
