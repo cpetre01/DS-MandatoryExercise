@@ -12,14 +12,13 @@ int db_list_items(void) {
     struct dirent *dir_ent;
     DIR *db = open_db();
 
-    if (db == NULL) {
+    if (!db) {
         perror("Could not open DB directory");
         return -1;
     }
 
     while ((dir_ent = readdir(db)) != NULL) {
-        if (!strcmp(dir_ent->d_name, ".") || !strcmp(dir_ent->d_name, ".."))
-            continue;
+        if (!strcmp(dir_ent->d_name, ".") || !strcmp(dir_ent->d_name, "..")) continue;
         printf("%s\n", dir_ent->d_name);
     }
 
@@ -32,7 +31,7 @@ int db_get_num_items(void) {
     struct dirent *dir_ent;
     DIR *db = open_db();
 
-    if (db == NULL) {
+    if (!db) {
         perror("Could not open DB directory");
         return -1;
     }
@@ -40,8 +39,7 @@ int db_get_num_items(void) {
     int num_items = 0;
 
     while ((dir_ent = readdir(db)) != NULL) {
-        if (!strcmp(dir_ent->d_name, ".") || !strcmp(dir_ent->d_name, ".."))
-            continue;
+        if (!strcmp(dir_ent->d_name, ".") || !strcmp(dir_ent->d_name, "..")) continue;
         num_items++;
     }
 
@@ -54,7 +52,7 @@ int db_empty_db(void) {
     struct dirent *dir_ent;
     DIR *db = open_db();
 
-    if (db == NULL) {
+    if (!db) {
         perror("Could not open DB directory");
         return -1;
     }
@@ -64,8 +62,8 @@ int db_empty_db(void) {
 
     /* go through and delete all key files */
     while ((dir_ent = readdir(db)) != NULL) {
-        if (!strcmp(dir_ent->d_name, ".") || !strcmp(dir_ent->d_name, ".."))
-            continue;
+        if (!strcmp(dir_ent->d_name, ".") || !strcmp(dir_ent->d_name, "..")) continue;
+
         if (remove(dir_ent->d_name) == -1) {
             perror("Couldn't delete entire DB");
             chdir("..");
@@ -85,11 +83,8 @@ int db_item_exists(const int key) {
     /* open key file */
     int key_fd = open_keyfile(key, READ);
 
-    /* error if there is no file associated with that key */
-    if (key_fd == -1) {
-        /* key file doesn't exist */
-        return 0;
-    }
+    /* if there is no file associated with that key */
+    if (key_fd == -1) return 0;     /* key file doesn't exist */
 
     /* key file was opened, so it exists */
     close(key_fd);
@@ -99,6 +94,7 @@ int db_item_exists(const int key) {
 
 int db_read_item(const int key, char *value1, int *value2, float *value3) {
     errno = 0;
+
     /* open key file */
     int key_fd = open_keyfile(key, READ);
 
@@ -110,13 +106,11 @@ int db_read_item(const int key, char *value1, int *value2, float *value3) {
     }
 
     /* read value1 */
-    if (read_value_from_keyfile(key_fd, value1, VALUE1_MAX_STR_SIZE) == -1)
-        return -1;
+    if (read_value_from_keyfile(key_fd, value1, VALUE1_MAX_STR_SIZE) == -1) return -1;
 
     /* read value2 */
     char value2_str[MAX_STR_SIZE];
-    if (read_value_from_keyfile(key_fd, value2_str, MAX_STR_SIZE) == -1)
-        return -1;
+    if (read_value_from_keyfile(key_fd, value2_str, MAX_STR_SIZE) == -1) return -1;
 
     /* cast value2_str to int */
     if (cast_value(value2_str, (void *) value2, INT) == -1) {
@@ -126,8 +120,7 @@ int db_read_item(const int key, char *value1, int *value2, float *value3) {
 
     /* now read value3 */
     char value3_str[MAX_STR_SIZE];
-    if (read_value_from_keyfile(key_fd, value3_str, MAX_STR_SIZE) == -1)
-        return -1;
+    if (read_value_from_keyfile(key_fd, value3_str, MAX_STR_SIZE) == -1) return -1;
 
     /* cast value3_str to float */
     if (cast_value(value3_str, (void *) value3, FLOAT) == -1) {
@@ -174,15 +167,15 @@ int db_write_item(const int key, const char *value1, const int *value2, const fl
 
 int db_delete_item(const int key) {
     int exists = db_item_exists(key);
-    if (!exists)                /* key file doesn't exist */
+    if (!exists) return -1;     /* key file doesn't exist */
+
+    /* key file does exist, so delete it */
+    char key_file_name[MAX_STR_SIZE];
+    snprintf(key_file_name, MAX_STR_SIZE, "%s/%d", DB_NAME, key);
+
+    if (remove(key_file_name) == -1) {
+        perror("Couldn't delete key file");
         return -1;
-    else {                      /* key file does exist, so delete it */
-        char key_file_name[MAX_STR_SIZE];
-        snprintf(key_file_name, MAX_STR_SIZE, "%s/%d", DB_NAME, key);
-        if (remove(key_file_name) == -1) {
-            perror("Couldn't delete key file");
-            return -1;
-        }
-        return 0;
     }
+    return 0;
 }

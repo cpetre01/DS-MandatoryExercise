@@ -14,7 +14,7 @@ DIR *open_db(void) {
 
     /* open DB directory */
     DIR *db = opendir(DB_NAME);
-    if (db == NULL) {
+    if (!db) {
         switch (errno) {
             case ENOENT:
                 /* create it if it doesn't exist*/
@@ -24,7 +24,7 @@ DIR *open_db(void) {
                 }
                 /* and open it */
                 db = opendir(DB_NAME);
-                if (db == NULL) {
+                if (!db) {
                     perror("Could not open DB directory after creating it");
                     return NULL;
                 }
@@ -39,20 +39,24 @@ DIR *open_db(void) {
 
 
 int open_keyfile(const int key, const char mode) {
-    int key_fd;
     char key_str[MAX_STR_SIZE];
     snprintf(key_str, MAX_STR_SIZE, "%s/%d", DB_NAME, key);
 
+    int key_fd;
     /* open key file */
-    if (mode == READ)
-        key_fd = open(key_str, O_RDONLY);
-    else if (mode == CREATE)
-        key_fd = open(key_str, O_WRONLY | O_CREAT | O_EXCL, 0600);
-    else if (mode == MODIFY)
-        key_fd = open(key_str, O_WRONLY | O_TRUNC);
-    else
-        return -1;
-
+    switch (mode) {
+        case READ:
+            key_fd = open(key_str, O_RDONLY);
+            break;
+        case CREATE:
+            key_fd = open(key_str, O_WRONLY | O_CREAT | O_EXCL, 0600);
+            break;
+        case MODIFY:
+            key_fd = open(key_str, O_WRONLY | O_TRUNC);
+            break;
+        default:
+            return -1;
+    }
     return key_fd;
 }
 

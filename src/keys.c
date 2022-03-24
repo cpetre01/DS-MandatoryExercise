@@ -14,28 +14,22 @@ char client_q_name[MAX_STR_SIZE];
 int open_server_q() {
     /* initializing server queue */
     server_q = mq_open(SERVER_QUEUE_NAME, O_WRONLY);
-    if (server_q == -1)
-        return -1;
-    else
-        return 0;
+    if (server_q == -1) return -1;
+    return 0;
 }
 
 
 int open_client_q() {
     /* initializing client queue */
     client_q = mq_open(client_q_name, O_CREAT|O_RDONLY, 0666, &attr);
-    if (client_q == -1)
-        return -1;
-    else
-        return 0;
+    if (client_q == -1) return -1;
+    return 0;
 }
 
 
 int close_server_q() {
-    if (mq_close(server_q) == -1)
-        return -1;
-    else
-        return 0;
+    if (mq_close(server_q) == -1) return -1;
+    return 0;
 }
 
 
@@ -44,12 +38,9 @@ int close_client_q() {
         mq_unlink(client_q_name);
         return -1;
     } else {
-        if (mq_unlink(client_q_name) == -1) {
-            return -1;
-        }
+        if (mq_unlink(client_q_name) == -1) return -1;
         return 0;
     }
-
 }
 
 
@@ -109,12 +100,8 @@ int init() {
     }
 
     /* check server reply */
-    if(reply.server_error_code == SUCCESS) {
-        return 0;
-    }else{
-        /* Otherwise, there was an error, so we return -1 */
-        return -1;
-    }
+    if(reply.server_error_code == SUCCESS) return 0;
+    return -1;      /* error */
 }
 
 
@@ -143,6 +130,7 @@ int set_value(int key, char *value1, int value2, float value3) {
         }
         return -1;
     }
+
     /* wait for the reply of the server */
     reply_t reply;
     if(mq_receive(client_q, (char *) &reply, sizeof(reply_t), 0) < 0) {
@@ -161,14 +149,9 @@ int set_value(int key, char *value1, int value2, float value3) {
         return -1;
     }
 
-    /* Finally, we check the reply from the server: */
-    if(reply.server_error_code == SUCCESS) {
-        /* This means that the server included the message properly */
-        return 0;
-    }else{
-        /* Otherwise, there was an error */
-        return -1;
-    }
+    /* check server reply */
+    if(reply.server_error_code == SUCCESS) return 0; /* the server included the message properly */
+    return -1;      /* error */
 }
 
 
@@ -214,17 +197,15 @@ int get_value(int key, char *value1, int *value2, float *value3) {
         return -1;
     }
 
-    /* Finally, we check the reply from the server: */
+    /* check server reply */
     if(reply.server_error_code == SUCCESS) {
         /* This means that the server included the message properly */
         strcpy(value1, reply.item.value1);
         *value2 = reply.item.value2;
         *value3 = reply.item.value3;
         return 0;
-    }else{
-        /* Otherwise, there was an error */
-        return -1;
     }
+    return -1;      /* error */
 }
 
 
@@ -272,12 +253,9 @@ int modify_value(int key, char *value1, int value2, float value3) {
         return -1;
     }
 
-    /* Finally, we check the reply from the server: */
-    if(reply.server_error_code == SUCCESS) {
-        return 0;
-    }else{
-        return -1;
-    }
+    /* check server reply */
+    if(reply.server_error_code == SUCCESS) return 0;
+    return -1;      /* error */
 }
 
 
@@ -324,13 +302,9 @@ int delete_key(int key) {
         return -1;
     }
 
-    /* check value */
-    if(reply.server_error_code == SUCCESS) {
-        return 0;
-    }else{
-        /*error*/
-        return -1;
-    }
+    /* check server reply */
+    if(reply.server_error_code == SUCCESS) return 0;
+    return -1;  /* error */
 }
 
 
@@ -377,14 +351,9 @@ int exist(int key) {
         return -1;
     }
 
-    /* check value */
-    if(reply.server_error_code == EXISTS) {
-        return 1;
-    }
-    else if(reply.server_error_code == NOT_EXISTS){
-        /*error*/
-        return 0;
-    }
+    /* check server reply */
+    if(reply.server_error_code == EXISTS) return 1;
+    else if(reply.server_error_code == NOT_EXISTS) return 0;
 }
 
 
@@ -429,9 +398,9 @@ int num_items() {
         return -1;
     }
 
-    if(reply.server_error_code == ERROR) {
-        return -1;
-    } else {
+    /* check server reply */
+    if(reply.server_error_code == ERROR) return -1;
+    else {
         int num_items;
         memcpy(&num_items, &reply.num_items, sizeof(int));
         return num_items;

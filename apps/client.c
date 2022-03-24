@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     int control_var = TRUE;
     while (control_var == TRUE) {
         /* display available actions */
-        int action; char action_str[2];
+        int action; char action_str[ACTION_STR_LEN];
         printf("The possible operations to perform are the following:"
                "\n1. Initialize DataBase\n2. Insert a new tuple\n3. Obtain an existing tuple\n"
                "4. Modify an existing tuple\n5. Delete a tuple\n6. Check if a tuple is already stored\n"

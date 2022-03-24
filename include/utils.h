@@ -3,6 +3,7 @@
 #define FALSE 0
 #define MAX_STR_SIZE 512            /* generic string size */
 #define VALUE1_MAX_STR_SIZE 255     /* size of value1 string */
+#define ACTION_STR_LEN 2            /* size of client interface action string */
 #define DB_NAME "db"                /* database directory name */
 
 /* message queue stuff */
