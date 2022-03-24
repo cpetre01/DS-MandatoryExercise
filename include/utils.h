@@ -1,3 +1,6 @@
+#ifndef UTILS_H
+#define UTILS_H
+
 /* utilities */
 #define TRUE 1
 #define FALSE 0
@@ -79,3 +82,5 @@ typedef struct {
     item_t item;                /* struct containing all required elements
  *                              of an item */
 } reply_t;
+
+#endif //UTILS_H

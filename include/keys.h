@@ -1,3 +1,6 @@
+#ifndef KEYS_H
+#define KEYS_H
+
 /* internal functions used to work with queues */
 int open_server_q();
 int open_client_q();
@@ -15,3 +18,5 @@ int modify_value(int key, char *value1, int value2, float value3);
 int delete_key(int key);
 int exist(int key);
 int num_items();
+
+#endif //KEYS_H
