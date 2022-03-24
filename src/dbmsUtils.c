@@ -57,11 +57,11 @@ int open_keyfile(const int key, const char mode) {
 }
 
 
-int read_value_from_keyfile(const int key_fd, char *value) {
+int read_value_from_keyfile(const int key_fd, char *value, const size_t size) {
     ssize_t bytes_read;     /* used for error handling of read_line calls */
 
     /* read value */
-    bytes_read = read_line(key_fd, value, MAX_STR_SIZE);
+    bytes_read = read_line(key_fd, value, size);
     if (bytes_read == -1) {
         perror("Error reading line");
         close(key_fd);

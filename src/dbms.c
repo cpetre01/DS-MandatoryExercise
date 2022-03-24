@@ -110,12 +110,12 @@ int db_read_item(const int key, char *value1, int *value2, float *value3) {
     }
 
     /* read value1 */
-    if (read_value_from_keyfile(key_fd, value1) == -1)
+    if (read_value_from_keyfile(key_fd, value1, VALUE1_MAX_STR_SIZE) == -1)
         return -1;
 
     /* read value2 */
     char value2_str[MAX_STR_SIZE];
-    if (read_value_from_keyfile(key_fd, value2_str) == -1)
+    if (read_value_from_keyfile(key_fd, value2_str, MAX_STR_SIZE) == -1)
         return -1;
 
     /* cast value2_str to int */
@@ -126,7 +126,7 @@ int db_read_item(const int key, char *value1, int *value2, float *value3) {
 
     /* now read value3 */
     char value3_str[MAX_STR_SIZE];
-    if (read_value_from_keyfile(key_fd, value3_str) == -1)
+    if (read_value_from_keyfile(key_fd, value3_str, MAX_STR_SIZE) == -1)
         return -1;
 
     /* cast value3_str to float */

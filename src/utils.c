@@ -61,8 +61,7 @@ int cast_value(const char *value_str, void *value, const char type) {
 ssize_t read_line(const int fd, void *buffer, const size_t n) {
     ssize_t bytes_read;             /* num of bytes fetched by last read() */
     ssize_t bytes_read_total;       /* total bytes read so far */
-    char *buf;
-    char ch;
+    char *buf, ch;
 
     /* check arguments */
     if (n <= 0 || buffer == NULL) {
@@ -73,7 +72,7 @@ ssize_t read_line(const int fd, void *buffer, const size_t n) {
     buf = buffer;
     bytes_read_total = 0;
     /* read from fd */
-    for (;;) {
+    while (TRUE) {
         bytes_read = read(fd, &ch, 1);	/* read a byte */
         /* check what's been read */
         if (bytes_read == -1) {

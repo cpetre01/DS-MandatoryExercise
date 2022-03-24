@@ -6,7 +6,7 @@
 
 void test_write_item(const int key)
 {
-    char value1[MAX_STR_SIZE] = "test";
+    char value1[VALUE1_MAX_STR_SIZE] = "test";
     int value2 = 123456789;
     float value3 = 1.123456789f;
 
@@ -25,7 +25,7 @@ void test_write_item(const int key)
 
 void test_modify_item(const int key)
 {
-    char value1[MAX_STR_SIZE] = "test_modify_item";
+    char value1[VALUE1_MAX_STR_SIZE] = "test_modify_item";
     int value2 = 987654321;
     float value3 = 9.987654321f;
 
@@ -45,7 +45,7 @@ void test_modify_item(const int key)
 
 void test_read_item(const int key)
 {
-    char value1[MAX_STR_SIZE];
+    char value1[VALUE1_MAX_STR_SIZE];
     int value2;
     float value3;
 

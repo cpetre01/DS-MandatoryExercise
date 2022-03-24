@@ -56,10 +56,9 @@ int close_client_q() {
 void client_queue_init(char *client_name) {
     /* function to create each client's queue */
     /* This function receives as argument the name of the client, and creates the queue name */
-    strcpy(client_q_name,CLIENT_QUEUE_NAME_TEMPLATE);
-    strcat(client_q_name, client_name);
+    snprintf(client_q_name, MAX_STR_SIZE, "%s_%s", CLIENT_QUEUE_NAME_TEMPLATE, client_name);
 
-    /* We will allow a maximum of 5 messages on the queue */
+    /* set maximum number of allowed messages on the queue */
     attr.mq_maxmsg = MSG_QUEUE_SIZE;
     /* The maximum message size will be the maximum size of the reply struct */
     attr.mq_msgsize = sizeof(reply_t);

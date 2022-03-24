@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
             case 2: {
                 /* insert a new tuple */
                 int key; char key_str[MAX_STR_SIZE];
-                char value1[MAX_STR_SIZE];
+                char value1[VALUE1_MAX_STR_SIZE];
                 int value2; char value2_str[MAX_STR_SIZE];
                 float value3; char value3_str[MAX_STR_SIZE];
 
@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
             case 3: {
                 /* obtain an existing tuple */
                 int key; char key_str[MAX_STR_SIZE];
-                char value1[MAX_STR_SIZE];
+                char value1[VALUE1_MAX_STR_SIZE];
                 int value2;
                 float value3;
 
@@ -114,7 +114,7 @@ int main(int argc, char *argv[]) {
             case 4: {
                 /* modify an existing tuple */
                 int key; char key_str[MAX_STR_SIZE];
-                char value1[MAX_STR_SIZE];
+                char value1[VALUE1_MAX_STR_SIZE];
                 int value2; char value2_str[MAX_STR_SIZE];
                 float value3; char value3_str[MAX_STR_SIZE];
 

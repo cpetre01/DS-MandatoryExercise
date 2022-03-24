@@ -1,13 +1,14 @@
 /* utilities */
 #define TRUE 1
 #define FALSE 0
-#define MAX_STR_SIZE 255
-#define DB_NAME "db"
+#define MAX_STR_SIZE 512            /* generic string size */
+#define VALUE1_MAX_STR_SIZE 255     /* size of value1 string */
+#define DB_NAME "db"                /* database directory name */
 
 /* message queue stuff */
 #define MSG_QUEUE_SIZE 5
 #define SERVER_QUEUE_NAME "/server_queue"
-#define CLIENT_QUEUE_NAME_TEMPLATE "/client_"
+#define CLIENT_QUEUE_NAME_TEMPLATE "/client_queue"
 
 /* services: operation codes */
 #define INIT 'a'
@@ -43,16 +44,16 @@ ssize_t read_line(int fd, void *buffer, size_t n);
 /* types */
 
 /* type used to represent the actual elements to be stored */
-typedef struct item {
+typedef struct {
     /* item to be stored */
-    int key;                    /* key attribute */
-    char value1[MAX_STR_SIZE];  /* string attribute */
-    int value2;                 /* int attribute */
-    float value3;               /* float attribute */
+    int key;                            /* key attribute */
+    char value1[VALUE1_MAX_STR_SIZE];   /* string attribute */
+    int value2;                         /* int attribute */
+    float value3;                       /* float attribute */
 } item_t;
 
 /* types used for process communication */
-typedef struct request {
+typedef struct {
     /* client request */
     int id;                     /* transaction ID */
     char op_code;               /* operation code that indicates the client API
@@ -64,7 +65,7 @@ typedef struct request {
 
 } request_t;
 
-typedef struct reply {
+typedef struct {
     /* server reply */
     int id;                     /* transaction ID */
     char op_code;               /* operation code that indicates the client API
