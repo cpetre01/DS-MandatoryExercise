@@ -10,14 +10,15 @@
 
 /* prototypes */
 void copy_request(request_t *local_req, const request_t *request);
+void service_thread(request_t *request);
 /* services */
-void init_db(request_t *request);
-void insert_item(request_t *request);
-void get_item(request_t *request);
-void modify_item(request_t *request);
-void delete_item(request_t *request);
-void item_exists(request_t *request);
-void get_num_items(request_t *request);
+void init_db(request_t *request, reply_t *server_reply);
+void insert_item(request_t *request, reply_t *server_reply);
+void get_item(request_t *request, reply_t *server_reply);
+void modify_item(request_t *request, reply_t *server_reply);
+void delete_item(request_t *request, reply_t *server_reply);
+void item_exists(request_t *request, reply_t *server_reply);
+void get_num_items(request_t *request, reply_t *server_reply);
 
 
 /* server queue */
@@ -51,7 +52,7 @@ void copy_request(request_t *local_req, const request_t *request) {
 
 
 /* required functions */
-void init_db(request_t *request) {
+void service_thread(request_t *request) {
     /* make a local copy of the client request */
     request_t local_req;
     copy_request(&local_req, request);
@@ -64,302 +65,161 @@ void init_db(request_t *request) {
         pthread_exit((void *) -1);
     }
 
+    /* execute client request */
+    reply_t server_reply;
+    switch (local_req.op_code) {
+        case INIT:          init_db(&local_req, &server_reply); break;
+        case SET_VALUE:     insert_item(&local_req, &server_reply); break;
+        case GET_VALUE:     get_item(&local_req, &server_reply); break;
+        case MODIFY_VALUE:  modify_item(&local_req, &server_reply); break;
+        case DELETE_KEY:    delete_item(&local_req, &server_reply); break;
+        case EXIST:         item_exists(&local_req, &server_reply); break;
+        case NUM_ITEMS:     get_num_items(&local_req, &server_reply); break;
+        default: break;     /* invalid operation */
+    }
+
+    /* send server reply */
+    if (mq_send(client_q, (char *) &server_reply, sizeof(reply_t), 0) == -1) {
+        perror("Error sending server reply");
+        mq_close(client_q);
+        pthread_exit((void *) -1);
+    }
+    pthread_exit(0);
+}
+
+
+void init_db(request_t *request, reply_t *server_reply) {
     /* execute client request */
     pthread_mutex_lock(&mutex_db);
     int req_error_code = db_empty_db();
     pthread_mutex_unlock(&mutex_db);
 
-    /* create server reply */
-    reply_t server_reply;
-    server_reply.id = local_req.id;
-    server_reply.op_code = local_req.op_code;
+    /* fill server reply */
+    server_reply->id = request->id;
+    server_reply->op_code = request->op_code;
 
     switch (req_error_code) {
-        case 0:
-            server_reply.server_error_code = SUCCESS;
-            break;
-        case -1:
-            server_reply.server_error_code = ERROR;
-            break;
-        default:
-            break;
+        case 0: server_reply->server_error_code = SUCCESS; break;
+        case -1: server_reply->server_error_code = ERROR; break;
+        default: break;
     }
-
-    /* send server reply */
-    if (mq_send(client_q, (char *) &server_reply, sizeof(reply_t), 0) == -1) {
-        perror("Error sending server reply");
-        mq_close(client_q);
-        pthread_exit((void *) -1);
-    }
-    pthread_exit(0);
 }
 
 
-void insert_item(request_t *request) {
-    /* make a local copy of the client request */
-    request_t local_req;
-    copy_request(&local_req, request);
-
-    /* open client queue */
-    mqd_t client_q;
-    client_q = mq_open(local_req.q_name, O_WRONLY);
-    if (client_q == -1) {
-        perror("Can't open client queue");
-        pthread_exit((void *) -1);
-    }
-
+void insert_item(request_t *request, reply_t *server_reply) {
     /* execute client request */
     pthread_mutex_lock(&mutex_db);
-    int req_error_code = db_write_item(local_req.item.key, local_req.item.value1,
-                                       &(local_req.item.value2),&(local_req.item.value3), CREATE);
+    int req_error_code = db_write_item(request->item.key, request->item.value1,
+                                       &(request->item.value2),&(request->item.value3), CREATE);
     pthread_mutex_unlock(&mutex_db);
 
-    /* create server reply */
-    reply_t server_reply;
-    server_reply.id = local_req.id;
-    server_reply.op_code = local_req.op_code;
+    /* fill server reply */
+    server_reply->id = request->id;
+    server_reply->op_code = request->op_code;
 
     switch (req_error_code) {
-        case 0:
-            server_reply.server_error_code = SUCCESS;
-            break;
-        case -1:
-            server_reply.server_error_code = ERROR;
-            break;
-        default:
-            break;
+        case 0: server_reply->server_error_code = SUCCESS; break;
+        case -1: server_reply->server_error_code = ERROR; break;
+        default: break;
     }
-
-    /* send server reply */
-    if (mq_send(client_q, (char *) &server_reply, sizeof(reply_t), 0) == -1) {
-        perror("Error sending server reply");
-        mq_close(client_q);
-        pthread_exit((void *) -1);
-    }
-    pthread_exit(0);
 }
 
 
-void get_item(request_t *request) {
-    /* make a local copy of the client request */
-    request_t local_req;
-    copy_request(&local_req, request);
-
-    /* open client queue */
-    mqd_t client_q;
-    client_q = mq_open(local_req.q_name, O_WRONLY);
-    if (client_q == -1) {
-        perror("Can't open client queue");
-        pthread_exit((void *) -1);
-    }
-
+void get_item(request_t *request, reply_t *server_reply) {
     /* execute client request */
     pthread_mutex_lock(&mutex_db);
-    int req_error_code = db_read_item(local_req.item.key, local_req.item.value1,
-                                       &(local_req.item.value2), &(local_req.item.value3));
+    int req_error_code = db_read_item(request->item.key, request->item.value1,
+                                      &(request->item.value2), &(request->item.value3));
     pthread_mutex_unlock(&mutex_db);
 
-    /* create server reply */
-    reply_t server_reply;
-    server_reply.id = local_req.id;
-    server_reply.op_code = local_req.op_code;
+    /* fill server reply */
+    server_reply->id = request->id;
+    server_reply->op_code = request->op_code;
 
     switch (req_error_code) {
         case 0:
-            server_reply.server_error_code = SUCCESS;
-            server_reply.item.key = local_req.item.key;
-            strcpy(server_reply.item.value1, local_req.item.value1);
-            server_reply.item.value2 = local_req.item.value2;
-            server_reply.item.value3 = local_req.item.value3;
+            server_reply->server_error_code = SUCCESS;
+            server_reply->item.key = request->item.key;
+            strcpy(server_reply->item.value1, request->item.value1);
+            server_reply->item.value2 = request->item.value2;
+            server_reply->item.value3 = request->item.value3;
             break;
-        case -1:
-            server_reply.server_error_code = ERROR;
-            break;
-        default:
-            break;
+        case -1: server_reply->server_error_code = ERROR; break;
+        default: break;
     }
-
-    /* send server reply */
-    if (mq_send(client_q, (char *) &server_reply, sizeof(reply_t), 0) == -1) {
-        perror("Error sending server reply");
-        mq_close(client_q);
-        pthread_exit((void *) -1);
-    }
-    pthread_exit(0);
 }
 
 
-void modify_item(request_t *request){
-    /* make a local copy of the client request */
-    request_t local_req;
-    copy_request(&local_req, request);
-
-    /* open client queue */
-    mqd_t client_q;
-    client_q = mq_open(local_req.q_name, O_WRONLY);
-    if (client_q == -1) {
-        perror("Can't open client queue");
-        pthread_exit((void *) -1);
-    }
-
+void modify_item(request_t *request, reply_t *server_reply){
     /* execute client request */
     pthread_mutex_lock(&mutex_db);
-    int req_error_code = db_write_item(local_req.item.key, local_req.item.value1,
-                                       &(local_req.item.value2), &(local_req.item.value3), MODIFY);
+    int req_error_code = db_write_item(request->item.key, request->item.value1,
+                                       &(request->item.value2), &(request->item.value3), MODIFY);
     pthread_mutex_unlock(&mutex_db);
 
-    /* create server reply */
-    reply_t server_reply;
-    server_reply.id = local_req.id;
-    server_reply.op_code = local_req.op_code;
+    /* fill server reply */
+    server_reply->id = request->id;
+    server_reply->op_code = request->op_code;
 
     switch (req_error_code) {
-        case 0:
-            server_reply.server_error_code = SUCCESS;
-            break;
-        case -1:
-            server_reply.server_error_code = ERROR;
-            break;
-        default:
-            break;
+        case 0: server_reply->server_error_code = SUCCESS; break;
+        case -1: server_reply->server_error_code = ERROR; break;
+        default: break;
     }
-
-    /* send server reply */
-    if (mq_send(client_q, (char *) &server_reply, sizeof(reply_t), 0) == -1) {
-        perror("Error sending server reply");
-        mq_close(client_q);
-        pthread_exit((void *) -1);
-    }
-    pthread_exit(0);
 }
 
 
-void delete_item(request_t *request) {
-    /* make a local copy of the client request */
-    request_t local_req;
-    copy_request(&local_req, request);
-
-    /* open client queue */
-    mqd_t client_q;
-    client_q = mq_open(local_req.q_name, O_WRONLY);
-    if (client_q == -1) {
-        perror("Can't open client queue");
-        pthread_exit((void *) -1);
-    }
-
+void delete_item(request_t *request, reply_t *server_reply) {
     /* execute client request */
     pthread_mutex_lock(&mutex_db);
-    int req_error_code = db_delete_item(local_req.item.key);
+    int req_error_code = db_delete_item(request->item.key);
     pthread_mutex_unlock(&mutex_db);
 
-    /* create server reply */
-    reply_t server_reply;
-    server_reply.id = local_req.id;
-    server_reply.op_code = local_req.op_code;
+    /* fill server reply */
+    server_reply->id = request->id;
+    server_reply->op_code = request->op_code;
 
     switch (req_error_code) {
-        case 0:
-            server_reply.server_error_code = SUCCESS;
-            break;
-        case -1:
-            server_reply.server_error_code = ERROR;
-            break;
-        default:
-            break;
+        case 0: server_reply->server_error_code = SUCCESS; break;
+        case -1: server_reply->server_error_code = ERROR; break;
+        default: break;
     }
-
-    /* send server reply */
-    if (mq_send(client_q, (char *) &server_reply, sizeof(reply_t), 0) == -1) {
-        perror("Error sending server reply");
-        mq_close(client_q);
-        pthread_exit((void *) -1);
-    }
-    pthread_exit(0);
 }
 
 
-void item_exists(request_t *request) {
-    /* make a local copy of the client request */
-    request_t local_req;
-    copy_request(&local_req, request);
-
-    /* open client queue */
-    mqd_t client_q;
-    client_q = mq_open(local_req.q_name, O_WRONLY);
-    if (client_q == -1) {
-        perror("Can't open client queue");
-        pthread_exit((void *) -1);
-    }
-
+void item_exists(request_t *request, reply_t *server_reply) {
     /* execute client request */
     pthread_mutex_lock(&mutex_db);
-    int req_error_code = db_item_exists(local_req.item.key);
+    int req_error_code = db_item_exists(request->item.key);
     pthread_mutex_unlock(&mutex_db);
 
-    /* create server reply */
-    reply_t server_reply;
-    server_reply.id = local_req.id;
-    server_reply.op_code = local_req.op_code;
+    /* fill server reply */
+    server_reply->id = request->id;
+    server_reply->op_code = request->op_code;
 
     switch (req_error_code) {
-        case 1:
-            server_reply.server_error_code = EXISTS;
-            break;
-        case 0:
-            server_reply.server_error_code = NOT_EXISTS;
-            break;
-        default:
-            break;
-
+        case 1: server_reply->server_error_code = EXISTS; break;
+        case 0: server_reply->server_error_code = NOT_EXISTS; break;
+        default: break;
     }
-
-    /* send server reply */
-    if (mq_send(client_q, (char *) &server_reply, sizeof(reply_t), 0) == -1) {
-        perror("Error sending server reply");
-        mq_close(client_q);
-        pthread_exit((void *) -1);
-    }
-    pthread_exit(0);
 }
 
 
-void get_num_items(request_t *request) {
-    /* make a local copy of the client request */
-    request_t local_req;
-    copy_request(&local_req, request);
-
-    /* open client queue */
-    mqd_t client_q;
-    client_q = mq_open(local_req.q_name, O_WRONLY);
-    if (client_q == -1) {
-        perror("Can't open client queue");
-        pthread_exit((void *) -1);
-    }
-
+void get_num_items(request_t *request, reply_t *server_reply) {
     /* execute client request */
     pthread_mutex_lock(&mutex_db);
     int num_items = db_get_num_items();
     pthread_mutex_unlock(&mutex_db);
 
-    /* create server reply */
-    reply_t server_reply;
-    server_reply.id = local_req.id;
-    server_reply.op_code = local_req.op_code;
+    /* fill server reply */
+    server_reply->id = request->id;
+    server_reply->op_code = request->op_code;
 
-    if (num_items == -1) {
-        server_reply.server_error_code = ERROR;
-    } else {
-        server_reply.num_items = num_items;
-        server_reply.server_error_code = SUCCESS;
+    if (num_items == -1) server_reply->server_error_code = ERROR;
+    else {
+        server_reply->num_items = num_items;
+        server_reply->server_error_code = SUCCESS;
     }
-
-    /* send server reply */
-    if (mq_send(client_q, (char *) &server_reply, sizeof(reply_t), 0) == -1) {
-        perror("Error sending server reply");
-        mq_close(client_q);
-        pthread_exit((void *) -1);
-    }
-    pthread_exit(0);
 }
 
 
@@ -380,8 +240,10 @@ int main(void)
     q_attr.mq_maxmsg = MSG_QUEUE_SIZE;
     q_attr.mq_msgsize = sizeof(request_t);
 
-    pthread_attr_t th_attr;         /* thread attributes */
+    pthread_t thid;                 /* service thread id */
+    pthread_attr_t th_attr;         /* service thread attributes */
 
+    /* get server up & running */
     server_q = mq_open(SERVER_QUEUE_NAME, O_CREAT | O_RDONLY, 0666, &q_attr);
     if (server_q == -1) {
         perror("Can't create server queue");
@@ -395,7 +257,7 @@ int main(void)
     pthread_cond_init(&cond_req, NULL);
     pthread_attr_init(&th_attr);
 
-    /* thread attributes */
+    /* make service thread detached */
     pthread_attr_setdetachstate(&th_attr, PTHREAD_CREATE_DETACHED);
 
     /* set up SIGINT (CTRL+C) signal handler to shut down server */
@@ -414,38 +276,15 @@ int main(void)
             continue;
         }
 
-
-        /* launch thread to process client request */
-        pthread_t thid;
         /* parse request */
-        switch (request.op_code) {
-            case INIT:
-                pthread_create(&thid, &th_attr, (void *(*)(void *)) init_db, &request);
-                break;
-            case SET_VALUE:
-                pthread_create(&thid, &th_attr, (void *(*)(void *)) insert_item, &request);
-                break;
-            case GET_VALUE:
-                pthread_create(&thid, &th_attr, (void *(*)(void *)) get_item, &request);
-                break;
-            case MODIFY_VALUE:
-                pthread_create(&thid, &th_attr, (void *(*)(void *)) modify_item, &request);
-                break;
-            case DELETE_KEY:
-                pthread_create(&thid, &th_attr, (void *(*)(void *)) delete_item, &request);
-                break;
-            case EXIST:
-                pthread_create(&thid, &th_attr, (void *(*)(void *)) item_exists, &request);
-                break;
-            case NUM_ITEMS:
-                pthread_create(&thid, &th_attr, (void *(*)(void *)) get_num_items, &request);
-                break;
-            default:
-                /* invalid operation */
-                continue;
-        }
+        if (request.op_code == INIT || request.op_code == SET_VALUE || request.op_code == GET_VALUE ||
+            request.op_code == MODIFY_VALUE || request.op_code == DELETE_KEY || request.op_code == EXIST ||
+            request.op_code == NUM_ITEMS)
+            /* launch service thread to process client request */
+            pthread_create(&thid, &th_attr, (void *) service_thread, &request);
+        else continue;      /* invalid operation */
 
-        /* wait for launched thread to copy request */
+        /* wait for launched service thread to copy request */
         pthread_mutex_lock(&mutex_req);
         while (!req_copied)
             pthread_cond_wait(&cond_req, &mutex_req);
