@@ -4,228 +4,172 @@
 #include "include/keys.h"
 
 
+/* some common messages to print */
+const char display_actions_str[] = "The possible operations to perform are the following:\n"
+                                   "1. Initialize DataBase\n"
+                                   "2. Insert a new tuple\n"
+                                   "3. Obtain an existing tuple\n"
+                                   "4. Modify an existing tuple\n"
+                                   "5. Delete a tuple\n"
+                                   "6. Check if a tuple is already stored\n"
+                                   "7. How many tuples are stored?\n"
+                                   "8. Exit\n";
+/* prompts */
+const char ask_key_prompt[] = "Please, enter the key";
+const char ask_key_delete_prompt[] = "Please, enter the key of the tuple to delete";
+const char ask_key_exist_prompt[] = "Please, enter the key of the tuple to search for";
+const char ask_value1_prompt[] = "Please, enter value1";
+const char ask_value2_prompt[] = "Please, enter value2";
+const char ask_value3_prompt[] = "Please, enter value3";
+/* input errors */
+const char action_error[] = "Please, select one of the previously defined actions";
+const char int_required_error[] = "Please, enter an integer";
+const char float_required_error[] = "Please, enter a real number";
+
+
+int get_key(int *key, const char *prompt_str);
+int get_key_and_values(int *key, char *value1, int *value2, float *value3);
+
+
+int get_key(int *key, const char *prompt_str) {
+    char key_str[MAX_STR_SIZE];
+
+    /* ask for the key */
+    printf("%s: ", prompt_str); scanf("%s", key_str);
+    if (cast_value(key_str, (void *) key, INT) == -1) {
+        fprintf(stderr, "%s\n", int_required_error);
+        return -1;
+    }
+    return 0;
+}
+
+
+int get_key_and_values(int *key, char *value1, int *value2, float *value3) {
+    char value2_str[MAX_STR_SIZE]; char value3_str[MAX_STR_SIZE];
+
+    /* ask for the key */
+    if (get_key(key, ask_key_prompt) == -1) return -1;
+
+    /* ask for the values */
+    printf("%s: ", ask_value1_prompt); scanf("%s", value1);
+    printf("%s: ", ask_value2_prompt); scanf("%s", value2_str);
+    if (cast_value(value2_str, (void *) value2, INT) == -1) {
+        fprintf(stderr, "%s\n", int_required_error);
+        return -1;
+    }
+    printf("%s: ", ask_value3_prompt); scanf("%s", value3_str);
+    if (cast_value(value3_str, (void *) value3, FLOAT) == -1) {
+        fprintf(stderr, "%s\n", float_required_error);
+        return -1;
+    }
+    return 0;
+}
+
+
 int main(int argc, char *argv[]) {
+    int control_var = TRUE;
+
     if (argc != 2) {
         perror("Usage client <clientName>\n");
         exit(0);
     }
 
-    /* initializing the queue */
+    /* initializing the client queue */
     client_queue_init(argv[1]);
 
     /* loop to control client requests */
-    int control_var = TRUE;
-    while (control_var == TRUE) {
+    while (control_var) {
         /* display available actions */
         int action; char action_str[ACTION_STR_LEN];
-        printf("The possible operations to perform are the following:"
-               "\n1. Initialize DataBase\n2. Insert a new tuple\n3. Obtain an existing tuple\n"
-               "4. Modify an existing tuple\n5. Delete a tuple\n6. Check if a tuple is already stored\n"
-               "7. How many tuples are stored?\n8. Exit\n");
+        printf("\n%s\n", display_actions_str);
 
         /* ask for an action */
-        printf("Please, insert the number of the operation to perform: ");
-        scanf("%s", action_str);
+        printf("Please, insert the number of the operation to perform: "); scanf("%s", action_str);
         while ((cast_value(action_str, (void *) &action, INT) == -1) || (action < 1) || (action > 8)) {
-            printf("Please, select one of the previously defined actions");
-            scanf("%s", action_str);
+            fprintf(stderr, "%s", action_error); scanf("%s", action_str);
         } // end inner while
-        printf("\n");
 
         /* continue with chosen action */
         switch (action) {
-            case 1:
-                /* initializing server db */
-                if (!init()) {
-                    printf("The Database has been initialized\n");
-                } else {
-                    perror("The Database has not been initialized");
-                    continue;
-                }
-                printf("\n");
+            case 1: {       /* initializing server db */
+                if (!init()) fprintf(stderr, "\nThe Database has been initialized\n");
+                else perror("\nThe Database has not been initialized");
                 break;
-            case 2: {
-                /* insert a new tuple */
-                int key; char key_str[MAX_STR_SIZE];
-                char value1[VALUE1_MAX_STR_SIZE];
-                int value2; char value2_str[MAX_STR_SIZE];
-                float value3; char value3_str[MAX_STR_SIZE];
+            } // end case 1
+            case 2: {       /* insert a new tuple */
+                int key; char value1[VALUE1_MAX_STR_SIZE]; int value2; float value3;
 
                 /* ask for the values and key */
-                printf("Introduce the value for the key: ");
-                scanf("%s", key_str);
-                if (cast_value(key_str, (void *) &key, INT) == -1) {
-                    fprintf(stderr, "Please introduce an integer\n");
-                    continue;
-                }
-                printf("Introduce value1: ");
-                scanf("%s", value1);
-                printf("Introduce value2: ");
-                scanf("%s", value2_str);
-                if (cast_value(value2_str, (void *) &value2, INT) == -1) {
-                    fprintf(stderr, "Please introduce an integer\n");
-                    continue;
-                }
-                printf("Introduce value3: ");
-                scanf("%s", value3_str);
-                if (cast_value(value3_str, (void *) &value3, FLOAT) == -1) {
-                    fprintf(stderr, "Please introduce a float\n");
-                    continue;
-                }
-                printf("\n");
+                if (get_key_and_values(&key, value1, &value2, &value3) == -1) continue;
 
                 /* call the set_value function to perform the task */
                 int error = set_value(key, value1, value2, value3);
-                if (!error) {
-                    printf("The tuple was successfully inserted\n");
-                } else {
-                    fprintf(stderr, "Error while inserting the tuple\n");
-                }
-                printf("\n");
+                if (!error) fprintf(stderr, "\nThe tuple was successfully inserted\n");
+                else fprintf(stderr, "\nError while inserting the tuple\n");
                 break;
             } // end case 2
-            case 3: {
-                /* obtain an existing tuple */
-                int key; char key_str[MAX_STR_SIZE];
-                char value1[VALUE1_MAX_STR_SIZE];
-                int value2;
-                float value3;
+            case 3: {       /* obtain an existing tuple */
+                int key; char value1[VALUE1_MAX_STR_SIZE]; int value2; float value3;
 
                 /* ask for the key */
-                printf("Please, enter the key: ");
-                scanf("%s", key_str);
-                if (cast_value(key_str, (void *) &key, INT) == -1) {
-                    fprintf(stderr, "Please introduce an integer\n");
-                    continue;
-                }
-                printf("\n");
+                if (get_key(&key, ask_key_prompt) == -1) continue;
 
-                /* calling the function */
+                /* calling get_value service and checking errors*/
                 int error = get_value(key, value1, &value2, &value3);
-                if (!error) {
-                    printf("The tuple with key %d stores value 1 = %s, value 2 = %d and value 3 = %f\n",
-                           key, value1, value2, value3);
-                } else {
-                    fprintf(stderr, "An error happened when searching the tuple.\n");
-                }
-                printf("\n");
+                if (!error) fprintf(stderr, "\nThe tuple with key %d stores value 1 = %s, "
+                                            "value 2 = %d and value 3 = %f\n", key, value1, value2, value3);
+                else fprintf(stderr, "\nAn error happened when searching the tuple.\n");
                 break;
             } // end case 3
-            case 4: {
-                /* modify an existing tuple */
-                int key; char key_str[MAX_STR_SIZE];
-                char value1[VALUE1_MAX_STR_SIZE];
-                int value2; char value2_str[MAX_STR_SIZE];
-                float value3; char value3_str[MAX_STR_SIZE];
+            case 4: {       /* modify an existing tuple */
+                int key; char value1[VALUE1_MAX_STR_SIZE]; int value2; float value3;
 
-                /* ask for the key */
-                printf("Introduce the value for the key: ");
-                scanf("%s", key_str);
-                if (cast_value(key_str, (void *) &key, INT) == -1) {
-                    fprintf(stderr, "Please introduce an integer\n");
-                    continue;
-                }
-                /* ask for the new values */
-                printf("Introduce value1: ");
-                scanf("%s", value1);
-                printf("Introduce value2: ");
-                scanf("%s", value2_str);
-                if (cast_value(value2_str, (void *) &value2, INT) == -1) {
-                    fprintf(stderr, "Please introduce an integer\n");
-                    continue;
-                }
-                printf("Introduce value3: ");
-                scanf("%s", value3_str);
-                if (cast_value(value3_str, (void *) &value3, FLOAT) == -1) {
-                    fprintf(stderr, "Please introduce a float\n");
-                    continue;
-                }
-                printf("\n");
+                /* ask for the values and key */
+                if (get_key_and_values(&key, value1, &value2, &value3) == -1) continue;
 
-                /* calling modify function */
+                /* calling modify_value service and checking errors*/
                 int error = modify_value(key, value1, value2, value3);
-
-                if (!error) {
-                    printf("The tuple with key %d was modified to value 1 = %s, value 2 = %d and value 3 = %f\n",
-                           key, value1, value2, value3);
-                } else {
-                    fprintf(stderr, "Error modifying the tuple\n");
-                }
-                printf("\n");
+                if (!error) fprintf(stderr, "\nThe tuple with key %d was modified to value 1 = %s, "
+                                   "value 2 = %d and value 3 = %f\n", key, value1, value2, value3);
+                else fprintf(stderr, "\nError modifying the tuple\n");
                 break;
             }//end case 4
-            case 5: {
-                /* delete a tuple */
-                int key; char key_str[MAX_STR_SIZE];
+            case 5: {       /* delete a tuple */
+                int key;
 
                 /* ask for the key */
-                printf("Please, introduce the key of the tuple to delete: ");
-                scanf("%s", key_str);
-                if (cast_value(key_str, (void *) &key, INT) == -1) {
-                    fprintf(stderr, "Please introduce an integer\n");
-                    continue;
-                }
-                printf("\n");
+                if (get_key(&key, ask_key_delete_prompt) == -1) continue;
 
-                /* calling delete function */
+                /* calling delete_key service and checking errors*/
                 int error = delete_key(key);
-
-                if (!error) {
-                    printf("The tuple with key %d was deleted.\n", key);
-                } else {
-                    fprintf(stderr, "Error deleting the tuple\n");
-                }
-                printf("\n");
+                if (!error) fprintf(stderr, "\nThe tuple with key %d was deleted.\n", key);
+                else fprintf(stderr, "\nError deleting the tuple\n");
                 break;
             }// end case 5
-            case 6: {
-                /* check if a tuple exists */
-                int key; char key_str[MAX_STR_SIZE];
+            case 6: {       /* check if a tuple exists */
+                int key;
 
                 /* ask for the key */
-                printf("Please, introduce the key of the tuple to check: ");
-                scanf("%s", key_str);
-                if (cast_value(key_str, (void *) &key, INT) == -1) {
-                    fprintf(stderr, "Please introduce an integer\n");
-                    continue;
-                }
-                printf("\n");
+                if (get_key(&key, ask_key_exist_prompt) == -1) continue;
 
-                /* calling exists function and check for errors*/
+                /* calling exist service and checking errors*/
                 int error = exist(key);
-
-                if(error == 1) {
-                    printf("A tuple with the key %d is already stored.\n", key);
-                }
-                else if (!error) {
-                    fprintf(stderr, "There are no tuples with the key %d already stored.\n", key);
-                }
-                else {
-                    fprintf(stderr, "Communication error.\n");
-                }
-                printf("\n");
+                if(error == 1) fprintf(stderr, "\nA tuple with the key %d is already stored.\n", key);
+                else if (!error) fprintf(stderr, "\nThere are no tuples with the key %d stored.\n", key);
+                else fprintf(stderr, "\nCommunication error.\n");
                 break;
-
             }// end case 6
-            case 7: {
-                /* how many tuples are stored? */
+            case 7: {       /* find out how many tuples are stored */
+                /* calling num_items service and checking errors*/
                 int num_tuples = num_items();
-                if(num_tuples >= 0) {
-                    printf("There are %d tuples stored.\n", num_tuples);
-                }else{
-                    fprintf(stderr, "Error counting the number of elements stored.\n");
-                }
-                printf("\n");
+                if(num_tuples >= 0) fprintf(stderr, "\nThere are %d tuples stored.\n", num_tuples);
+                else fprintf(stderr, "\nError counting the number of elements stored.\n");
                 break;
             } // end case 7
-            case 8: {
-                /* exit by changing the control var to 0 */
-                control_var = 0;
-                printf("\n");
-                break;
+            case 8: {       /* exit by changing the control var to 0 */
+                control_var = 0; break;
             }// end case 8
-            default:
-                break;
+            default: break;
         } // end switch
     }// end outer while
 }
