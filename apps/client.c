@@ -26,6 +26,8 @@ const char action_error[] = "Please, select one of the previously defined action
 const char int_required_error[] = "Please, enter an integer";
 const char float_required_error[] = "Please, enter a real number";
 
+const unsigned int ACTION_STR_LEN = 2;            /* size of client interface action string */
+
 
 int get_key(int *key, const char *prompt_str);
 int get_key_and_values(int *key, char *value1, int *value2, float *value3);
