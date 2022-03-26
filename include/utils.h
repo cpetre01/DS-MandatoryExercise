@@ -48,7 +48,6 @@ ssize_t read_line(int fd, void *buffer, size_t n);
 
 /* type used to represent the actual elements to be stored */
 typedef struct {
-    /* item to be stored */
     int key;                            /* key attribute */
     char value1[VALUE1_MAX_STR_SIZE];   /* string attribute */
     int value2;                         /* int attribute */
@@ -59,27 +58,19 @@ typedef struct {
 typedef struct {
     /* client request */
     int id;                     /* transaction ID */
-    char op_code;               /* operation code that indicates the client API
- *                              function called*/
-    item_t item;                /* struct containing all required elements
- *                              of an item */
-    char q_name[MAX_STR_SIZE];  /* client queue name - this is
- *                              where the server sends the reply to */
-
+    char op_code;               /* operation code that indicates the client API function called */
+    item_t item;                /* struct containing all required elements of an item */
+    char q_name[MAX_STR_SIZE];  /* client queue name - this is where the server sends the reply to */
 } request_t;
 
 typedef struct {
     /* server reply */
     int id;                     /* transaction ID */
-    char op_code;               /* operation code that indicates the client API
- *                              function called*/
-    char server_error_code;     /* error code returned by the server;
- *                              client API interprets it to figure out
- *                              whether the transaction was successful*/
-    int num_items;              /* total number of items stored;
- *                              filled in case of num_items API call */
-    item_t item;                /* struct containing all required elements
- *                              of an item */
+    char op_code;               /* operation code that indicates the client API function called */
+    int server_error_code;      /* error code returned by the server; client API interprets it
+ *                              to figure out whether the transaction was successful */
+    int num_items;              /* total number of items stored; filled in case of num_items API call */
+    item_t item;                /* struct containing all required elements of an item */
 } reply_t;
 
 #endif //UTILS_H
