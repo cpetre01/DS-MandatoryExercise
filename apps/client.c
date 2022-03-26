@@ -38,10 +38,10 @@ int get_key(int *key, const char *prompt_str) {
 
     /* ask for the key */
     printf("%s: ", prompt_str); scanf("%s", key_str);
-    if (cast_value(key_str, (void *) key, INT) == -1) {
-        fprintf(stderr, "%s\n", int_required_error);
-        return -1;
+    if (str_to_num(key_str, (void *) key, INT) == -1) {
+        fprintf(stderr, "%s\n", int_required_error); return -1;
     }
+
     return 0;
 }
 
@@ -55,15 +55,14 @@ int get_key_and_values(int *key, char *value1, int *value2, float *value3) {
     /* ask for the values */
     printf("%s: ", ask_value1_prompt); scanf("%s", value1);
     printf("%s: ", ask_value2_prompt); scanf("%s", value2_str);
-    if (cast_value(value2_str, (void *) value2, INT) == -1) {
-        fprintf(stderr, "%s\n", int_required_error);
-        return -1;
+    if (str_to_num(value2_str, (void *) value2, INT) == -1) {
+        fprintf(stderr, "%s\n", int_required_error); return -1;
     }
     printf("%s: ", ask_value3_prompt); scanf("%s", value3_str);
-    if (cast_value(value3_str, (void *) value3, FLOAT) == -1) {
-        fprintf(stderr, "%s\n", float_required_error);
-        return -1;
+    if (str_to_num(value3_str, (void *) value3, FLOAT) == -1) {
+        fprintf(stderr, "%s\n", float_required_error); return -1;
     }
+
     return 0;
 }
 
@@ -72,8 +71,8 @@ int main(int argc, char *argv[]) {
     int control_var = TRUE;
 
     if (argc != 2) {
-        perror("Usage client <clientName>\n");
-        exit(0);
+        fprintf(stderr, "Usage client <clientName>\n");
+        return -1;
     }
 
     /* initializing the client queue */
@@ -87,7 +86,7 @@ int main(int argc, char *argv[]) {
 
         /* ask for an action */
         printf("Please, insert the number of the operation to perform: "); scanf("%s", action_str);
-        while ((cast_value(action_str, (void *) &action, INT) == -1) || (action < 1) || (action > 8)) {
+        while ((str_to_num(action_str, (void *) &action, INT) == -1) || (action < 1) || (action > 8)) {
             fprintf(stderr, "%s", action_error); scanf("%s", action_str);
         } // end inner while
 
@@ -116,7 +115,7 @@ int main(int argc, char *argv[]) {
                 /* ask for the key */
                 if (get_key(&key, ask_key_prompt) == -1) continue;
 
-                /* calling get_value service and checking errors*/
+                /* calling get_value service and checking errors */
                 int error = get_value(key, value1, &value2, &value3);
                 if (!error) fprintf(stderr, "\nThe tuple with key %d stores value 1 = %s, "
                                             "value 2 = %d and value 3 = %f\n", key, value1, value2, value3);
@@ -129,7 +128,7 @@ int main(int argc, char *argv[]) {
                 /* ask for the values and key */
                 if (get_key_and_values(&key, value1, &value2, &value3) == -1) continue;
 
-                /* calling modify_value service and checking errors*/
+                /* calling modify_value service and checking errors */
                 int error = modify_value(key, value1, value2, value3);
                 if (!error) fprintf(stderr, "\nThe tuple with key %d was modified to value 1 = %s, "
                                    "value 2 = %d and value 3 = %f\n", key, value1, value2, value3);
@@ -142,7 +141,7 @@ int main(int argc, char *argv[]) {
                 /* ask for the key */
                 if (get_key(&key, ask_key_delete_prompt) == -1) continue;
 
-                /* calling delete_key service and checking errors*/
+                /* calling delete_key service and checking errors */
                 int error = delete_key(key);
                 if (!error) fprintf(stderr, "\nThe tuple with key %d was deleted.\n", key);
                 else fprintf(stderr, "\nError deleting the tuple\n");
@@ -154,7 +153,7 @@ int main(int argc, char *argv[]) {
                 /* ask for the key */
                 if (get_key(&key, ask_key_exist_prompt) == -1) continue;
 
-                /* calling exist service and checking errors*/
+                /* calling exist service and checking errors */
                 int error = exist(key);
                 if(error == 1) fprintf(stderr, "\nA tuple with the key %d is already stored.\n", key);
                 else if (!error) fprintf(stderr, "\nThere are no tuples with the key %d stored.\n", key);
@@ -162,7 +161,7 @@ int main(int argc, char *argv[]) {
                 break;
             }// end case 6
             case 7: {       /* find out how many tuples are stored */
-                /* calling num_items service and checking errors*/
+                /* calling num_items service and checking errors */
                 int num_tuples = num_items();
                 if(num_tuples >= 0) fprintf(stderr, "\nThere are %d tuples stored.\n", num_tuples);
                 else fprintf(stderr, "\nError counting the number of elements stored.\n");
@@ -174,4 +173,5 @@ int main(int argc, char *argv[]) {
             default: break;
         } // end switch
     }// end outer while
+    return 0;
 }

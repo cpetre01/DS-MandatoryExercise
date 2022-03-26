@@ -22,8 +22,7 @@ int db_list_items(void) {
         printf("%s\n", dir_ent->d_name);
     }
 
-    closedir(db);
-    return 0;
+    closedir(db); return 0;
 }
 
 
@@ -43,8 +42,7 @@ int db_get_num_items(void) {
         num_items++;
     }
 
-    closedir(db);
-    return num_items;
+    closedir(db); return num_items;
 }
 
 
@@ -66,16 +64,12 @@ int db_empty_db(void) {
 
         if (remove(dir_ent->d_name) == -1) {
             perror("Couldn't delete entire DB");
-            chdir("..");
-            closedir(db);
-            return -1;
+            chdir(".."); closedir(db); return -1;
         }
     }
 
-    /* change back to executable's directory */
-    chdir("..");
-    closedir(db);
-    return 0;
+    /* change back to executable's directory and finish */
+    chdir(".."); closedir(db); return 0;
 }
 
 
@@ -87,8 +81,7 @@ int db_item_exists(const int key) {
     if (key_fd == -1) return 0;     /* key file doesn't exist */
 
     /* key file was opened, so it exists */
-    close(key_fd);
-    return 1;
+    close(key_fd); return 1;
 }
 
 
@@ -113,9 +106,8 @@ int db_read_item(const int key, char *value1, int *value2, float *value3) {
     if (read_value_from_keyfile(key_fd, value2_str, MAX_STR_SIZE) == -1) return -1;
 
     /* cast value2_str to int */
-    if (cast_value(value2_str, (void *) value2, INT) == -1) {
-        close(key_fd);
-        return -1;
+    if (str_to_num(value2_str, (void *) value2, INT) == -1) {
+        close(key_fd); return -1;
     }
 
     /* now read value3 */
@@ -123,14 +115,12 @@ int db_read_item(const int key, char *value1, int *value2, float *value3) {
     if (read_value_from_keyfile(key_fd, value3_str, MAX_STR_SIZE) == -1) return -1;
 
     /* cast value3_str to float */
-    if (cast_value(value3_str, (void *) value3, FLOAT) == -1) {
-        close(key_fd);
-        return -1;
+    if (str_to_num(value3_str, (void *) value3, FLOAT) == -1) {
+        close(key_fd); return -1;
     }
 
     /* all three values were read at this point, so close file and return */
-    close(key_fd);
-    return 0;
+    close(key_fd); return 0;
 }
 
 
@@ -146,13 +136,9 @@ int db_write_item(const int key, const char *value1, const int *value2, const fl
     /* error if there is no file associated with that key */
     if (key_fd == -1) {
         switch (errno) {
-            /* set_value API call inserting existing key error */
-            case EEXIST:
-                perror("Key file already exists");
-                return -1;
-            default:
-                perror("Error opening key file");
-                return -1;
+            /* EEXIST: set_value API call inserting existing key error */
+            case EEXIST: perror("Key file already exists"); return -1;
+            default: perror("Error opening key file"); return -1;
         }
     }
 
@@ -160,8 +146,7 @@ int db_write_item(const int key, const char *value1, const int *value2, const fl
     int result = write_values_to_keyfile(key_fd, value1, value2, value3);
 
     /* all three values were written at this point, so close file and return */
-    close(key_fd);
-    return result;
+    close(key_fd); return result;
 }
 
 

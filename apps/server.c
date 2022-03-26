@@ -81,13 +81,13 @@ void service_thread(request_t *request) {
 
     /* execute client request */
     switch (local_req.op_code) {
-        case INIT:          init_db(&server_reply); break;
-        case SET_VALUE:     insert_item(&local_req, &server_reply); break;
-        case GET_VALUE:     get_item(&local_req, &server_reply); break;
-        case MODIFY_VALUE:  modify_item(&local_req, &server_reply); break;
-        case DELETE_KEY:    delete_item(&local_req, &server_reply); break;
-        case EXIST:         item_exists(&local_req, &server_reply); break;
-        case NUM_ITEMS:     get_num_items(&server_reply); break;
+        case INIT: init_db(&server_reply); break;
+        case SET_VALUE: insert_item(&local_req, &server_reply); break;
+        case GET_VALUE: get_item(&local_req, &server_reply); break;
+        case MODIFY_VALUE: modify_item(&local_req, &server_reply); break;
+        case DELETE_KEY: delete_item(&local_req, &server_reply); break;
+        case EXIST: item_exists(&local_req, &server_reply); break;
+        case NUM_ITEMS: get_num_items(&server_reply); break;
         default: break;     /* invalid operation */
     }
 

@@ -38,7 +38,7 @@
 /* number casting stuff */
 #define INT 'i'
 #define FLOAT 'f'
-int cast_value(const char *value_str, void *value, char type);
+int str_to_num(const char *value_str, void *value, char type);
 
 /* file stuff */
 ssize_t read_line(int fd, void *buffer, size_t n);

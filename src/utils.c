@@ -6,50 +6,49 @@
 #include "include/utils.h"
 
 
-int cast_value(const char *value_str, void *value, const char type) {
+int str_to_num(const char *value_str, void *value, const char type) {
+    /* function that casts a given string value_str to a number;
+     * writes cast value to value pointer; this value pointer
+     * should be a pointer to the desired number type.
+     * Currently supported types: int, float */
     errno = 0;
-    /* cast value to int or float */
-    char * endptr;      /* used for strtol and strtof castings */
-    char error[10];     /* used to display errors */
-    void *cast_value;   /* this points to cast value */
-    size_t result_size; /* used to determine the size of the cast value in memcpy call */
+
+    char * endptr;                  /* used for castings */
+    char error[MAX_STR_SIZE];       /* used to display errors */
+    void *cast_value;               /* this points to cast value */
+    size_t result_size;             /* used to determine the size of the cast value in memcpy call */
 
     /* auxiliary variables to cast value */
-    int value2_str_to_int;
-    float value3_str_to_float;
+    int value_str_to_int;
+    float value_str_to_float;
 
     if (!strlen(value_str)) {
-        fprintf(stderr, "String is empty\n");
-        return -1;
+        fprintf(stderr, "String is empty\n"); return -1;
     }
 
     /* cast value */
     switch (type) {
         case INT:
-            value2_str_to_int = (int)strtol(value_str, &endptr, 10);
-            cast_value = (void *) &value2_str_to_int;
-            strcpy(error, "strtol");
+            value_str_to_int = (int)strtol(value_str, &endptr, 10);
+            cast_value = (void *) &value_str_to_int;
+            strncpy(error, "strtol", MAX_STR_SIZE);
             result_size = sizeof(int);
             break;
         case FLOAT:
-            value3_str_to_float = strtof(value_str, &endptr);
-            cast_value = (void *) &value3_str_to_float;
-            strcpy(error, "strtof");
+            value_str_to_float = strtof(value_str, &endptr);
+            cast_value = (void *) &value_str_to_float;
+            strncpy(error, "strtof", MAX_STR_SIZE);
             result_size = sizeof(float);
             break;
-        default:
-            printf("Invalid casting type\n");
-            return -1;
+        default: fprintf(stderr, "Invalid casting type\n"); return -1;
     }
 
-    /* check cast errors */
+    /* check casting errors */
     if (errno) {
-        perror(error);
-        return -1;
+        perror(error); return -1;
     }
     if (endptr == value_str) {
-        fprintf(stderr, "No digits were found\n");
-        return -1;
+        fprintf(stderr, "No digits were found\n"); return -1;
     }
 
     /* cast succeeded: set value */

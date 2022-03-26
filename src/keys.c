@@ -33,8 +33,7 @@ int close_server_q() {
 
 int close_client_q() {
     if (mq_close(client_q) == -1) {
-        mq_unlink(client_q_name);
-        return -1;
+        mq_unlink(client_q_name); return -1;
     } else {
         if (mq_unlink(client_q_name) == -1) return -1;
         return 0;
@@ -68,9 +67,11 @@ int service(const char op_code, const int key, char *value1, int *value2, float 
     request_t request;
     request.op_code = op_code;
     strncpy(request.q_name, client_q_name, MAX_STR_SIZE);
+    /* most services require the key as well */
     if (op_code == SET_VALUE || op_code == GET_VALUE || op_code == MODIFY_VALUE
     || op_code == DELETE_KEY || op_code == EXIST)
         request.item.key = key;
+    /* these two require the values also */
     if (op_code == SET_VALUE || op_code == MODIFY_VALUE) {
         strncpy(request.item.value1, value1, VALUE1_MAX_STR_SIZE);
         request.item.value2 = *value2;
@@ -100,6 +101,7 @@ int service(const char op_code, const int key, char *value1, int *value2, float 
     /* check server reply, different actions depending on the called service */
     switch (op_code) {
         case GET_VALUE:
+            /* this returns the tuple values obtained from the DB */
             if (reply.server_error_code == SUCCESS) {
                 strncpy(value1, reply.item.value1, VALUE1_MAX_STR_SIZE);
                 *value2 = reply.item.value2;
@@ -108,17 +110,19 @@ int service(const char op_code, const int key, char *value1, int *value2, float 
             }
             break;
         case EXIST:
+            /* returns whether the tuple exists in the DB or not */
             if (reply.server_error_code == EXISTS) return 1;
             else if (reply.server_error_code == NOT_EXISTS) return 0;
             break;
         case NUM_ITEMS:
+            /* returns how many tuples there are in the DB */
             if (reply.server_error_code == SUCCESS) {
                 int num_items;
                 memcpy(&num_items, &reply.num_items, sizeof(int));
                 return num_items;
             }
             break;
-        default:    /* most services */
+        default:    /* remaining services */
             if (reply.server_error_code == SUCCESS) return 0;
             break;
     } // end switch
