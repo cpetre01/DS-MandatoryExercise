@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "include/utils.h"
-#include "include/keys.h"
+#include "utils.h"
+#include "keys.h"
 
 
 /* some common messages to print */
@@ -21,7 +21,7 @@ const char ask_value1_prompt[] = "Please, enter value1";
 const char ask_value2_prompt[] = "Please, enter value2";
 const char ask_value3_prompt[] = "Please, enter value3";
 /* input errors */
-const char action_error[] = "Please, select one of the previously defined actions";
+const char action_error[] = "Please, select one of the previously defined actions: ";
 const char int_required_error[] = "Please, enter an integer";
 const char float_required_error[] = "Please, enter a real number";
 
@@ -133,7 +133,7 @@ int main(int argc, char *argv[]) {
                                    "value 2 = %d and value 3 = %f\n", key, value1, value2, value3);
                 else fprintf(stderr, "\nError modifying the tuple\n");
                 break;
-            }//end case 4
+            } //end case 4
             case 5: {       /* delete a tuple */
                 int key;
 
@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
                 if (!error) fprintf(stderr, "\nThe tuple with key %d was deleted.\n", key);
                 else fprintf(stderr, "\nError deleting the tuple\n");
                 break;
-            }// end case 5
+            } // end case 5
             case 6: {       /* check if a tuple exists */
                 int key;
 
@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
                 else if (!error) fprintf(stderr, "\nThere are no tuples with the key %d stored.\n", key);
                 else fprintf(stderr, "\nCommunication error.\n");
                 break;
-            }// end case 6
+            } // end case 6
             case 7: {       /* find out how many tuples are stored */
                 /* calling num_items service and checking errors */
                 int num_tuples = num_items();
@@ -168,9 +168,9 @@ int main(int argc, char *argv[]) {
             } // end case 7
             case 8: {       /* exit by changing the control var to 0 */
                 control_var = 0; break;
-            }// end case 8
+            } // end case 8
             default: break;
         } // end switch
-    }// end outer while
+    } // end outer while
     return 0;
 }
