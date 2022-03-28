@@ -3,9 +3,9 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <errno.h>
-#include "include/utils.h"
-#include "include/dbmsUtils.h"
-#include "include/dbms.h"
+#include "utils.h"
+#include "dbmsUtils.h"
+#include "dbms.h"
 
 
 int db_list_items(void) {

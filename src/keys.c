@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <mqueue.h>
-#include "include/utils.h"
-#include "include/keys.h"
+#include "utils.h"
+#include "keys.h"
 
 
 mqd_t server_q;         /* queue for server */

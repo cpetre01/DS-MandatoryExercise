@@ -3,7 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
-#include "include/utils.h"
+#include "utils.h"
 
 
 int str_to_num(const char *value_str, void *value, const char type) {

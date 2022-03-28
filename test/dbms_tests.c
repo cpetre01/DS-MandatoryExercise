@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include "include/utils.h"
-#include "include/dbmsUtils.h"
-#include "include/dbms.h"
+#include "utils.h"
+#include "dbmsUtils.h"
+#include "dbms.h"
 
 
 void test_write_item(const int key)

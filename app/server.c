@@ -4,8 +4,8 @@
 #include <mqueue.h>
 #include <pthread.h>
 #include <signal.h>
-#include "include/utils.h"
-#include "include/dbms.h"
+#include "utils.h"
+#include "dbms.h"
 
 
 /* prototypes */
