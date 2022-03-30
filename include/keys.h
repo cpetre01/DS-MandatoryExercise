@@ -13,7 +13,7 @@ int open_server_q();
 int open_client_q();
 int close_server_q();
 int close_client_q();
-void client_queue_init(char *client_name);
+void init_connection(const char *host_name, int port_number);
 
 /* one-size-fits-all function that performs the required services;
  * can perform all 7 services given the proper arguments;

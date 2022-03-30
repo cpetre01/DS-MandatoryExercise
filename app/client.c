@@ -1,7 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "utils.h"
 #include "keys.h"
-
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netdb.h>
 
 /* some common messages to print */
 const char display_actions_str[] = "The possible operations to perform are the following:\n"
@@ -66,16 +69,24 @@ int get_key_and_values(int *key, char *value1, int *value2, float *value3) {
 }
 
 
-int main(int argc, char *argv[]) {
+int main(int argc, char **argv, char **env) {
     int control_var = TRUE;
 
-    if (argc != 2) {
-        fprintf(stderr, "Usage client <clientName>\n");
+    const char *server_ip = getenv("IP_TUPLES");
+    const char *server_port = getenv("PORT_TUPLES");
+
+    if (!server_ip || !server_port) {
+        fprintf(stderr, "getenv error\n");
         return -1;
     }
 
-    /* initializing the client queue */
-    client_queue_init(argv[1]);
+    int server_port_num = str_to_num(server_port, (void *) &server_port, INT);
+    if (server_port_num == -1) {
+        perror("Invalid server port"); return -1;
+    }
+
+    /* initialize connection with the sever side */
+    init_connection( server_ip ,server_port_num);
 
     /* loop to control client requests */
     while (control_var) {

@@ -3,7 +3,9 @@
 #include <mqueue.h>
 #include "utils.h"
 #include "keys.h"
-
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netdb.h>
 
 mqd_t server_q;         /* queue for server */
 mqd_t client_q;         /* queue for client */
@@ -41,15 +43,34 @@ int close_client_q() {
 }
 
 
-void client_queue_init(char *client_name) {
-    /* function to create each client's queue;
-     * it receives as argument the name of the client, and creates the queue name */
-    snprintf(client_q_name, MAX_STR_SIZE, "%s_%s", CLIENT_QUEUE_NAME_TEMPLATE, client_name);
+void init_connection(const char *host_name, const int port_number) {
+    struct sockaddr_in server_addr;
+    struct hostent *hp;
 
-    /* set maximum number of allowed messages on the queue */
-    attr.mq_maxmsg = MSG_QUEUE_SIZE;
-    /* set maximum message size to be the size of the reply struct */
-    attr.mq_msgsize = sizeof(reply_t);
+    /* creating the socket */
+    int sd;
+    sd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (sd < 0){
+        perror("Error while creating socket");
+    }
+
+    /*obtain the server address */
+    bzero((char*)&server_addr, sizeof(server_addr));
+    hp = gethostbyname(host_name);
+    if (hp == NULL){
+        perror("Error getting hostname");
+    }
+    memcpy (&(server_addr.sin_addr), hp->h_addr, hp->h_length);
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(port_number);
+
+    //connecting with the server
+    int err = connect(sd, (struct sockaddr *) &server_addr, sizeof(server_addr));
+    if(err >= 0){
+        printf("Connection established with server!\n");
+    }else{
+        perror("Error connecting to server");
+    }
 }
 
 

@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <mqueue.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 #include <pthread.h>
 #include <signal.h>
 #include "utils.h"
@@ -22,8 +24,8 @@ void item_exists(request_t *request, reply_t *server_reply);
 void get_num_items(reply_t *server_reply);
 
 
-mqd_t server_q;             /* server queue */
-struct mq_attr q_attr;      /* queue attributes */
+//mqd_t server_q;             /* server queue */
+//struct mq_attr q_attr;      /* queue attributes */
 
 /* mutex and condition variables for the message copy */
 pthread_mutex_t mutex_req;
@@ -66,13 +68,13 @@ void service_thread(request_t *request) {
     request_t local_req;
     copy_request(&local_req, request);
 
-    /* open client queue */
-    mqd_t client_q;
-    client_q = mq_open(local_req.q_name, O_WRONLY);
-    if (client_q == -1) {
-        perror("Can't open client queue");
-        pthread_exit((void *) -1);
-    }
+//    /* open client queue */
+//    mqd_t client_q;
+//    client_q = mq_open(local_req.q_name, O_WRONLY);
+//    if (client_q == -1) {
+//        perror("Can't open client queue");
+//        pthread_exit((void *) -1);
+//    }
 
     /* set up server reply */
     reply_t server_reply;
@@ -91,12 +93,12 @@ void service_thread(request_t *request) {
         default: break;     /* invalid operation */
     }
 
-    /* send server reply */
-    if (mq_send(client_q, (char *) &server_reply, sizeof(reply_t), 0) == -1) {
-        perror("Error sending server reply");
-        mq_close(client_q);
-        pthread_exit((void *) -1);
-    }
+//    /* send server reply */
+//    if (mq_send(client_q, (char *) &server_reply, sizeof(reply_t), 0) == -1) {
+//        perror("Error sending server reply");
+//        mq_close(client_q);
+//        pthread_exit((void *) -1);
+//    }
     pthread_exit(0);
 }
 
@@ -205,28 +207,63 @@ void shutdown_server() {
     pthread_mutex_destroy(&mutex_db);
     pthread_cond_destroy(&cond_req);
     pthread_attr_destroy(&th_attr);
-    mq_close(server_q);
-    mq_unlink(SERVER_QUEUE_NAME);
+//    mq_close(server_q);
+//    mq_unlink(SERVER_QUEUE_NAME);
     exit(0);
 }
 
 
-int main(void)
-{
-    /* queue attributes */
-    q_attr.mq_maxmsg = MSG_QUEUE_SIZE;
-    q_attr.mq_msgsize = sizeof(request_t);
+int main(int argc, char **argv) {
+    if (argc != 2) {
+        fprintf(stderr, "Usage server <PORT>\n");
+        return -1;
+    }
+//    /* queue attributes */
+//    q_attr.mq_maxmsg = MSG_QUEUE_SIZE;
+//    q_attr.mq_msgsize = sizeof(request_t);
+
+    int server_port;
+    if (str_to_num(argv[1], (void *) &server_port, INT) == -1) {
+        perror("Invalid server port"); return -1;
+    }
+
+    struct sockaddr_in server_addr, client_addr;
+    socklen_t size;
+    int server_sd, client_sd;
+    int val;
 
     pthread_t thid;                 /* service thread id */
 
     /* get server up & running */
-    server_q = mq_open(SERVER_QUEUE_NAME, O_CREAT | O_RDONLY, 0666, &q_attr);
-    if (server_q == -1) {
-        perror("Can't create server queue");
-        return -1;
-    } else {
-        printf("Press Ctrl + C to shut down server\n");
+    if ((server_sd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+        perror("Can't create server socket"); return -1;
     }
+
+    val = 1;
+    setsockopt(server_sd, SOL_SOCKET, SO_REUSEADDR, (char *) &val, sizeof(int));
+
+    bzero((char *) &server_addr, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = INADDR_ANY;
+    server_addr.sin_port = htons(server_port);
+
+    if (bind(server_sd, (const struct sockaddr *) &server_addr, sizeof server_addr) == -1) {
+        perror("Server socket binding error"); return -1;
+    }
+
+    if (listen(server_sd, SOMAXCONN) == -1) {
+        perror("Server listen error"); return -1;
+    }
+
+    size = sizeof client_addr;
+
+//    server_q = mq_open(SERVER_QUEUE_NAME, O_CREAT | O_RDONLY, 0666, &q_attr);
+//    if (server_q == -1) {
+//        perror("Can't create server queue");
+//        return -1;
+//    } else {
+//        printf("Press Ctrl + C to shut down server\n");
+//    }
 
     pthread_mutex_init(&mutex_req, NULL);
     pthread_cond_init(&cond_req, NULL);
@@ -244,12 +281,23 @@ int main(void)
     sigaction(SIGINT, &keyboard_interrupt, NULL);
 
     while (TRUE) {
+        printf("Press Ctrl + C to shut down server\n");
+        printf("Waiting connection...\n");
+
+        client_sd = accept(server_sd, (struct sockaddr *) &client_addr, (socklen_t *) &size);
+        if (client_sd == -1) {
+            perror("Server accept error"); return -1;
+        }
+
+        printf("Accepted connection IP: %s   Port: %d\n",
+               inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+
         /* receive client request */
         request_t request;
-        if (mq_receive(server_q, (char *) &request, sizeof(request), 0) == -1) {
-            perror("server receiving error");
-            continue;
-        }
+//        if (mq_receive(server_q, (char *) &request, sizeof(request), 0) == -1) {
+//            perror("server receiving error");
+//            continue;
+//        }
 
         /* check whether client request is valid */
         if (request.op_code == INIT || request.op_code == SET_VALUE || request.op_code == GET_VALUE ||
