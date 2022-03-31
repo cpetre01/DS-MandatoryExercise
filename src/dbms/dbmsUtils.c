@@ -50,7 +50,7 @@ int open_keyfile(const int key, const char mode) {
 }
 
 
-int read_value_from_keyfile(const int key_fd, char *value, const size_t size) {
+int read_value_from_keyfile(const int key_fd, char *value, const int size) {
     ssize_t bytes_read;     /* used for error handling of read_line calls */
 
     /* read value */

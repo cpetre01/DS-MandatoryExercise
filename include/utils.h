@@ -8,10 +8,13 @@
 #define VALUE1_MAX_STR_SIZE 255     /* size of value1 string */
 #define DB_NAME "db"                /* database directory name */
 
+//GET RID OF THIS
 /* message queue stuff */
-#define MSG_QUEUE_SIZE 5
 #define SERVER_QUEUE_NAME "/server_queue"
-#define CLIENT_QUEUE_NAME_TEMPLATE "/client_queue"
+
+/* server stuff */
+#define MAX_CONN_BACKLOG 1          /* max number of open client connections */
+#define THREAD_POOL_SIZE 5          /* max number of service threads running */
 
 /* services: operation codes */
 #define INIT 'a'
@@ -40,24 +43,27 @@
 #define FLOAT 'f'
 int str_to_num(const char *value_str, void *value, char type);
 
-/* file stuff */
-ssize_t read_line(int fd, void *buffer, size_t n);
+/* file & socket stuff */
+int send_msg(int d, char *buffer, int len);
+int recv_msg(int d, char *buffer, int len);
+ssize_t read_line(int d, char *buffer, int buf_space);
 
 
 /* types */
+#include <stdint.h>
 
 /* type used to represent the actual elements to be stored */
 typedef struct {
-    int key;                            /* key attribute */
+    int32_t key;                        /* key attribute */
     char value1[VALUE1_MAX_STR_SIZE];   /* string attribute */
-    int value2;                         /* int attribute */
+    int32_t value2;                     /* int attribute */
     float value3;                       /* float attribute */
 } item_t;
 
 /* types used for process communication */
 typedef struct {
     /* client request */
-    int id;                     /* transaction ID */
+    uint32_t id;                /* transaction ID */
     char op_code;               /* operation code that indicates the client API function called */
     item_t item;                /* struct containing all required elements of an item */
     char q_name[MAX_STR_SIZE];  /* client queue name - this is where the server sends the reply to */
@@ -65,11 +71,11 @@ typedef struct {
 
 typedef struct {
     /* server reply */
-    int id;                     /* transaction ID */
+    uint32_t id;                /* transaction ID */
     char op_code;               /* operation code that indicates the client API function called */
-    int server_error_code;      /* error code returned by the server; client API interprets it
+    int32_t server_error_code;  /* error code returned by the server; client API interprets it
  *                              to figure out whether the transaction was successful */
-    int num_items;              /* total number of items stored; filled in case of num_items API call */
+    uint32_t num_items;         /* total number of items stored; filled in case of num_items API call */
     item_t item;                /* struct containing all required elements of an item */
 } reply_t;
 

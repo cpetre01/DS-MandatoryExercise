@@ -57,12 +57,45 @@ int str_to_num(const char *value_str, void *value, const char type) {
 }
 
 
-ssize_t read_line(const int fd, void *buffer, const size_t buf_space) {
-    /* reads a line of at most (buf_space -1) chars,
-     * excluding '\0' or '\n' terminating byte */
+int send_msg(const int d, char *buffer, const int len) {
+    /* sends a message of len bytes to d (socket, file... descriptor) */
+    ssize_t bytes_sent;         /* number of bytes written by last write() */
+    ssize_t bytes_left = len;   /* number of bytes left to be received */
+
+    do {
+        bytes_sent = write(d, buffer, bytes_left);
+        bytes_left = bytes_left - bytes_sent;
+        buffer = buffer + bytes_sent;
+    } while ((bytes_left > 0) && (bytes_sent >= 0));
+
+    if (bytes_sent < 0) return -1;  /* write() error */
+    return 0;	/* full length has been sent */
+}
+
+
+int recv_msg(const int d, char *buffer, const int len) {
+    /* receives a message of len bytes from d (socket, file... descriptor) */
+    ssize_t bytes_received;     /* number of bytes fetched by last read() */
+    ssize_t bytes_left = len;   /* number of bytes left to be received */
+
+    do {
+        bytes_received = read(d, buffer, bytes_left);
+        bytes_left -= bytes_received;
+        buffer += bytes_received;
+    } while ((bytes_left > 0) && (bytes_received >= 0));
+
+    if (bytes_received < 0) return -1;  /* read() error */
+    return 0;	/* full length has been received */
+}
+
+
+ssize_t read_line(const int d, char *buffer, const int buf_space) {
+    /* reads a 1-line string of at most (buf_space -1) chars, excluding terminating byte,
+     * from d (socket, file... descriptor); stops reading when a '\0' or '\n' is found */
     ssize_t bytes_read;             /* number of bytes fetched by last read() */
     ssize_t bytes_read_total;       /* total bytes read so far */
-    char *buf, ch;
+//    char *buf, ch;
+    char ch;
 
     /* check arguments */
     if (buf_space <= 0 || buffer == NULL) {
@@ -70,11 +103,11 @@ ssize_t read_line(const int fd, void *buffer, const size_t buf_space) {
         return -1;
     }
 
-    buf = buffer;
+//    buf = buffer;
     bytes_read_total = 0;
     /* read from fd */
     while (TRUE) {
-        bytes_read = read(fd, &ch, 1);	/* read a byte */
+        bytes_read = read(d, &ch, 1);	/* read a byte */
 
         /* check what's been read */
         if (bytes_read == -1) {
@@ -92,75 +125,10 @@ ssize_t read_line(const int fd, void *buffer, const size_t buf_space) {
                 break;
             if (bytes_read_total < buf_space - 1) {		    /* discard > (n-1) bytes */
                 bytes_read_total++;
-                *buf++ = ch;
+                *buffer++ = ch;
             }
         }
     }
-    *buf = '\0';
-    return bytes_read_total;
-}
-
-
-/* not used, currently not working */
-ssize_t read_line_opt(const int fd, void *buffer, const size_t buf_space) {
-    /* reads a line of at most (buf_space -1) chars,
-     * excluding '\0' or '\n' terminating byte */
-    ssize_t bytes_read;             /* number of bytes fetched by last read() */
-    ssize_t bytes_read_total;       /* total bytes read so far */
-    size_t bytes_left = buf_space;  /* number of bytes left to be read */
-    char t[buf_space];                  /* temporary buffer to read from fd */
-    char *tmp_buf = t;
-    char *final_buf;                /* buffer to store read bytes */
-
-    /* check arguments */
-    if (buf_space <= 0 || buffer == NULL) {
-        errno = EINVAL;
-        return -1;
-    }
-
-//    tmp_buf = (char *) malloc(buf_space + 1);
-//    if (!tmp_buf) {
-//        fprintf(stderr, "Malloc error\n"); return -1;
-//    }
-    final_buf = buffer;
-    bytes_read_total = 0;
-
-    /* read stuff and buffer it */
-    while(TRUE) {
-        bytes_read = read(fd, tmp_buf, bytes_left);
-
-        /* check what's been read */
-        if (bytes_read == -1) {
-            if (errno == EINTR)	                    /* interrupted -> restart read() */
-                continue;
-            else
-                return -1;		                    /* some other error */
-        } else if (!bytes_read) {	                /* EOF */
-            if (bytes_left == buf_space)	        /* no bytes read; return 0 */
-                return 0;
-            else
-                break;
-        } else {                                    /* something was read */
-            bytes_left -= bytes_read;
-            bytes_read_total += bytes_read;
-            tmp_buf += bytes_read;
-        }
-    }
-
-    /* make tmp_buf point to the beginning of the space */
-    tmp_buf -= bytes_read_total;
-
-    /* now let's transfer the stuff to final_buf */
-    for (int i = 0; i < bytes_read_total; i++) {
-        if (tmp_buf[i] == '\n' || tmp_buf[i] == '\0')   /* break line or string end found, so line ends */
-            break;
-        if (bytes_read_total < buf_space - 1) {		            /* discard > (n-1) bytes */
-            bytes_read_total++;
-            *final_buf++ = tmp_buf[i];
-        }
-    }
-
-//    free(tmp_buf);
-    *final_buf = '\0';
+    *buffer = '\0';
     return bytes_read_total;
 }
