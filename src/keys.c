@@ -56,29 +56,49 @@ int service(const char op_code, const int key, char *value1, int *value2, float 
 
     /* create client request */
     request_t request;
+    reply_t reply;
     request.header.op_code = op_code;
-    /* most services require the key as well */
-    if (op_code == SET_VALUE || op_code == GET_VALUE || op_code == MODIFY_VALUE
-    || op_code == DELETE_KEY || op_code == EXIST)
-        request.item.key = key;
-    /* these two require the values also */
-    if (op_code == SET_VALUE || op_code == MODIFY_VALUE) {
-        strncpy(request.item.value1, value1, VALUE1_MAX_STR_SIZE);
-        request.item.value2 = *value2;
-        request.item.value3 = *value3;
-    }
-
     /* send client request*/
     if(send_common_header(client_socket, &request) < 0){
         perror("Error sending header ");
     }
 
-    /* receive server reply */
-    reply_t reply;
-    if(recv)
+    /*receive the response for the header */
+    if(recv_common_header(client_socket, &reply) < 0){
+        perror("Error sending header ");
+    }
 
+    /* for some methods, we also need to send the key*/
+    if (op_code == SET_VALUE || op_code == GET_VALUE || op_code == MODIFY_VALUE
+        || op_code == DELETE_KEY || op_code == EXIST){
+        request.item.key = key;
+        if(send_keys(client_socket, &key) < 0){
+            perror("Error sending key");
+        }
+
+        /*now, we receive the response from the server*/
+        if(recv_key(client_socket, &request.item) < 0){
+            perror("Error receiving response for header");
+        }
+    }
+
+    /* here, we also need to send the values */
+    if (op_code == SET_VALUE || op_code == MODIFY_VALUE) {
+        strncpy(request.item.value1, value1, VALUE1_MAX_STR_SIZE);
+        request.item.value2 = *value2;
+        request.item.value3 = *value3;
+        if(send_item(client_socket, &reply.item) < 0){
+            perror("Error sending header ");
+        }
+
+        /*receive response from the server*/
+        if(recv_item(client_socket, &reply.item) < 0){
+            perror("Error receiving response for items ");
+        }
+    }
 
     /*close client socket*/
+    close_connection(client_socket);
 
     /* check server reply, different actions depending on the called service */
     switch (op_code) {
