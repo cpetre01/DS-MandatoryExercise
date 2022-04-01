@@ -73,7 +73,7 @@ void * service_thread(void *args) {
         request_t request;
 
         /* receive transaction ID & op_code */
-        if (recv_request_header(client_socket, &request) == -1) continue;
+        if (recv_common_header(client_socket, &request.header) == -1) continue;
 
         /* set up server reply */
         reply_t reply;
@@ -91,7 +91,7 @@ void * service_thread(void *args) {
                 break;
             case SET_VALUE:
                 /* receive rest of client request */
-                if (recv_item(client_socket, &request) == -1) continue;
+                if (recv_item(client_socket, &request.item) == -1) continue;
 
                 /* execute client request */
                 insert_item(&request, &reply);
@@ -101,18 +101,18 @@ void * service_thread(void *args) {
                 break;
             case GET_VALUE:
                 /* receive rest of client request */
-                if (recv_key(client_socket, &request) == -1) continue;
+                if (recv_key(client_socket, &request.item) == -1) continue;
 
                 /* execute client request */
                 get_item(&request, &reply);
 
                 /* send server reply */
                 if (send_reply_header(client_socket, &reply) == -1 ||
-                send_item(client_socket, &reply) == -1) continue;
+                send_item(client_socket, &reply.item) == -1) continue;
                 break;
             case MODIFY_VALUE:
                 /* receive rest of client request */
-                if (recv_item(client_socket, &request) == -1) continue;
+                if (recv_item(client_socket, &request.item) == -1) continue;
 
                 /* execute client request */
                 modify_item(&request, &reply);
@@ -122,7 +122,7 @@ void * service_thread(void *args) {
                 break;
             case DELETE_KEY:
                 /* receive rest of client request */
-                if (recv_key(client_socket, &request) == -1) continue;
+                if (recv_key(client_socket, &request.item) == -1) continue;
 
                 /* execute client request */
                 delete_item(&request, &reply);
@@ -132,7 +132,7 @@ void * service_thread(void *args) {
                 break;
             case EXIST:
                 /* receive rest of client request */
-                if (recv_key(client_socket, &request) == -1) continue;
+                if (recv_key(client_socket, &request.item) == -1) continue;
 
                 /* execute client request */
                 item_exists(&request, &reply);

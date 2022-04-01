@@ -9,7 +9,6 @@
 #define DB_NAME "db"                /* database directory name */
 
 /* server stuff */
-#define MAX_CONN_BACKLOG 1          /* max number of open client connections */
 #define THREAD_POOL_SIZE 5          /* max number of service threads running */
 
 /* services: operation codes */
