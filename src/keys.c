@@ -1,46 +1,14 @@
 #include <stdio.h>
 #include <string.h>
-#include <mqueue.h>
-#include "utils.h"
-#include "keys.h"
+#include <unistd.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-
-mqd_t server_q;         /* queue for server */
-mqd_t client_q;         /* queue for client */
-struct mq_attr attr;
-char client_q_name[MAX_STR_SIZE];
+#include "utils.h"
+#include "keys.h"
 
 
-int open_server_q() {
-    server_q = mq_open(SERVER_QUEUE_NAME, O_WRONLY);
-    if (server_q == -1) return -1;
-    return 0;
-}
-
-
-int open_client_q() {
-    client_q = mq_open(client_q_name, O_CREAT|O_RDONLY, 0666, &attr);
-    if (client_q == -1) return -1;
-    return 0;
-}
-
-
-int close_server_q() {
-    if (mq_close(server_q) == -1) return -1;
-    return 0;
-}
-
-
-int close_client_q() {
-    if (mq_close(client_q) == -1) {
-        mq_unlink(client_q_name); return -1;
-    } else {
-        if (mq_unlink(client_q_name) == -1) return -1;
-        return 0;
-    }
-}
+int client_socket;
 
 
 void init_connection(const char *host_name, const int port_number) {
@@ -48,9 +16,8 @@ void init_connection(const char *host_name, const int port_number) {
     struct hostent *hp;
 
     /* creating the socket */
-    int sd;
-    sd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (sd < 0){
+    client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (client_socket < 0){
         perror("Error while creating socket");
     }
 
@@ -65,7 +32,7 @@ void init_connection(const char *host_name, const int port_number) {
     server_addr.sin_port = htons(port_number);
 
     //connecting with the server
-    int err = connect(sd, (struct sockaddr *) &server_addr, sizeof(server_addr));
+    int err = connect(client_socket, (struct sockaddr *) &server_addr, sizeof(server_addr));
     if(err >= 0){
         printf("Connection established with server!\n");
     }else{
@@ -74,20 +41,21 @@ void init_connection(const char *host_name, const int port_number) {
 }
 
 
+int close_connection() {
+    close(client_socket);
+    return 0;
+}
+
+
 int service(const char op_code, const int key, char *value1, int *value2, float *value3) {
     /* one-size-fits-all function that performs the required services;
      * can perform all 7 services given the proper arguments;
      * op_code determines the service */
 
-    /* open both queues */
-    if (open_server_q() == -1 || open_client_q() == -1) {
-        perror(mq_open_error); return -1;
-    }
 
     /* create client request */
     request_t request;
     request.op_code = op_code;
-    strncpy(request.q_name, client_q_name, MAX_STR_SIZE);
     /* most services require the key as well */
     if (op_code == SET_VALUE || op_code == GET_VALUE || op_code == MODIFY_VALUE
     || op_code == DELETE_KEY || op_code == EXIST)
@@ -100,24 +68,12 @@ int service(const char op_code, const int key, char *value1, int *value2, float 
     }
 
     /* send client request to server */
-    if (mq_send(server_q, (const char *) &request, sizeof(request_t), 0) < 0) {
-        perror(send_request_error);
-        if (close_server_q() == -1 || close_client_q() == -1) perror(mq_close_error);
-        return -1;
-    }
 
     /* receive server reply */
     reply_t reply;
-    if (mq_receive(client_q, (char *) &reply, sizeof(reply_t), 0) < 0) {
-        perror(receive_server_reply_error);
-        if (close_server_q() == -1 || close_client_q() == -1) perror(mq_close_error);
-        return -1;
-    }
 
-    /* close both queues */
-    if (close_server_q() == -1 || close_client_q() == -1) {
-        perror(mq_close_error); return -1;
-    }
+
+    /*close client socket*/
 
     /* check server reply, different actions depending on the called service */
     switch (op_code) {

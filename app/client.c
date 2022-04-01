@@ -2,9 +2,6 @@
 #include <stdlib.h>
 #include "utils.h"
 #include "keys.h"
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netdb.h>
 
 /* some common messages to print */
 const char display_actions_str[] = "The possible operations to perform are the following:\n"
@@ -178,6 +175,8 @@ int main(int argc, char **argv, char **env) {
                 break;
             } // end case 7
             case 8: {       /* exit by changing the control var to 0 */
+                /* close connection with server */
+
                 control_var = 0; break;
             } // end case 8
             default: break;

@@ -8,10 +8,6 @@
 #define VALUE1_MAX_STR_SIZE 255     /* size of value1 string */
 #define DB_NAME "db"                /* database directory name */
 
-//GET RID OF THIS
-/* message queue stuff */
-#define SERVER_QUEUE_NAME "/server_queue"
-
 /* server stuff */
 #define MAX_CONN_BACKLOG 1          /* max number of open client connections */
 #define THREAD_POOL_SIZE 5          /* max number of service threads running */
