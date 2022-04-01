@@ -24,26 +24,26 @@ int send_common_header(const int socket, header_t *header) {
 }
 
 
-int send_reply_header(const int client_socket, reply_t *reply) {
-    /* function that sends transaction ID, op_code & server_error_code fields to client_socket */
-    if (send_common_header(client_socket, &reply->header) == -1) return -1;
+int send_reply_header(const int socket, reply_t *reply) {
+    /* function that sends transaction ID, op_code & server_error_code fields to socket */
+    if (send_common_header(socket, &reply->header) == -1) return -1;
 
     reply->server_error_code = (int32_t) htonl(reply->server_error_code);
-    if (send_msg(client_socket, (char *) &reply->server_error_code, sizeof(int32_t)) == -1) {
+    if (send_msg(socket, (char *) &reply->server_error_code, sizeof(int32_t)) == -1) {
         perror("Send server_error_code error");
-        close(client_socket); return -1;
+        close(socket); return -1;
     }
 
     return 0;
 }
 
 
-int send_num_items(const int client_socket, reply_t *reply) {
-    /* function that sends num_items to client_socket */
+int send_num_items(const int socket, reply_t *reply) {
+    /* function that sends num_items to socket */
     reply->num_items = htonl(reply->num_items);
-    if (send_msg(client_socket, (char *) &reply->num_items, sizeof(uint32_t)) == -1) {
+    if (send_msg(socket, (char *) &reply->num_items, sizeof(uint32_t)) == -1) {
         perror("Send num_items error");
-        close(client_socket); return -1;
+        close(socket); return -1;
     }
 
     return 0;
@@ -105,6 +105,21 @@ int recv_common_header(const int socket, header_t *header) {
         perror("Receive op_code error");
         close(socket); return -1;
     }
+
+    return 0;
+}
+
+
+int recv_reply_header(const int socket, reply_t *reply) {
+    /* function that receives transaction ID, op_code & server_error_code fields from socket */
+    if (recv_common_header(socket, &reply->header) == -1) return -1;
+
+    /* receive server_error_code */
+    if (recv_msg(socket, (char *) &reply->server_error_code, sizeof(int32_t)) == -1) {
+        perror("Receive server_error_code error");
+        close(socket); return -1;
+    }
+    reply->server_error_code = (int32_t) ntohl(reply->server_error_code);
 
     return 0;
 }

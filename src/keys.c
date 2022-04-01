@@ -12,39 +12,37 @@
 int client_socket;
 
 
-void init_connection(const char *host_name, const int port_number) {
+int init_connection(const char *host_name, const int port) {
     struct sockaddr_in server_addr;
     struct hostent *hp;
 
     /* creating the socket */
     client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (client_socket < 0){
-        perror("Error while creating socket");
+        perror("Error while creating socket"); return -1;
     }
 
     /*obtain the server address */
-    bzero((char*)&server_addr, sizeof(server_addr));
+    bzero((char*) &server_addr, sizeof server_addr);
     hp = gethostbyname(host_name);
-    if (hp == NULL){
-        perror("Error getting hostname");
+    if (!hp){
+        perror("Error getting hostname"); return -1;
     }
     memcpy (&(server_addr.sin_addr), hp->h_addr, hp->h_length);
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(port_number);
+    server_addr.sin_port = htons(port);
 
-    //connecting with the server
-    int err = connect(client_socket, (struct sockaddr *) &server_addr, sizeof(server_addr));
-    if(err >= 0){
-        printf("Connection established with server!\n");
-    }else{
-        perror("Error connecting to server");
+    /* connecting with server */
+    if (connect(client_socket, (struct sockaddr *) &server_addr, sizeof(server_addr)) == -1) {
+        perror("Error connecting with server"); return -1;
     }
+    fprintf(stderr, "Connection established with server!\n");
+    return 0;
 }
 
 
-int close_connection() {
+void close_connection(void) {
     close(client_socket);
-    return 0;
 }
 
 
@@ -53,31 +51,30 @@ int service(const char op_code, const int key, char *value1, int *value2, float 
      * can perform all 7 services given the proper arguments;
      * op_code determines the service */
 
-
     /* create client request */
     request_t request;
-    reply_t reply;
     request.header.op_code = op_code;
-    /* send client request*/
-    if(send_common_header(client_socket, &request) < 0){
-        perror("Error sending header ");
+    /* send client request */
+    if(send_common_header(client_socket, &request.header) < 0) {
+        perror("Error sending header "); return -1;
     }
 
-    /*receive the response for the header */
-    if(recv_common_header(client_socket, &reply) < 0){
-        perror("Error sending header ");
+    reply_t reply;
+    /* receive reply header */
+    if(recv_reply_header(client_socket, &reply) < 0) {
+        perror("Error sending header "); return -1;
     }
 
     /* for some methods, we also need to send the key*/
     if (op_code == SET_VALUE || op_code == GET_VALUE || op_code == MODIFY_VALUE
-        || op_code == DELETE_KEY || op_code == EXIST){
+        || op_code == DELETE_KEY || op_code == EXIST) {
         request.item.key = key;
-        if(send_keys(client_socket, &key) < 0){
+        if(send_keys(client_socket, &request.item) < 0) {
             perror("Error sending key");
         }
 
         /*now, we receive the response from the server*/
-        if(recv_key(client_socket, &request.item) < 0){
+        if(recv_key(client_socket, &request.item) < 0) {
             perror("Error receiving response for header");
         }
     }
@@ -87,18 +84,15 @@ int service(const char op_code, const int key, char *value1, int *value2, float 
         strncpy(request.item.value1, value1, VALUE1_MAX_STR_SIZE);
         request.item.value2 = *value2;
         request.item.value3 = *value3;
-        if(send_item(client_socket, &reply.item) < 0){
+        if(send_item(client_socket, &reply.item) < 0) {
             perror("Error sending header ");
         }
 
         /*receive response from the server*/
-        if(recv_item(client_socket, &reply.item) < 0){
+        if(recv_item(client_socket, &reply.item) < 0) {
             perror("Error receiving response for items ");
         }
     }
-
-    /*close client socket*/
-    close_connection(client_socket);
 
     /* check server reply, different actions depending on the called service */
     switch (op_code) {

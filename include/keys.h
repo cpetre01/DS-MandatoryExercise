@@ -7,7 +7,8 @@ const char send_request_error[] = "Error sending request to server";
 
 
 /* internal functions used to work with queues */
-void init_connection(const char *host_name, int port_number);
+int init_connection(const char *host_name, const int port);
+void close_connection(void);
 
 /* one-size-fits-all function that performs the required services;
  * can perform all 7 services given the proper arguments;

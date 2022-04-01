@@ -20,18 +20,18 @@ add_library(dbms STATIC)
 target_sources(dbms
         PRIVATE src/dbms/dbms.c
                 src/dbms/dbmsUtils.c
-                src/utils.c)
+        PUBLIC  src/utils.c)
 # using PUBLIC propagates this directory to server and dbms_tests targets
 # which need it to include dbms.h & dbmsUtils.h
 target_include_directories(dbms
-        PRIVATE include
+        PUBLIC  include
         PUBLIC  include/dbms)
 
 # create netUtils library
 add_library(netUtils STATIC)
 target_sources(netUtils
         PRIVATE src/netUtils.c
-                src/utils.c)
+        PUBLIC  src/utils.c)
 # using PUBLIC propagates these directories to server and keys targets
 # which need it to include utils.h & netUtils.h
 target_include_directories(netUtils PUBLIC include)

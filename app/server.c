@@ -152,7 +152,7 @@ void * service_thread(void *args) {
                 fprintf(stderr, "Requested invalid operation\n");
                 close(client_socket); continue;
         } // end switch
-        close(client_socket);
+//        close(client_socket);
     } // end outer while
 }
 
@@ -317,7 +317,7 @@ int main(int argc, char **argv) {
     sigaction(SIGINT, &keyboard_interrupt, NULL);
 
     /* get server up & running */
-    if ((server_sd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
+    if ((server_sd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1) {
         perror("Can't create server socket"); return -1;
     }
 

@@ -68,6 +68,7 @@ int get_key_and_values(int *key, char *value1, int *value2, float *value3) {
 
 int main(int argc, char **argv, char **env) {
     int control_var = TRUE;
+    int server_port_num;
 
     const char *server_ip = getenv("IP_TUPLES");
     const char *server_port = getenv("PORT_TUPLES");
@@ -77,13 +78,13 @@ int main(int argc, char **argv, char **env) {
         return -1;
     }
 
-    int server_port_num = str_to_num(server_port, (void *) &server_port, INT);
-    if (server_port_num == -1) {
+    if (str_to_num(server_port, (void *) &server_port_num, INT) == -1) {
         perror("Invalid server port"); return -1;
     }
 
     /* initialize connection with the sever side */
-    init_connection( server_ip ,server_port_num);
+    if (init_connection( server_ip ,server_port_num) == -1)
+        control_var = FALSE;
 
     /* loop to control client requests */
     while (control_var) {
@@ -176,8 +177,8 @@ int main(int argc, char **argv, char **env) {
             } // end case 7
             case 8: {       /* exit by changing the control var to 0 */
                 /* close connection with server */
-
-                control_var = 0; break;
+                close_connection();
+                control_var = FALSE; break;
             } // end case 8
             default: break;
         } // end switch

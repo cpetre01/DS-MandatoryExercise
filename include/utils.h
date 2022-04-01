@@ -66,7 +66,6 @@ typedef struct {
     /* client request */
     header_t header;
     item_t item;                /* struct containing all required elements of an item */
-    char q_name[MAX_STR_SIZE];  /* client queue name - this is where the server sends the reply to */
 } request_t;
 
 typedef struct {
