@@ -9,7 +9,9 @@ set(CMAKE_C_STANDARD 11)
 # create keys dynamic library
 add_library(keys SHARED)
 target_sources(keys PRIVATE src/keys.c)
-target_link_libraries(keys PRIVATE rt)
+target_link_libraries(keys
+        PRIVATE rt
+                netUtils)
 # using PUBLIC propagates this directory to client target, which needs it to include utils.h & keys.h
 target_include_directories(keys PUBLIC include)
 
@@ -19,11 +21,20 @@ target_sources(dbms
         PRIVATE src/dbms/dbms.c
                 src/dbms/dbmsUtils.c
                 src/utils.c)
-# using PUBLIC propagates these directories to server and dbms_tests targets
-# which need it to include utils.h, dbms.h & dbmsUtils.h
+# using PUBLIC propagates this directory to server and dbms_tests targets
+# which need it to include dbms.h & dbmsUtils.h
 target_include_directories(dbms
-        PUBLIC  include
-                include/dbms)
+        PRIVATE include
+        PUBLIC  include/dbms)
+
+# create netUtils library
+add_library(netUtils STATIC)
+target_sources(netUtils
+        PRIVATE src/netUtils.c
+                src/utils.c)
+# using PUBLIC propagates these directories to server and keys targets
+# which need it to include utils.h & netUtils.h
+target_include_directories(netUtils PUBLIC include)
 
 # client and server apps
 add_executable(client)
@@ -37,6 +48,7 @@ target_sources(server PRIVATE app/server.c)
 target_link_libraries(server
         PRIVATE rt
                 pthread
+                netUtils
                 dbms)
 
 # tests

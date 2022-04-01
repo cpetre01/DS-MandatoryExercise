@@ -6,6 +6,7 @@
 #include <netdb.h>
 #include "utils.h"
 #include "keys.h"
+#include "netUtils.h"
 
 
 int client_socket;
@@ -55,7 +56,7 @@ int service(const char op_code, const int key, char *value1, int *value2, float 
 
     /* create client request */
     request_t request;
-    request.op_code = op_code;
+    request.header.op_code = op_code;
     /* most services require the key as well */
     if (op_code == SET_VALUE || op_code == GET_VALUE || op_code == MODIFY_VALUE
     || op_code == DELETE_KEY || op_code == EXIST)
@@ -67,10 +68,14 @@ int service(const char op_code, const int key, char *value1, int *value2, float 
         request.item.value3 = *value3;
     }
 
-    /* send client request to server */
+    /* send client request*/
+    if(send_common_header(client_socket, &request) < 0){
+        perror("Error sending header ");
+    }
 
     /* receive server reply */
     reply_t reply;
+    if(recv)
 
 
     /*close client socket*/

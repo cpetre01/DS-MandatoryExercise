@@ -58,17 +58,21 @@ typedef struct {
 
 /* types used for process communication */
 typedef struct {
-    /* client request */
+    /* common header */
     uint32_t id;                /* transaction ID */
     char op_code;               /* operation code that indicates the client API function called */
+} header_t;
+
+typedef struct {
+    /* client request */
+    header_t header;
     item_t item;                /* struct containing all required elements of an item */
     char q_name[MAX_STR_SIZE];  /* client queue name - this is where the server sends the reply to */
 } request_t;
 
 typedef struct {
     /* server reply */
-    uint32_t id;                /* transaction ID */
-    char op_code;               /* operation code that indicates the client API function called */
+    header_t header;
     int32_t server_error_code;  /* error code returned by the server; client API interprets it
  *                              to figure out whether the transaction was successful */
     uint32_t num_items;         /* total number of items stored; filled in case of num_items API call */

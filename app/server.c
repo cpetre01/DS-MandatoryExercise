@@ -1,7 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
 #include <strings.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -10,20 +8,12 @@
 #include <pthread.h>
 #include <signal.h>
 #include "utils.h"
+#include "netUtils.h"
 #include "dbms.h"
 
 /* prototypes */
 void *service_thread(void *args);
 void set_server_error_code_std(reply_t *reply, int req_error_code);
-
-/* sending functions */
-int send_reply_header(int client_socket, reply_t *reply);
-int send_num_items(int client_socket, reply_t *reply);
-
-/* receiving functions */
-int recv_request_header(int client_socket, request_t *request);
-int recv_key(int client_socket, request_t *request);
-int recv_item(int client_socket, request_t *request);
 
 /* services */
 void init_db(reply_t *reply);
@@ -60,135 +50,6 @@ void set_server_error_code_std(reply_t *reply, const int req_error_code) {
 }
 
 
-int send_reply_header(const int client_socket, reply_t *reply) {
-    /* function that sends transaction ID, op_code & server_error_code fields to client_socket */
-    reply->id = htonl(reply->id);
-    if (send_msg(client_socket, (char *) &reply->id, sizeof(uint32_t)) == -1) {
-        perror("Send transaction ID error");
-        close(client_socket); return -1;
-    }
-
-    if (send_msg(client_socket, &reply->op_code, 1) == -1) {
-        perror("Send op_code error");
-        close(client_socket); return -1;
-    }
-
-    reply->server_error_code = (int32_t) htonl(reply->server_error_code);
-    if (send_msg(client_socket, (char *) &reply->server_error_code, sizeof(int32_t)) == -1) {
-        perror("Send server_error_code error");
-        close(client_socket); return -1;
-    }
-
-    return 0;
-}
-
-
-int send_num_items(const int client_socket, reply_t *reply) {
-    /* function that sends num_items to client_socket */
-    reply->num_items = htonl(reply->num_items);
-    if (send_msg(client_socket, (char *) &reply->num_items, sizeof(uint32_t)) == -1) {
-        perror("Send num_items error");
-        close(client_socket); return -1;
-    }
-
-    return 0;
-}
-
-
-int send_item(const int client_socket, reply_t *reply) {
-    /* function that sends an entire item to client_socket */
-
-    /* send key */
-    reply->item.key = (int32_t) htonl(reply->item.key);
-    if (send_msg(client_socket, (char *) &reply->item.key, sizeof(int32_t)) == -1) {
-        perror("Send key error");
-        close(client_socket); return -1;
-    }
-
-    /* send value1 */
-    if (send_msg(client_socket, reply->item.value1, (int) (strlen(reply->item.value1) + 1)) == -1) {
-        perror("Send value1 error");
-        close(client_socket); return -1;
-    }
-
-    /* send value2 */
-    reply->item.value2 = (int32_t) htonl(reply->item.value2);
-    if (send_msg(client_socket, (char *) &reply->item.value2, sizeof(int32_t)) == -1) {
-        perror("Send value2 error");
-        close(client_socket); return -1;
-    }
-
-    /* send value3 */
-    reply->item.value3 = (float) htonl((uint32_t) reply->item.value3);
-    if (send_msg(client_socket, (char *) &reply->item.value3, sizeof(float)) == -1) {
-        perror("Send value3 error");
-        close(client_socket); return -1;
-    }
-
-    return 0;
-}
-
-
-int recv_request_header(const int client_socket, request_t *request) {
-    /* function that receives transaction ID & op_code fields from client_socket */
-
-    /* receive transaction ID */
-    if (recv_msg(client_socket, (char *) &request->id, sizeof(uint32_t)) == -1) {
-        perror("Receive transaction ID error");
-        close(client_socket); return -1;
-    }
-    request->id = ntohl(request->id);
-
-    /* receive op_code */
-    if (recv_msg(client_socket, &request->op_code, 1) == -1) {
-        perror("Receive op_code error");
-        close(client_socket); return -1;
-    }
-
-    return 0;
-}
-
-
-int recv_key(const int client_socket, request_t *request) {
-    /* function that receives the key attribute from client_socket */
-    if (recv_msg(client_socket, (char *) &request->item.key, sizeof(int32_t)) == -1) {
-        perror("Receive key error");
-        close(client_socket); return -1;
-    }
-    request->item.key = (int32_t) ntohl(request->item.key);
-
-    return 0;
-}
-
-
-int recv_item(const int client_socket, request_t *request) {
-    /* function that receives an entire item from client_socket */
-    if (recv_key(client_socket, request) == -1) return -1;
-
-    /* receive value1 */
-    if (read_line(client_socket, request->item.value1, VALUE1_MAX_STR_SIZE) == -1) {
-        perror("Receive value1 error");
-        close(client_socket); return -1;
-    }
-
-    /* receive value2 */
-    if (recv_msg(client_socket, (char *) &request->item.value2, sizeof(int32_t)) == -1) {
-        perror("Receive value2 error");
-        close(client_socket); return -1;
-    }
-    request->item.value2 = (int32_t) ntohl(request->item.value2);
-
-    /* receive value3 */
-    if (recv_msg(client_socket, (char *) &request->item.value3, sizeof(float)) == -1) {
-        perror("Receive value3 error");
-        close(client_socket); return -1;
-    }
-    request->item.value3 = (float) ntohl((uint32_t) request->item.value3);
-
-    return 0;
-}
-
-
 void * service_thread(void *args) {
     while (TRUE) {
         int client_socket;
@@ -216,11 +77,11 @@ void * service_thread(void *args) {
 
         /* set up server reply */
         reply_t reply;
-        reply.id = request.id;
-        reply.op_code = request.op_code;
+        reply.header.id = request.header.id;
+        reply.header.op_code = request.header.op_code;
 
         /* check whether client request is valid and execute it */
-        switch (request.op_code) {
+        switch (request.header.op_code) {
             case INIT:
                 /* execute client request */
                 init_db(&reply);
