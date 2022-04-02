@@ -1,7 +1,7 @@
 #ifndef NETUTILS_H
 #define NETUTILS_H
 
-#define MAX_CONN_BACKLOG 5          /* max number of open client connections */
+#define MAX_CONN_BACKLOG 10     /* max number of open client connections */
 
 /* sending functions */
 int send_common_header(int socket, header_t *header);

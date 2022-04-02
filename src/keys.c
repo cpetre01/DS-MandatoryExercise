@@ -41,8 +41,16 @@ int open_socket(const char *host_name, const int port) {
 }
 
 
-void close_socket(void) {
+int close_socket(void) {
+    /* notify the server that this connection is being closed, so it moves on */
+    request_t request;
+    request.header.op_code = END_CONN;
+
+    /* send client request header */
+    if (send_common_header(client_socket, &request.header) == -1) return -1;
     close(client_socket);
+
+    return 0;
 }
 
 

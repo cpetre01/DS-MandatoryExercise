@@ -8,7 +8,7 @@ const char send_request_error[] = "Error sending request to server";
 
 /* functions used to connect with server */
 int open_socket(const char *host_name, int port);
-void close_socket(void);
+int close_socket(void);
 
 /* one-size-fits-all function that performs the required services;
  * can perform all 7 services given the proper arguments;

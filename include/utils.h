@@ -19,6 +19,7 @@
 #define DELETE_KEY 'e'
 #define EXIST 'f'
 #define NUM_ITEMS 'g'
+#define END_CONN 'h'
 
 /* server error codes */
 #define ERROR 0
@@ -32,6 +33,10 @@
 #define READ 'r'
 #define CREATE 'c'
 #define MODIFY 'm'
+
+/* control variable states for the service thread loop that handles client connections */
+#define ON 1
+#define OFF 0
 
 /* number casting stuff */
 #define INT 'i'

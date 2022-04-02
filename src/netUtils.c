@@ -79,8 +79,10 @@ int send_values(const int socket, item_t *item) {
     }
 
     /* send value3 */
-    item->value3 = (float) htonl((uint32_t) item->value3);
-    if (send_msg(socket, (char *) &item->value3, sizeof(float)) == -1) {
+    uint32_t tmp;
+    memcpy((char *) &tmp, (char *) &item->value3, sizeof(float ));
+    tmp = htonl(tmp);
+    if (send_msg(socket, (char *) &tmp, sizeof(float)) == -1) {
         perror("Send value3 error");
         close(socket); return -1;
     }
@@ -165,11 +167,13 @@ int recv_values(const int socket, item_t *item) {
     item->value2 = (int32_t) ntohl(item->value2);
 
     /* receive value3 */
-    if (recv_msg(socket, (char *) &item->value3, sizeof(float)) == -1) {
+    uint32_t tmp;
+    if (recv_msg(socket, (char *) &tmp, sizeof(float)) == -1) {
         perror("Receive value3 error");
         close(socket); return -1;
     }
-    item->value3 = (float) ntohl((uint32_t) item->value3);
+    tmp = ntohl(tmp);
+    memcpy((char *) &item->value3, (char *) &tmp, sizeof(float ));
 
     return 0;
 }
