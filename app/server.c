@@ -198,16 +198,6 @@ void get_item(request_t *request, reply_t *reply) {
     /* fill server reply */
     reply->item.key = request->item.key;
     set_server_error_code_std(reply, req_error_code);
-//    switch (req_error_code) {
-//        case 0:
-//            reply->server_error_code = SUCCESS;
-////            strncpy(reply->item.value1, request->item.value1, VALUE1_MAX_STR_SIZE);
-////            reply->item.value2 = request->item.value2;
-////            reply->item.value3 = request->item.value3;
-//            break;
-//        case -1: reply->server_error_code = ERROR; break;
-//        default: break;
-//    }
 }
 
 
@@ -344,7 +334,7 @@ int main(int argc, char **argv) {
     }
 
     while (TRUE) {
-        printf("Press Ctrl + C to shut down server\n");
+        printf("Press Ctrl + C to shut down server\n"); //doesn't work for some reason
         printf("Waiting for connections...\n");
 
         client_sd = accept(server_sd, (struct sockaddr *) &client_addr, &addr_size);
