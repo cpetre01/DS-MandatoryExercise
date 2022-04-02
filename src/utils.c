@@ -57,6 +57,8 @@ int str_to_num(const char *value_str, void *value, const char type) {
 }
 
 
+/* file & socket stuff */
+
 int send_msg(const int d, char *buffer, const int len) {
     /* sends a message of len bytes to d (socket, file... descriptor) */
     ssize_t bytes_sent;         /* number of bytes written by last write() */

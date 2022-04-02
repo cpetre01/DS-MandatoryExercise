@@ -18,6 +18,8 @@ Project Structure:
             dbmsUtils.h: function prototypes called internally in the dbms module
 
         keys.h: header for keys library; client-side API
+        
+        netUtils.h: header for netUtils library; contains function prototypes used to send and receive stuff; network API used by both server and client
 
         utils.h: types, constants and function prototypes used throughout the project; useful stuff
 
@@ -30,6 +32,8 @@ Project Structure:
             dbmsUtils.c: source code for the function prototypes defined in dbmsUtils.h
     
         keys.c: source code for keys library; client-side API
+        
+        netUtils.c: source code for netUtils library; network API
     
         utils.c: source code for the function prototypes defined in utils.h
 
