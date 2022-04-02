@@ -83,7 +83,7 @@ int main(int argc, char **argv, char **env) {
     }
 
     /* initialize connection with the sever side */
-    if (init_connection( server_ip ,server_port_num) == -1)
+    if (open_socket(server_ip, server_port_num) == -1)
         control_var = FALSE;
 
     /* loop to control client requests */
@@ -177,7 +177,7 @@ int main(int argc, char **argv, char **env) {
             } // end case 7
             case 8: {       /* exit by changing the control var to 0 */
                 /* close connection with server */
-                close_connection();
+                close_socket();
                 control_var = FALSE; break;
             } // end case 8
             default: break;

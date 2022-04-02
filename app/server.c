@@ -91,7 +91,8 @@ void * service_thread(void *args) {
                 break;
             case SET_VALUE:
                 /* receive rest of client request */
-                if (recv_item(client_socket, &request.item) == -1) continue;
+                if (recv_key(client_socket, &request.item) == -1 ||
+                recv_values(client_socket, &request.item) == -1) continue;
 
                 /* execute client request */
                 insert_item(&request, &reply);
@@ -108,11 +109,12 @@ void * service_thread(void *args) {
 
                 /* send server reply */
                 if (send_reply_header(client_socket, &reply) == -1 ||
-                send_item(client_socket, &reply.item) == -1) continue;
+                        send_values(client_socket, &reply.item) == -1) continue;
                 break;
             case MODIFY_VALUE:
                 /* receive rest of client request */
-                if (recv_item(client_socket, &request.item) == -1) continue;
+                if (recv_key(client_socket, &request.item) == -1 ||
+                    recv_values(client_socket, &request.item) == -1) continue;
 
                 /* execute client request */
                 modify_item(&request, &reply);

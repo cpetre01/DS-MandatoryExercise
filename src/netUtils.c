@@ -8,7 +8,7 @@
 
 
 int send_common_header(const int socket, header_t *header) {
-    /* function that sends transaction ID, op_code fields to socket */
+    /* function that sends transaction ID, op_code members to socket */
     header->id = htonl(header->id);
     if (send_msg(socket, (char *) &header->id, sizeof(uint32_t)) == -1) {
         perror("Send transaction ID error");
@@ -25,7 +25,7 @@ int send_common_header(const int socket, header_t *header) {
 
 
 int send_reply_header(const int socket, reply_t *reply) {
-    /* function that sends transaction ID, op_code & server_error_code fields to socket */
+    /* function that sends transaction ID, op_code & server_error_code members to socket */
     if (send_common_header(socket, &reply->header) == -1) return -1;
 
     reply->server_error_code = (int32_t) htonl(reply->server_error_code);
@@ -39,7 +39,7 @@ int send_reply_header(const int socket, reply_t *reply) {
 
 
 int send_num_items(const int socket, reply_t *reply) {
-    /* function that sends num_items to socket */
+    /* function that sends num_items member to socket */
     reply->num_items = htonl(reply->num_items);
     if (send_msg(socket, (char *) &reply->num_items, sizeof(uint32_t)) == -1) {
         perror("Send num_items error");
@@ -50,8 +50,8 @@ int send_num_items(const int socket, reply_t *reply) {
 }
 
 
-int send_keys(const int socket, item_t *item) {
-    /* function that sends the key attribute to socket */
+int send_key(const int socket, item_t *item) {
+    /* function that sends the key member to socket */
     item->key = (int32_t) htonl(item->key);
     if (send_msg(socket, (char *) &item->key, sizeof(int32_t)) == -1) {
         perror("Send key error");
@@ -62,9 +62,8 @@ int send_keys(const int socket, item_t *item) {
 }
 
 
-int send_item(const int socket, item_t *item) {
-    /* function that sends an entire item to client_socket */
-    if (send_keys(socket, item) == -1) return -1;
+int send_values(const int socket, item_t *item) {
+    /* function that sends value members to socket */
 
     /* send value1 */
     if (send_msg(socket, item->value1, (int) (strlen(item->value1) + 1)) == -1) {
@@ -91,7 +90,7 @@ int send_item(const int socket, item_t *item) {
 
 
 int recv_common_header(const int socket, header_t *header) {
-    /* function that receives transaction ID & op_code fields from socket */
+    /* function that receives transaction ID & op_code members from socket */
 
     /* receive transaction ID */
     if (recv_msg(socket, (char *) &header->id, sizeof(uint32_t)) == -1) {
@@ -111,7 +110,7 @@ int recv_common_header(const int socket, header_t *header) {
 
 
 int recv_reply_header(const int socket, reply_t *reply) {
-    /* function that receives transaction ID, op_code & server_error_code fields from socket */
+    /* function that receives transaction ID, op_code & server_error_code members from socket */
     if (recv_common_header(socket, &reply->header) == -1) return -1;
 
     /* receive server_error_code */
@@ -125,8 +124,20 @@ int recv_reply_header(const int socket, reply_t *reply) {
 }
 
 
+int recv_num_items(const int socket, reply_t *reply) {
+    /* function that receives num_items member from socket */
+    if (recv_msg(socket, (char *) &reply->num_items, sizeof(uint32_t)) == -1) {
+        perror("Receive num_items error");
+        close(socket); return -1;
+    }
+    reply->num_items = ntohl(reply->num_items);
+
+    return 0;
+}
+
+
 int recv_key(const int socket, item_t *item) {
-    /* function that receives the key attribute from socket */
+    /* function that receives the key member from socket */
     if (recv_msg(socket, (char *) &item->key, sizeof(int32_t)) == -1) {
         perror("Receive key error");
         close(socket); return -1;
@@ -137,9 +148,8 @@ int recv_key(const int socket, item_t *item) {
 }
 
 
-int recv_item(const int socket, item_t *item) {
-    /* function that receives an entire item from client_socket */
-    if (recv_key(socket, item) == -1) return -1;
+int recv_values(const int socket, item_t *item) {
+    /* function that receives value members from socket */
 
     /* receive value1 */
     if (read_line(socket, item->value1, VALUE1_MAX_STR_SIZE) == -1) {
