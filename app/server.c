@@ -269,8 +269,8 @@ void get_num_items(reply_t *reply) {
 void shutdown_server() {
     /* destroy server resources before shutting it down */
     pthread_mutex_destroy(&mutex_conn_q);
-    pthread_cond_destroy(&cond_conn_q_not_empty);
-    pthread_cond_destroy(&cond_conn_q_not_full);
+//    pthread_cond_destroy(&cond_conn_q_not_empty);
+//    pthread_cond_destroy(&cond_conn_q_not_full);
     pthread_mutex_destroy(&mutex_db);
     pthread_attr_destroy(&th_attr);
     exit(0);
