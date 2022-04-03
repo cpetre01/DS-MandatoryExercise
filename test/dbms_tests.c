@@ -4,65 +4,64 @@
 #include "dbms.h"
 
 
-void test_write_item(const int key)
-{
-    char value1[VALUE1_MAX_STR_SIZE] = "test";
+TEST(tests,test_write_item) { 
+    
+    db_empty_db();
     int value2 = 123456789;
     float value3 = 1.123456789f;
 
-    int result;
+    // file with key 100 do not exists in the database
+    EXPECTED_EQ(db_item_exists(100), 0);
+    
+    // creating file
+    EXPECTED_EQ(db_write_item(100, "test", &value2, &value3, CREATE),0);
+    
+    // checking if it exists now
+    EXPECTED_EQ(db_item_exists(100), 1);
+    
+    // creating file with the same key should give already existent error
+    EXPECTED_EQ(db_write_item(100, "test", &value2, &value3, CREATE),-1);
 
-    result = db_item_exists(key);
-    printf("before creating key file: db_item_exists return value: %d\n", result);
-
-    result = db_write_item(key, value1, &value2, &value3, CREATE);
-    printf("after creating key file: db_write_item return value: %d\n", result);
-
-    result = db_item_exists(key);
-    printf("after creating key file: db_item_exists return value: %d\n", result);
 }
 
-
-void test_modify_item(const int key)
+TEST(tests, test_modify_item)
 {
-    char value1[VALUE1_MAX_STR_SIZE] = "test_modify_item";
+    db_empty_db();
     int value2 = 987654321;
     float value3 = 9.987654321f;
 
-    int result;
+    // modifying a non existent file
+    EXPECTED_EQ(db_write_item(101, "test_modify_item", &value2, &value3, MODIFY),-1);
+    
+    // creating the file
+    db_write_item(101, "test", &value2, &value3, CREATE);
 
-    result = db_item_exists(key);
-    printf("before modifying key file: db_item_exists return value: %d\n", result);
-
-    if (result > 0) {
-        result = db_write_item(key, value1, &value2, &value3, MODIFY);
-        printf("after modifying key file: modify_item return value: %d\n", result);
-    } else
-        printf("key file doesn't exist\n");
+    // modifying the file
+    EXPECTED_EQ(db_write_item(101, "test_modify_item", &value2, &value3, MODIFY),0);
 
 }
 
 
-void test_read_item(const int key)
+TEST(tests,test_read_item)
 {
+    db_empty_db();
     char value1[VALUE1_MAX_STR_SIZE];
     int value2;
     float value3;
+    
+    // the file to read does not exists
+    EXPECTED_EQ(db_read_item(102, value1, &value2, &value3), -1);
 
-    int result;
+    // creating the file
+    db_write_item(102, "test", &value2, &value3, CREATE);
 
-    result = db_item_exists(key);
-    printf("before reading key file: db_item_exists return value: %d\n", result);
-
-    if (result > 0) {
-        result = db_read_item(key, value1, &value2, &value3);
-        printf("after reading key file: db_read_item return value: %d\n", result);
-
-        printf("\nvalue1: %s\nvalue2: %d\nvalue3: %f\n", value1, value2, value3);
-    } else
-        printf("key file doesn't exist\n");
+    // reading the file
+    EXPECTED_EQ(db_read_item(102, value1, &value2, &value3),0);
+    
 }
 
+
+/*
 
 int main(void)
 {
@@ -123,3 +122,4 @@ int main(void)
 
     return 0;
 }
+*/
