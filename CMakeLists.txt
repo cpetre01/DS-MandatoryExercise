@@ -12,7 +12,7 @@ set(TARGET_CLIENT client)
 set(TARGET_SERVER server)
 
 # libraries
-set(TARGET_NET-UTILS netUtils)
+set(TARGET_NET_UTILS netUtils)
 set(TARGET_KEYS keys)
 set(TARGET_DBMS dbms)
 
@@ -27,9 +27,11 @@ add_subdirectory(src)
 # executable code
 add_subdirectory(app)
 
-# testing only available if this is the main app and explicitly required
+# testing available only if this is the main app and explicitly required
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING STREQUAL "ON")
-    enable_testing()
+#   GoogleTest framework
     add_subdirectory(extern/googletest)
+#   unittest code
     add_subdirectory(test)
+    enable_testing()
 endif()

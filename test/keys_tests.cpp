@@ -3,8 +3,8 @@
 #include <cstdlib>
 
 extern "C" {
-#include "keys.h"
 #include "utils.h"
+#include "keys.h"
 }
 
 
@@ -84,3 +84,4 @@ TEST(keys_tests, test) {
 //    ASSERT_EQ(num_items(), 3);
 //
 //}
+

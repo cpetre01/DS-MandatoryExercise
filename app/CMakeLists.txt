@@ -11,6 +11,6 @@ target_sources(${TARGET_SERVER} PRIVATE server.c)
 target_link_libraries(${TARGET_SERVER}
         PRIVATE rt
                 pthread
-                ${TARGET_NET-UTILS}
+                ${TARGET_NET_UTILS}
                 ${TARGET_DBMS}
         )

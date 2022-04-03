@@ -1,5 +1,7 @@
 #TODO
-do tests: keys-tests need work
+do tests: keys-tests & dbms_tests need work
+
+need to assign each test module for someone to do it  
 
 #Cleanup
 

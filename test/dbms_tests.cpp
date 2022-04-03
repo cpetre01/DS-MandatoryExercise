@@ -1,10 +1,11 @@
+/* gtest.h declares the testing framework */
 #include "gtest/gtest.h"
 #include <cstdio>
 
 extern "C" {
-#include "dbms.h"
-#include "dbmsUtils.h"
 #include "utils.h"
+#include "dbmsUtils.h"
+#include "dbms.h"
 }
 
 
