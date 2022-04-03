@@ -43,23 +43,23 @@ Project Structure:
 
 Unittests with GoogleTest:
 
-Testing Priority: lower is more important, to be done first
-
-Abstraction Layer: lower is more fundamental, a lot of stuff depends on it;
-higher is higher-level, it depends on other stuff; see dependency graph
+    Testing Priority: lower is more important, to be done first
+    
+    Abstraction Layer: lower is more fundamental, a lot of stuff depends on it;
+    higher is higher-level, it depends on other stuff; see dependency graph
 
 Executable/Library: Testing Priority ; Abstraction Layer 
 
-client: unsure whether this needs to be tested ; 4
-
-server: 1 ; 4
-
-dbms: 2 ; 3
-
-dbmsUtils: 2 ; 2 
-
-keys: 1 ; 3
-
-netUtils: 3 ; 2
-
-utils: 4 ; 1
+    client: unsure whether this needs to be tested ; 4
+    
+    server: 1 ; 4
+    
+    dbms: 2 ; 3
+    
+    dbmsUtils: 2 ; 2 
+    
+    keys: 1 ; 3
+    
+    netUtils: 3 ; 2
+    
+    utils: 4 ; 1
