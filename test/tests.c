@@ -1,99 +1,88 @@
-#include <check.h>               
+// header files 
+#include "keys.h"
+
+#include <limits.h>
+//  gtest.h declares the testing framework.
+#include "gtest/gtest.h"
+               
 #include "../src/keys.h"        
 #include <stdlib.h>
 #include "utils.h"
 
-int f_output;
 
 /* test for function init*/
-START_TEST(test_init) {    
-
-    f_output = init();
+TEST(tests, test_init) {
 
     /* success */
-    ck_assert_int_eq(f_output, 0);
+    EXPECTED_EQ(init(), 0);
 
-}END_TEST  
+}  
 
-START_TEST(test_set_value) {    
+TEST(tests,test_set_value) {    
     init();
-    f_output = set_value(22, "hello", 22, 22.2);
     /* success */
-    ck_assert_int_eq(f_output, 0);
+    EXPECTED_EQ(set_value(22, "hello", 22, 22.2), 0);
 
     /* failure: creating a file with an existing key*/      
-    f_output = set_value(22, "bye", 11, 11.1); 
-    ck_assert_int_eq(f_output, -1);
+    EXPECTED_EQ(set_value(22, "bye", 11, 11.1), -1);
 
-}END_TEST 
+}
 
-START_TEST(test_get_value) { 
+TEST(tests,test_get_value) { 
     char value1[VALUE1_MAX_STR_SIZE]; int value2; float value3;   
     init();
     set_value(22, "hello", 22, 22.2);
-    f_output = get_value(22, value1, &value2, &value3);
     /* success */
-    ck_assert_int_eq(f_output, 0);
+    EXPECTED_EQ(get_value(22, value1, &value2, &value3), 0);
 
     /* failure: getting values of a file with non existent key */
-    f_output = get_value(33, value1, &value2, &value3);       
-    ck_assert_int_eq(f_output, -1);
+    EXPECTED_EQ( get_value(33, value1, &value2, &value3), -1);
 
-}END_TEST
+}
 
-START_TEST(test_modify_value) {    
+TEST(tests,test_modify_value) {    
     init();
     set_value(22, "hello", 22, 22.2);
-    f_output = modify_value(22, "aloha", 44, 44.4);
     /* success */
-    ck_assert_int_eq(f_output, 0);
+    EXPECTED_EQ(modify_value(22, "aloha", 44, 44.4), 0);
 
-    f_output = modify_value(33, "aloha", 44, 44.4);
     /* failure: modify values of a file with non existent key  */       
-    ck_assert_int_eq(f_output, -1);
+    EXPECTED_EQ(modify_value(33, "aloha", 44, 44.4), -1);
 
-}END_TEST 
+}
 
-START_TEST(test_delete_key) {    
+TEST(tests,test_delete_key) {    
     init();
     set_value(22, "hello", 22, 22.2);
-    f_output = delete_key(22);
     /* success */
-    ck_assert_int_eq(f_output, 0);
+    EXPECTED_EQ(delete_key(22), 0);
 
-    f_output = delete_key(33);
     /* failure: deleting a file with non existent key  */       
-    ck_assert_int_eq(f_output, -1);
+    EXPECTED_EQ(delete_key(33), -1);
 
-}END_TEST 
+}
 
-START_TEST(test_exists) {    
+TEST(tests,test_exists) {    
     init();
     set_value(22, "hello", 22, 22.2);
-    f_output = exists(22);
     /* the key exists */
-    ck_assert_int_eq(f_output, 1);
+    EXPECTED_EQ(exists(22), 1);
 
-    f_output = exists(33);
     /* the key does not exists */       
-    ck_assert_int_eq(f_output, 0);
+    EXPECTED_EQ(exists(33), 0);
 
-}END_TEST 
+} 
 
-START_TEST(test_num_items) {    
+TEST(tests,test_num_items) {    
     init();
     set_value(22, "hello", 22, 22.2);
     set_value(33, "hello2", 33, 33.3);
     set_value(44, "hello3", 44, 44.4);
 
-    f_output = num_items();
-
     /* success */
-    ck_assert_int_eq(f_output, 0);
-    /* failure */       
-    ck_assert_int_eq(f_output, -1);
+    EXPECTED_EQ(num_items(), 3);
 
-}END_TEST
+}
 
 
 
