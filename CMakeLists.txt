@@ -30,7 +30,6 @@ add_subdirectory(app)
 # testing only available if this is the main app and explicitly required
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING STREQUAL "ON")
     enable_testing()
-    include(GoogleTest)
-#    include(CTest)
+    add_subdirectory(extern/googletest)
     add_subdirectory(test)
 endif()

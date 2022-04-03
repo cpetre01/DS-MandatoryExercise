@@ -8,7 +8,7 @@ extern "C" {
 }
 
 
-TEST(tests, test_write_item) {
+TEST(dbms_tests, test_write_item) {
     
     db_empty_db();
     int value2 = 123456789;
@@ -28,7 +28,7 @@ TEST(tests, test_write_item) {
 
 }
 
-TEST(tests, test_modify_item)
+TEST(dbms_tests, test_modify_item)
 {
     db_empty_db();
     int value2 = 987654321;
@@ -46,7 +46,7 @@ TEST(tests, test_modify_item)
 }
 
 
-TEST(tests,test_read_item)
+TEST(dbms_tests,test_read_item)
 {
     db_empty_db();
     char value1[VALUE1_MAX_STR_SIZE];

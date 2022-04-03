@@ -8,9 +8,10 @@ extern "C" {
 }
 
 
-TEST(tests, test) {
+TEST(keys_tests, test) {
     ASSERT_EQ(true, true);
 }
+
 //TEST(tests, test_init) {
 //
 //    /* success */

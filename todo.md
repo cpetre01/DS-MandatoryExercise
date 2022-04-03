@@ -1,5 +1,5 @@
 #TODO
-tests with GoogleTest (link them with CMake): can't get the tests to compile for some reason
+do tests: keys-tests need work
 
 #Cleanup
 
