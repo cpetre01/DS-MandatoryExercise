@@ -84,8 +84,8 @@ TEST(tests,test_num_items) {
 
 }
 
-
-
+/****************************************************************************************************************/
+/*
 Suite *keys_suite(void) {
     Suite *s;
     TCase *tc_core;
@@ -110,7 +110,7 @@ Suite *keys_suite(void) {
 
 int main(){
 
-    /*creating a client for testing*/
+    //creating a client for testing
     int control_var = TRUE;
     const char *server_ip = getenv("IP_TUPLES");
     const char *server_port = getenv("PORT_TUPLES");
@@ -125,12 +125,12 @@ int main(){
         perror("Invalid server port"); return -1;
     }
 
-    /* initialize connection with the sever side */
+    // initialize connection with the sever side 
     init_connection( server_ip ,server_port_num);
 
     
-    /********************************************/
-    /* calling tests */
+    /*******************************************
+    // calling tests 
     int no_failed = 0;                   
     Suite *s;                            
     SRunner *runner;                     
@@ -145,3 +145,4 @@ int main(){
 
 
 }
+*/
