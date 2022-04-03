@@ -6,6 +6,6 @@ extern "C" {
 }
 
 
-TEST(keys_tests, test) {
+TEST(utils_tests, test) {
     ASSERT_EQ(true, true);
 }

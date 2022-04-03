@@ -8,6 +8,6 @@ extern "C" {
 }
 
 
-TEST(keys_tests, test) {
+TEST(server_tests, test) {
     ASSERT_EQ(true, true);
 }

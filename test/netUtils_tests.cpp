@@ -7,6 +7,6 @@ extern "C" {
 }
 
 
-TEST(keys_tests, test) {
+TEST(netUtils_tests, test) {
     ASSERT_EQ(true, true);
 }
