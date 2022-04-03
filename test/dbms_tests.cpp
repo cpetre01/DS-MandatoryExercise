@@ -1,26 +1,30 @@
-#include <stdio.h>
-#include "utils.h"
-#include "dbmsUtils.h"
+#include "gtest/gtest.h"
+#include <cstdio>
+
+extern "C" {
 #include "dbms.h"
+#include "dbmsUtils.h"
+#include "utils.h"
+}
 
 
-TEST(tests,test_write_item) { 
+TEST(tests, test_write_item) {
     
     db_empty_db();
     int value2 = 123456789;
     float value3 = 1.123456789f;
 
     // file with key 100 do not exists in the database
-    EXPECTED_EQ(db_item_exists(100), 0);
+    ASSERT_EQ(db_item_exists(100), 0);
     
     // creating file
-    EXPECTED_EQ(db_write_item(100, "test", &value2, &value3, CREATE),0);
+    ASSERT_EQ(db_write_item(100, "test", &value2, &value3, CREATE),0);
     
     // checking if it exists now
-    EXPECTED_EQ(db_item_exists(100), 1);
+    ASSERT_EQ(db_item_exists(100), 1);
     
     // creating file with the same key should give already existent error
-    EXPECTED_EQ(db_write_item(100, "test", &value2, &value3, CREATE),-1);
+    ASSERT_EQ(db_write_item(100, "test", &value2, &value3, CREATE),-1);
 
 }
 
@@ -31,13 +35,13 @@ TEST(tests, test_modify_item)
     float value3 = 9.987654321f;
 
     // modifying a non existent file
-    EXPECTED_EQ(db_write_item(101, "test_modify_item", &value2, &value3, MODIFY),-1);
+    ASSERT_EQ(db_write_item(101, "test_modify_item", &value2, &value3, MODIFY),-1);
     
     // creating the file
     db_write_item(101, "test", &value2, &value3, CREATE);
 
     // modifying the file
-    EXPECTED_EQ(db_write_item(101, "test_modify_item", &value2, &value3, MODIFY),0);
+    ASSERT_EQ(db_write_item(101, "test_modify_item", &value2, &value3, MODIFY),0);
 
 }
 
@@ -50,13 +54,13 @@ TEST(tests,test_read_item)
     float value3;
     
     // the file to read does not exists
-    EXPECTED_EQ(db_read_item(102, value1, &value2, &value3), -1);
+    ASSERT_EQ(db_read_item(102, value1, &value2, &value3), -1);
 
     // creating the file
     db_write_item(102, "test", &value2, &value3, CREATE);
 
     // reading the file
-    EXPECTED_EQ(db_read_item(102, value1, &value2, &value3),0);
+    ASSERT_EQ(db_read_item(102, value1, &value2, &value3),0);
     
 }
 

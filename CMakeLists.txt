@@ -1,57 +1,36 @@
 cmake_minimum_required(VERSION 3.18)
+
 project(DS-MandatoryExercise
         VERSION 2.0
-        DESCRIPTION "Mandatory Exercise with sockets."
-        LANGUAGES C)
+        DESCRIPTION "Mandatory Exercise with sockets"
+        LANGUAGES C CXX)
 
-set(CMAKE_C_STANDARD 11)
-
-# create keys dynamic library
-add_library(keys SHARED)
-target_sources(keys PRIVATE src/keys.c)
-target_link_libraries(keys
-        PRIVATE rt
-                netUtils)
-# using PUBLIC propagates this directory to client target, which needs it to include utils.h & keys.h
-target_include_directories(keys PUBLIC include)
-
-# create dbms library
-add_library(dbms STATIC)
-target_sources(dbms
-        PRIVATE src/dbms/dbms.c
-                src/dbms/dbmsUtils.c
-        PUBLIC  src/utils.c)
-# using PUBLIC propagates this directory to server and dbms_tests targets
-# which need it to include dbms.h & dbmsUtils.h
-target_include_directories(dbms
-        PUBLIC  include
-        PUBLIC  include/dbms)
-
-# create netUtils library
-add_library(netUtils STATIC)
-target_sources(netUtils
-        PRIVATE src/netUtils.c
-        PUBLIC  src/utils.c)
-# using PUBLIC propagates these directories to server and keys targets
-# which need it to include utils.h & netUtils.h
-target_include_directories(netUtils PUBLIC include)
+# set target names
 
 # client and server apps
-add_executable(client)
-target_sources(client
-        PRIVATE app/client.c
-                src/utils.c)
-target_link_libraries(client PRIVATE keys)
+set(TARGET_CLIENT client)
+set(TARGET_SERVER server)
 
-add_executable(server)
-target_sources(server PRIVATE app/server.c)
-target_link_libraries(server
-        PRIVATE rt
-                pthread
-                netUtils
-                dbms)
+# libraries
+set(TARGET_NET-UTILS netUtils)
+set(TARGET_KEYS keys)
+set(TARGET_DBMS dbms)
 
-# tests
-add_executable(dbms_tests)
-target_sources(dbms_tests PRIVATE test/dbms_tests.c)
-target_link_libraries(dbms_tests PRIVATE dbms)
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    set(CMAKE_C_STANDARD 11)
+    set(CMAKE_CXX_STANDARD 11)
+endif()
+
+# library code
+add_subdirectory(src)
+
+# executable code
+add_subdirectory(app)
+
+# testing only available if this is the main app and explicitly required
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING STREQUAL "ON")
+    enable_testing()
+    include(GoogleTest)
+#    include(CTest)
+    add_subdirectory(test)
+endif()

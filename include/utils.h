@@ -63,7 +63,7 @@ typedef struct {
 /* types used for process communication */
 typedef struct {
     /* common header */
-    uint32_t id;                /* transaction ID */
+    uint16_t id;                /* transaction ID */
     char op_code;               /* operation code that indicates the client API function called */
 } header_t;
 

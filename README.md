@@ -9,6 +9,8 @@ Project Structure:
 
     build: directory used to build the project; create it if it doesn't exist
 
+    extern: directory that includes googletest; required for unittests
+
     include: header files
 
         dbms: header files for DBMS library
