@@ -31,13 +31,13 @@ int str_to_num(const char *value_str, void *value, const char type) {
         case INT:
             value_str_to_int = (int)strtol(value_str, &endptr, 10);
             cast_value = (void *) &value_str_to_int;
-            strncpy(error, "strtol", MAX_STR_SIZE);
+            strcpy(error, "strtol");
             result_size = sizeof(int);
             break;
         case FLOAT:
             value_str_to_float = strtof(value_str, &endptr);
             cast_value = (void *) &value_str_to_float;
-            strncpy(error, "strtof", MAX_STR_SIZE);
+            strcpy(error, "strtof");
             result_size = sizeof(float);
             break;
         default: fprintf(stderr, "Invalid casting type\n"); return -1;

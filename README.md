@@ -40,28 +40,16 @@ Project Structure:
         utils.c: source code for the function prototypes defined in utils.h
 
     test: unittests with GoogleTest
-
-        db_tests.c: tests for DBMS functionality (deprecated)
+        
 
 Unittests with GoogleTest:
 
     Testing Priority: lower is more important, to be done first
-    
-    Abstraction Layer: lower is more fundamental, a lot of stuff depends on it;
-    higher is higher-level, it depends on other stuff; see dependency graph
 
-Executable/Library: Testing Priority ; Abstraction Layer 
+Executable/Library: Testing Priority
+    
+    keys: 1
 
-    client: unsure whether this needs to be tested ; 4
+    dbms: 2
     
-    server: 1 ; 4
-    
-    dbms: 2 ; 3
-    
-    dbmsUtils: 2 ; 2 
-    
-    keys: 1 ; 3
-    
-    netUtils: 3 ; 2
-    
-    utils: 4 ; 1
+    dbmsUtils: 2

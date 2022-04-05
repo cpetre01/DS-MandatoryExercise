@@ -1,21 +1,6 @@
 #ifndef KEYS_H
 #define KEYS_H
 
-/* common error messages */
-const char receive_server_reply_error[] = "Error receiving reply from server";
-const char send_request_error[] = "Error sending request to server";
-
-
-/* functions used to connect with server */
-int open_socket(const char *host_name, int port);
-int close_socket(void);
-
-/* one-size-fits-all function that performs the required services;
- * can perform all 7 services given the proper arguments;
- * op_code determines the service */
-int service(char op_code, int key, char *value1, int *value2, float *value3);
-
-
 /* client API:
  * functions called by the client to perform services;
  * they are all wrappers for 'service' function */

@@ -8,9 +8,6 @@
 #define VALUE1_MAX_STR_SIZE 255     /* size of value1 string */
 #define DB_NAME "db"                /* database directory name */
 
-/* server stuff */
-#define THREAD_POOL_SIZE 5          /* max number of service threads running */
-
 /* services: operation codes */
 #define INIT 'a'
 #define SET_VALUE 'b'
@@ -19,12 +16,10 @@
 #define DELETE_KEY 'e'
 #define EXIST 'f'
 #define NUM_ITEMS 'g'
-#define END_CONN 'h'
 
 /* server error codes */
 #define ERROR 0
 #define SUCCESS 1
-#define INVALID_OP -1
 /* these two are used for the "exist" service */
 #define EXISTS 1
 #define NOT_EXISTS 0
@@ -33,10 +28,6 @@
 #define READ 'r'
 #define CREATE 'c'
 #define MODIFY 'm'
-
-/* control variable states for the service thread loop that handles client connections */
-#define ON 1
-#define OFF 0
 
 /* number casting stuff */
 #define INT 'i'

@@ -1,18 +1,10 @@
 #TODO
-do tests: keys-tests & dbms_tests need work
-
-need to assign each test module for someone to do it  
+do tests
 
 #Cleanup
 
 #Bugs
 value1 written to DB overflows: server needs to control length (need to understand strings better)
-
-Ctrl+C won't shut the server down;
-sending SIGKILL is the way to shut it down for now;
-if we don't destroy the cond vars, it works just fine;
-destroying a cond var that a thread is blocked on is undefined behavior, hence things not working;
-should we destroy the cond vars?
 
 #Improvements
 

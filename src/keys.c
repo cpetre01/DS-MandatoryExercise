@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
@@ -9,12 +10,33 @@
 #include "keys.h"
 
 
+/* functions used to connect with server */
+int connect_to_server(void);
+void disconnect_from_server(void);
+
+/* one-size-fits-all function that performs the required services;
+ * can perform all 7 services given the proper arguments;
+ * op_code determines the service */
+int service(char op_code, int key, char *value1, int *value2, float *value3);
+
+
 int client_socket;      /* global client socket descriptor */
 
 
-int open_socket(const char *host_name, const int port) {
+int connect_to_server(void) {
     struct sockaddr_in server_addr;
     struct hostent *hp;
+    int server_port;
+
+    const char *server_ip = getenv("IP_TUPLES");
+
+    if (!server_ip) {
+        fprintf(stderr, "getenv error\n"); return -1;
+    }
+
+    if (str_to_num(getenv("PORT_TUPLES"), (void *) &server_port, INT) == -1) {
+        perror("Invalid server port"); return -1;
+    }
 
     /* create client socket */
     client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -24,13 +46,13 @@ int open_socket(const char *host_name, const int port) {
 
     /* obtain server address */
     bzero((char*) &server_addr, sizeof server_addr);
-    hp = gethostbyname(host_name);
+    hp = gethostbyname(server_ip);
     if (!hp) {
         perror("Error getting hostname"); return -1;
     }
     memcpy (&(server_addr.sin_addr), hp->h_addr, hp->h_length);
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(port);
+    server_addr.sin_port = htons(server_port);
 
     /* connecting to server */
     if (connect(client_socket, (struct sockaddr *) &server_addr, sizeof(server_addr)) == -1) {
@@ -41,23 +63,13 @@ int open_socket(const char *host_name, const int port) {
 }
 
 
-int close_socket(void) {
-    /* notify the server that this connection is being closed, so it moves on */
-    request_t request;
-    request.header.op_code = END_CONN;
-
-    /* send client request header */
-    if (send_common_header(client_socket, &request.header) == -1) return -1;
+void disconnect_from_server(void) {
     close(client_socket);
-
-    return 0;
 }
 
 
 int service(const char op_code, const int key, char *value1, int *value2, float *value3) {
-    /* one-size-fits-all function that performs the required services;
-     * can perform all 7 services given the proper arguments;
-     * op_code determines the service */
+    if (connect_to_server() == -1) return -1;
 
     request_t request;  /* client request */
     request.header.op_code = op_code;
@@ -75,7 +87,7 @@ int service(const char op_code, const int key, char *value1, int *value2, float 
 
     /* send value members if called service requires it */
     if (op_code == SET_VALUE || op_code == MODIFY_VALUE) {
-        strncpy(request.item.value1, value1, VALUE1_MAX_STR_SIZE);
+        strcpy(request.item.value1, value1);
         request.item.value2 = *value2;
         request.item.value3 = *value3;
         if (send_values(client_socket, &request.item) == -1) return -1;
@@ -91,15 +103,19 @@ int service(const char op_code, const int key, char *value1, int *value2, float 
             /* receive rest of server reply */
             if (recv_values(client_socket, &reply.item) == -1) return -1;
 
+            disconnect_from_server();
+
             /* return the tuple values obtained from the DB */
             if (reply.server_error_code == SUCCESS) {
-                strncpy(value1, reply.item.value1, VALUE1_MAX_STR_SIZE);
+                strcpy(value1, reply.item.value1);
                 *value2 = reply.item.value2;
                 *value3 = reply.item.value3;
                 return 0;
             }
             break;
         case EXIST:
+            disconnect_from_server();
+
             /* returns whether the tuple exists in the DB or not */
             if (reply.server_error_code == EXISTS) return 1;
             else if (reply.server_error_code == NOT_EXISTS) return 0;
@@ -108,13 +124,18 @@ int service(const char op_code, const int key, char *value1, int *value2, float 
             /* receive rest of server reply */
             if (recv_num_items(client_socket, &reply) == -1) return -1;
 
+            disconnect_from_server();
+
             /* returns how many tuples there are in the DB */
             if (reply.server_error_code == SUCCESS) return (int) reply.num_items;
             break;
         default:    /* remaining services */
+            disconnect_from_server();
+
             if (reply.server_error_code == SUCCESS) return 0;
             break;
     } // end switch
+    disconnect_from_server();
     return -1;      /* server error, service was executed unsuccessfully */
 }
 

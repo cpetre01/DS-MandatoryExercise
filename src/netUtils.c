@@ -80,7 +80,7 @@ int send_values(const int socket, item_t *item) {
 
     /* send value3 */
     uint32_t tmp;
-    memcpy((char *) &tmp, (char *) &item->value3, sizeof(float ));
+    memcpy((char *) &tmp, (char *) &item->value3, sizeof(float));
     tmp = htonl(tmp);
     if (send_msg(socket, (char *) &tmp, sizeof(float)) == -1) {
         perror("Send value3 error");
@@ -173,7 +173,7 @@ int recv_values(const int socket, item_t *item) {
         close(socket); return -1;
     }
     tmp = ntohl(tmp);
-    memcpy((char *) &item->value3, (char *) &tmp, sizeof(float ));
+    memcpy((char *) &item->value3, (char *) &tmp, sizeof(float));
 
     return 0;
 }

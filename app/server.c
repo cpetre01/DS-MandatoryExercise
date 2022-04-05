@@ -30,6 +30,8 @@ int conn_q[MAX_CONN_BACKLOG];   /* array of client sockets; used as a connection
 int conn_q_size = 0;            /* current number of backlogged connections */
 int service_th_pos = 0;         /* connection queue position used by service threads to handle connections */
 
+#define THREAD_POOL_SIZE 5      /* max number of service threads running */
+
 /* mutex and cond vars for conn_q access */
 pthread_mutex_t mutex_conn_q;
 pthread_cond_t cond_conn_q_not_empty;
@@ -71,94 +73,88 @@ void * service_thread(void *args) {
 
         /* handle connection now */
         request_t request;
-        int connection_status = ON;
-        while(connection_status == ON) {
-            /* receive transaction ID & op_code */
-            if (recv_common_header(client_socket, &request.header) == -1) continue;
+        /* receive transaction ID & op_code */
+        if (recv_common_header(client_socket, &request.header) == -1) continue;
 
-            /* set up server reply */
-            reply_t reply;
-            reply.header.id = request.header.id;
-            reply.header.op_code = request.header.op_code;
+        /* set up server reply */
+        reply_t reply;
+        reply.header.id = request.header.id;
+        reply.header.op_code = request.header.op_code;
 
-            /* check whether client request is valid and execute it */
-            switch (request.header.op_code) {
-                case INIT:
-                    /* execute client request */
-                    init_db(&reply);
+        /* check whether client request is valid and execute it */
+        switch (request.header.op_code) {
+            case INIT:
+                /* execute client request */
+                init_db(&reply);
 
-                    /* send server reply */
-                    if (send_reply_header(client_socket, &reply) == -1) continue;
-                    break;
-                case SET_VALUE:
-                    /* receive rest of client request */
-                    if (recv_key(client_socket, &request.item) == -1 ||
+                /* send server reply */
+                if (send_reply_header(client_socket, &reply) == -1) continue;
+                break;
+            case SET_VALUE:
+                /* receive rest of client request */
+                if (recv_key(client_socket, &request.item) == -1 ||
+                recv_values(client_socket, &request.item) == -1) continue;
+
+                /* execute client request */
+                insert_item(&request, &reply);
+
+                /* send server reply */
+                if (send_reply_header(client_socket, &reply) == -1) continue;
+                break;
+            case GET_VALUE:
+                /* receive rest of client request */
+                if (recv_key(client_socket, &request.item) == -1) continue;
+
+                /* execute client request */
+                get_item(&request, &reply);
+
+                /* send server reply */
+                if (send_reply_header(client_socket, &reply) == -1 ||
+                        send_values(client_socket, &reply.item) == -1) continue;
+                break;
+            case MODIFY_VALUE:
+                /* receive rest of client request */
+                if (recv_key(client_socket, &request.item) == -1 ||
                     recv_values(client_socket, &request.item) == -1) continue;
 
-                    /* execute client request */
-                    insert_item(&request, &reply);
+                /* execute client request */
+                modify_item(&request, &reply);
 
-                    /* send server reply */
-                    if (send_reply_header(client_socket, &reply) == -1) continue;
-                    break;
-                case GET_VALUE:
-                    /* receive rest of client request */
-                    if (recv_key(client_socket, &request.item) == -1) continue;
+                /* send server reply */
+                if (send_reply_header(client_socket, &reply) == -1) continue;
+                break;
+            case DELETE_KEY:
+                /* receive rest of client request */
+                if (recv_key(client_socket, &request.item) == -1) continue;
 
-                    /* execute client request */
-                    get_item(&request, &reply);
+                /* execute client request */
+                delete_item(&request, &reply);
 
-                    /* send server reply */
-                    if (send_reply_header(client_socket, &reply) == -1 ||
-                            send_values(client_socket, &reply.item) == -1) continue;
-                    break;
-                case MODIFY_VALUE:
-                    /* receive rest of client request */
-                    if (recv_key(client_socket, &request.item) == -1 ||
-                        recv_values(client_socket, &request.item) == -1) continue;
+                /* send server reply */
+                if (send_reply_header(client_socket, &reply) == -1) continue;
+                break;
+            case EXIST:
+                /* receive rest of client request */
+                if (recv_key(client_socket, &request.item) == -1) continue;
 
-                    /* execute client request */
-                    modify_item(&request, &reply);
+                /* execute client request */
+                item_exists(&request, &reply);
 
-                    /* send server reply */
-                    if (send_reply_header(client_socket, &reply) == -1) continue;
-                    break;
-                case DELETE_KEY:
-                    /* receive rest of client request */
-                    if (recv_key(client_socket, &request.item) == -1) continue;
+                /* send server reply */
+                if (send_reply_header(client_socket, &reply) == -1) continue;
+                break;
+            case NUM_ITEMS:
+                /* execute client request */
+                get_num_items(&reply);
 
-                    /* execute client request */
-                    delete_item(&request, &reply);
-
-                    /* send server reply */
-                    if (send_reply_header(client_socket, &reply) == -1) continue;
-                    break;
-                case EXIST:
-                    /* receive rest of client request */
-                    if (recv_key(client_socket, &request.item) == -1) continue;
-
-                    /* execute client request */
-                    item_exists(&request, &reply);
-
-                    /* send server reply */
-                    if (send_reply_header(client_socket, &reply) == -1) continue;
-                    break;
-                case NUM_ITEMS:
-                    /* execute client request */
-                    get_num_items(&reply);
-
-                    /* send server reply */
-                    if (send_reply_header(client_socket, &reply) == -1 ||
-                    send_num_items(client_socket, &reply) == -1) continue;
-                    break;
-                case END_CONN:  /* client closed connection; move on */
-                    connection_status = OFF; break;
-                default:    /* invalid operation */
-                    fprintf(stderr, "Requested invalid operation\n");
-                    close(client_socket); continue;
-            } // end switch
-        }
-//        close(client_socket);
+                /* send server reply */
+                if (send_reply_header(client_socket, &reply) == -1 ||
+                send_num_items(client_socket, &reply) == -1) continue;
+                break;
+            default:    /* invalid operation */
+                fprintf(stderr, "Requested invalid operation\n");
+                close(client_socket); continue;
+        } // end switch
     } // end outer while
 }
 
@@ -269,8 +265,6 @@ void get_num_items(reply_t *reply) {
 void shutdown_server() {
     /* destroy server resources before shutting it down */
     pthread_mutex_destroy(&mutex_conn_q);
-//    pthread_cond_destroy(&cond_conn_q_not_empty);
-//    pthread_cond_destroy(&cond_conn_q_not_full);
     pthread_mutex_destroy(&mutex_db);
     pthread_attr_destroy(&th_attr);
     exit(0);

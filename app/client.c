@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include "utils.h"
 #include "keys.h"
 
@@ -66,25 +65,8 @@ int get_key_and_values(int *key, char *value1, int *value2, float *value3) {
 }
 
 
-int main(int argc, char **argv, char **env) {
+int main() {
     int control_var = TRUE;
-    int server_port_num;
-
-    const char *server_ip = getenv("IP_TUPLES");
-    const char *server_port = getenv("PORT_TUPLES");
-
-    if (!server_ip || !server_port) {
-        fprintf(stderr, "getenv error\n");
-        return -1;
-    }
-
-    if (str_to_num(server_port, (void *) &server_port_num, INT) == -1) {
-        perror("Invalid server port"); return -1;
-    }
-
-    /* initialize connection with the sever side */
-    if (open_socket(server_ip, server_port_num) == -1)
-        control_var = FALSE;
 
     /* loop to control client requests */
     while (control_var) {
@@ -176,8 +158,6 @@ int main(int argc, char **argv, char **env) {
                 break;
             } // end case 7
             case 8: {       /* exit by changing the control var to 0 */
-                /* close connection with server */
-                close_socket();
                 control_var = FALSE; break;
             } // end case 8
             default: break;
