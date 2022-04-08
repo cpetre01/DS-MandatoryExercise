@@ -3,7 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
-#include "utils.h"
+#include "DS-MandatoryExercise/utils.h"
 
 
 int str_to_num(const char *value_str, void *value, const char type) {
@@ -96,7 +96,6 @@ ssize_t read_line(const int d, char *buffer, const int buf_space) {
      * from d (socket, file... descriptor); stops reading when a '\0' or '\n' is found */
     ssize_t bytes_read;             /* number of bytes fetched by last read() */
     ssize_t bytes_read_total;       /* total bytes read so far */
-//    char *buf, ch;
     char ch;
 
     /* check arguments */
@@ -105,7 +104,6 @@ ssize_t read_line(const int d, char *buffer, const int buf_space) {
         return -1;
     }
 
-//    buf = buffer;
     bytes_read_total = 0;
     /* read from fd */
     while (TRUE) {

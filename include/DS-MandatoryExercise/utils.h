@@ -5,7 +5,7 @@
 #define TRUE 1
 #define FALSE 0
 #define MAX_STR_SIZE 512            /* generic string size */
-#define VALUE1_MAX_STR_SIZE 255     /* size of value1 string */
+#define VALUE1_MAX_STR_SIZE 256     /* size of value1 string */
 #define DB_NAME "db"                /* database directory name */
 
 /* services: operation codes */
@@ -18,11 +18,11 @@
 #define NUM_ITEMS 'g'
 
 /* server error codes */
-#define ERROR 0
-#define SUCCESS 1
+#define SRV_ERROR 0
+#define SRV_SUCCESS 1
 /* these two are used for the "exist" service */
-#define EXISTS 1
-#define NOT_EXISTS 0
+#define SRV_EXISTS 1
+#define SRV_NOT_EXISTS 0
 
 /* DB key file opening modes */
 #define READ 'r'

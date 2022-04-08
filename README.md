@@ -9,7 +9,7 @@ Project Structure:
 
     build: directory used to build the project; create it if it doesn't exist
 
-    extern: directory that includes googletest; required for unittests
+    extern: directory that includes googletest; required for unittests; create it if it doesn't exist
 
     include: header files
 
@@ -44,12 +44,4 @@ Project Structure:
 
 Unittests with GoogleTest:
 
-    Testing Priority: lower is more important, to be done first
-
-Executable/Library: Testing Priority
-    
-    keys: 1
-
-    dbms: 2
-    
-    dbmsUtils: 2
+    keys (Client API): tests services; requires a running server

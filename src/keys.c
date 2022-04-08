@@ -5,9 +5,9 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include "utils.h"
-#include "netUtils.h"
-#include "keys.h"
+#include "DS-MandatoryExercise/utils.h"
+#include "DS-MandatoryExercise/netUtils.h"
+#include "DS-MandatoryExercise/keys.h"
 
 
 /* functions used to connect with server */
@@ -106,7 +106,7 @@ int service(const char op_code, const int key, char *value1, int *value2, float 
             disconnect_from_server();
 
             /* return the tuple values obtained from the DB */
-            if (reply.server_error_code == SUCCESS) {
+            if (reply.server_error_code == SRV_SUCCESS) {
                 strcpy(value1, reply.item.value1);
                 *value2 = reply.item.value2;
                 *value3 = reply.item.value3;
@@ -117,8 +117,8 @@ int service(const char op_code, const int key, char *value1, int *value2, float 
             disconnect_from_server();
 
             /* returns whether the tuple exists in the DB or not */
-            if (reply.server_error_code == EXISTS) return 1;
-            else if (reply.server_error_code == NOT_EXISTS) return 0;
+            if (reply.server_error_code == SRV_EXISTS) return 1;
+            else if (reply.server_error_code == SRV_NOT_EXISTS) return 0;
             break;
         case NUM_ITEMS:
             /* receive rest of server reply */
@@ -127,12 +127,12 @@ int service(const char op_code, const int key, char *value1, int *value2, float 
             disconnect_from_server();
 
             /* returns how many tuples there are in the DB */
-            if (reply.server_error_code == SUCCESS) return (int) reply.num_items;
+            if (reply.server_error_code == SRV_SUCCESS) return (int) reply.num_items;
             break;
         default:    /* remaining services */
             disconnect_from_server();
 
-            if (reply.server_error_code == SUCCESS) return 0;
+            if (reply.server_error_code == SRV_SUCCESS) return 0;
             break;
     } // end switch
     disconnect_from_server();

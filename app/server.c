@@ -7,9 +7,9 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 #include <signal.h>
-#include "utils.h"
-#include "netUtils.h"
-#include "dbms.h"
+#include "DS-MandatoryExercise/utils.h"
+#include "DS-MandatoryExercise/netUtils.h"
+#include "DS-MandatoryExercise/dbms/dbms.h"
 
 /* prototypes */
 void *service_thread(void *args);
@@ -45,8 +45,8 @@ pthread_t thread_pool[THREAD_POOL_SIZE];    /* array of service threads */
 void set_server_error_code_std(reply_t *reply, const int req_error_code) {
     /* most services follow this error code model */
     switch (req_error_code) {
-        case 0: reply->server_error_code = SUCCESS; break;
-        case -1: reply->server_error_code = ERROR; break;
+        case 0: reply->server_error_code = SRV_SUCCESS; break;
+        case -1: reply->server_error_code = SRV_ERROR; break;
         default: break;
     }
 }
@@ -238,8 +238,8 @@ void item_exists(request_t *request, reply_t *reply) {
 
     /* fill server reply */
     switch (req_error_code) {
-        case 1: reply->server_error_code = EXISTS; break;
-        case 0: reply->server_error_code = NOT_EXISTS; break;
+        case 1: reply->server_error_code = SRV_EXISTS; break;
+        case 0: reply->server_error_code = SRV_NOT_EXISTS; break;
         default: break;
     }
 }
@@ -254,9 +254,9 @@ void get_num_items(reply_t *reply) {
     pthread_mutex_unlock(&mutex_db);
 
     /* fill server reply */
-    if (num_items == -1) reply->server_error_code = ERROR;
+    if (num_items == -1) reply->server_error_code = SRV_ERROR;
     else {
-        reply->server_error_code = SUCCESS;
+        reply->server_error_code = SRV_SUCCESS;
         reply->num_items = num_items;
     }
 }
@@ -267,6 +267,7 @@ void shutdown_server() {
     pthread_mutex_destroy(&mutex_conn_q);
     pthread_mutex_destroy(&mutex_db);
     pthread_attr_destroy(&th_attr);
+    fprintf(stderr, "Shutting down server\n");
     exit(0);
 }
 
@@ -332,7 +333,7 @@ int main(int argc, char **argv) {
     }
 
     while (TRUE) {
-        printf("Press Ctrl + C to shut down server\n"); //doesn't work for some reason
+        printf("Press Ctrl + C to shut down server\n");
         printf("Waiting for connections...\n");
 
         client_sd = accept(server_sd, (struct sockaddr *) &client_addr, &addr_size);
@@ -361,5 +362,5 @@ int main(int argc, char **argv) {
             pthread_cond_signal(&cond_conn_q_not_empty);
 
         pthread_mutex_unlock(&mutex_conn_q);
-    }   // END while
+    } // END while
 }

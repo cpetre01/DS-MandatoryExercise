@@ -8,7 +8,4 @@ target_sources(${TARGET_DBMS}
         )
 # using PUBLIC propagates this directory to server target
 # which needs it to include dbms.h
-target_include_directories(${TARGET_DBMS}
-        PUBLIC      ../../include
-                    ../../include/dbms
-        )
+target_include_directories(${TARGET_DBMS} PUBLIC ../../include)

@@ -5,8 +5,8 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <errno.h>
-#include "utils.h"
-#include "dbmsUtils.h"
+#include "DS-MandatoryExercise/utils.h"
+#include "DS-MandatoryExercise/dbms/dbmsUtils.h"
 
 
 DIR *open_db(void) {

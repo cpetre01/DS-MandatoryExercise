@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "utils.h"
-#include "keys.h"
+#include "DS-MandatoryExercise/utils.h"
+#include "DS-MandatoryExercise/keys.h"
 
 /* some common messages to print */
 const char display_actions_str[] = "The possible operations to perform are the following:\n"
@@ -11,18 +11,18 @@ const char display_actions_str[] = "The possible operations to perform are the f
                                    "5. Delete a tuple\n"
                                    "6. Check if a tuple is already stored\n"
                                    "7. How many tuples are stored?\n"
-                                   "8. Exit\n";
+                                   "8. Exit\n\0";
 /* prompts */
-const char ask_key_prompt[] = "Please, enter the key";
-const char ask_key_delete_prompt[] = "Please, enter the key of the tuple to delete";
-const char ask_key_exist_prompt[] = "Please, enter the key of the tuple to search for";
-const char ask_value1_prompt[] = "Please, enter value1";
-const char ask_value2_prompt[] = "Please, enter value2";
-const char ask_value3_prompt[] = "Please, enter value3";
+const char ask_key_prompt[] = "Please, enter the key\0";
+const char ask_key_delete_prompt[] = "Please, enter the key of the tuple to delete\0";
+const char ask_key_exist_prompt[] = "Please, enter the key of the tuple to search for\0";
+const char ask_value1_prompt[] = "Please, enter value1\0";
+const char ask_value2_prompt[] = "Please, enter value2\0";
+const char ask_value3_prompt[] = "Please, enter value3\0";
 /* input errors */
-const char action_error[] = "Please, select one of the previously defined actions: ";
-const char int_required_error[] = "Please, enter an integer";
-const char float_required_error[] = "Please, enter a real number";
+const char action_error[] = "Please, select one of the previously defined actions: \0";
+const char int_required_error[] = "Please, enter an integer\0";
+const char float_required_error[] = "Please, enter a real number\0";
 
 const unsigned int ACTION_STR_LEN = 2;            /* size of client interface action string */
 
@@ -145,7 +145,7 @@ int main() {
 
                 /* calling exist service and checking errors */
                 int error = exist(key);
-                if(error == 1) fprintf(stderr, "\nA tuple with the key %d is already stored.\n", key);
+                if (error == 1) fprintf(stderr, "\nA tuple with the key %d is already stored.\n", key);
                 else if (!error) fprintf(stderr, "\nThere are no tuples with the key %d stored.\n", key);
                 else fprintf(stderr, "\nCommunication error.\n");
                 break;
@@ -153,7 +153,7 @@ int main() {
             case 7: {       /* find out how many tuples are stored */
                 /* calling num_items service and checking errors */
                 int num_tuples = num_items();
-                if(num_tuples >= 0) fprintf(stderr, "\nThere are %d tuples stored.\n", num_tuples);
+                if (num_tuples >= 0) fprintf(stderr, "\nThere are %d tuples stored.\n", num_tuples);
                 else fprintf(stderr, "\nError counting the number of elements stored.\n");
                 break;
             } // end case 7

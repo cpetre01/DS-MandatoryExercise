@@ -3,8 +3,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
-#include "utils.h"
-#include "netUtils.h"
+#include "DS-MandatoryExercise/utils.h"
+#include "DS-MandatoryExercise/netUtils.h"
 
 
 int send_common_header(const int socket, header_t *header) {
