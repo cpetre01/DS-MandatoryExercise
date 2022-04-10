@@ -58,7 +58,6 @@ int connect_to_server(void) {
     if (connect(client_socket, (struct sockaddr *) &server_addr, sizeof(server_addr)) == -1) {
         perror("Error connecting to server"); return -1;
     }
-    fprintf(stderr, "Connection established with server!\n");
     return 0;
 }
 
