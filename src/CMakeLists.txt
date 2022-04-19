@@ -13,10 +13,7 @@ target_include_directories(${TARGET_NET_UTILS} PUBLIC ../include)
 # keys dynamic library
 add_library(${TARGET_KEYS} SHARED)
 target_sources(${TARGET_KEYS} PRIVATE keys.c)
-target_link_libraries(${TARGET_KEYS}
-        PRIVATE rt
-                ${TARGET_NET_UTILS}
-        )
+target_link_libraries(${TARGET_KEYS} PRIVATE ${TARGET_NET_UTILS})
 # using PUBLIC propagates this directory to client target, which needs it to include utils.h & keys.h
 target_include_directories(${TARGET_KEYS} PUBLIC ../include)
 
