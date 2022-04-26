@@ -4,10 +4,10 @@
 #define MAX_CONN_BACKLOG 10     /* max number of open client connections */
 
 /* sending functions */
-int send_common_header(int socket, header_t *header);
-int send_reply_header(int socket, reply_t *reply);
-int send_num_items(int socket, reply_t *reply);
-int send_key(int socket, item_t *item);
+int send_common_header(int socket, const header_t *header);
+int send_reply_header(int socket, const reply_t *reply);
+int send_num_items(int socket, const reply_t *reply);
+int send_key(int socket, const item_t *item);
 int send_values(int socket, item_t *item);
 
 /* receiving functions */
