@@ -8,79 +8,6 @@
 #include "DS-MandatoryExercise/utils.h"
 #include "example.h"
 
-
-void
-keys_1(char *host)
-{
-    CLIENT *clnt;
-    enum clnt_stat retval_1;
-    int result_1;
-    enum clnt_stat retval_2;
-    int result_2;
-    int set_value_1_key;
-    char *set_value_1_value1;
-    int set_value_1_value2;
-    float set_value_1_value3;
-    enum clnt_stat retval_3;
-    item result_3;
-    int get_value_1_key;
-    enum clnt_stat retval_4;
-    int result_4;
-    int modify_value_1_key;
-    char *modify_value_1_value1;
-    int modify_value_1_value2;
-    float modify_value_1_value3;
-    enum clnt_stat retval_5;
-    int result_5;
-    int delete_key_1_key;
-    enum clnt_stat retval_6;
-    int result_6;
-    int exist_1_key;
-    enum clnt_stat retval_7;
-    int result_7;
-
-#ifndef	DEBUG
-    clnt = clnt_create (host, KEYS, KEYSVERS, "udp");
-    if (clnt == NULL) {
-        clnt_pcreateerror (host);
-        exit (1);
-    }
-#endif	/* DEBUG */
-
-    retval_1 = init_1(&result_1, clnt);
-    if (retval_1 != RPC_SUCCESS) {
-        clnt_perror (clnt, "call failed");
-    }
-    retval_2 = set_value_1(set_value_1_key, set_value_1_value1, set_value_1_value2, set_value_1_value3, &result_2, clnt);
-    if (retval_2 != RPC_SUCCESS) {
-        clnt_perror (clnt, "call failed");
-    }
-    retval_3 = get_value_1(get_value_1_key, &result_3, clnt);
-    if (retval_3 != RPC_SUCCESS) {
-        clnt_perror (clnt, "call failed");
-    }
-    retval_4 = modify_value_1(modify_value_1_key, modify_value_1_value1, modify_value_1_value2, modify_value_1_value3, &result_4, clnt);
-    if (retval_4 != RPC_SUCCESS) {
-        clnt_perror (clnt, "call failed");
-    }
-    retval_5 = delete_key_1(delete_key_1_key, &result_5, clnt);
-    if (retval_5 != RPC_SUCCESS) {
-        clnt_perror (clnt, "call failed");
-    }
-    retval_6 = exist_1(exist_1_key, &result_6, clnt);
-    if (retval_6 != RPC_SUCCESS) {
-        clnt_perror (clnt, "call failed");
-    }
-    retval_7 = num_items_1(&result_7, clnt);
-    if (retval_7 != RPC_SUCCESS) {
-        clnt_perror (clnt, "call failed");
-    }
-#ifndef	DEBUG
-    clnt_destroy (clnt);
-#endif	 /* DEBUG */
-}
-
-
 const char display_actions_str[] = "The possible operations to perform are the following:\n"
                                    "1. Initialize DataBase\n"
                                    "2. Insert a new tuple\n"
@@ -143,18 +70,9 @@ int get_key_and_values(int *key, char *value1, int *value2, float *value3) {
 }
 
 
-int
-main (int argc, char *argv[])
+void
+keys_1(char *host)
 {
-    char *host;
-
-    if (argc < 2) {
-        printf ("usage: %s server_host\n", argv[0]);
-        exit (1);
-    }
-    host = argv[1];
-    keys_1 (host);
-
     CLIENT *clnt;
     enum clnt_stat retval_1;
     int result_1;
@@ -166,10 +84,11 @@ main (int argc, char *argv[])
     float set_value_1_value3;
     enum clnt_stat retval_3;
     item result_3;
-    result_3.value1 = malloc(MAX_STR_SIZE);
+    result_3.value1 = malloc(256);
     int get_value_1_key;
     enum clnt_stat retval_4;
-    int result_4;
+    item result_4;
+    result_4.value1 = malloc(256);
     int modify_value_1_key;
     char *modify_value_1_value1;
     int modify_value_1_value2;
@@ -184,101 +103,160 @@ main (int argc, char *argv[])
     int result_7;
     int control_var = TRUE;
 
-    /* loop to control client requests */
+#ifndef	DEBUG
+    clnt = clnt_create (host, KEYS, KEYSVERS, "tcp");
+    if (clnt == NULL) {
+        clnt_pcreateerror (host);
+        exit (1);
+    }
+#endif	/* DEBUG */
+
     while (control_var) {
         /* display available actions */
-        int action; char action_str[ACTION_STR_LEN];
+        int action;
+        char action_str[ACTION_STR_LEN];
         printf("\n%s\n", display_actions_str);
 
-        /* ask for an action */
-        printf("Please, insert the number of the operation to perform: "); scanf("%s", action_str);
+        printf("Please, insert the number of the operation to perform: ");
+        scanf("%s", action_str);
         while ((str_to_num(action_str, (void *) &action, INT) == -1) || (action < 1) || (action > 8)) {
-            fprintf(stderr, "%s", action_error); scanf("%s", action_str);
+            fprintf(stderr, "%s", action_error);
+            scanf("%s", action_str);
         } // end inner while
 
-        /* continue with chosen action */
         switch (action) {
-            case 1: {       /* initializing server db */
-                if (!init_1(&result_1, clnt)) fprintf(stderr, "\nThe Database has been initialized\n");
-                else perror("\nThe Database has not been initialized");
+            case 1: {
+                retval_1 = init_1(&result_1, clnt);
+                if (retval_1 != RPC_SUCCESS) {
+                    clnt_perror(clnt, "call failed");
+                    perror("\nThe Database has not been initialized");
+                } else {
+                    fprintf(stderr, "\nThe Database has been initialized\n");
+                }
                 break;
-            } // end case 1
-            case 2: {       /* insert a new tuple */
-                int key; char value1[VALUE1_MAX_STR_SIZE]; int value2; float value3;
+            }
+
+            case 2: {
+                int key;
+                char value1[VALUE1_MAX_STR_SIZE];
+                int value2;
+                float value3;
 
                 /* ask for the values and key */
                 if (get_key_and_values(&key, value1, &value2, &value3) == -1) continue;
+                retval_2 = set_value_1(key, value1, value2, value3, &result_2, clnt);
+                if (retval_2 != RPC_SUCCESS) {
+                    clnt_perror(clnt, "call failed");
+                    fprintf(stderr, "\nError while inserting the tuple\n");
 
-                /* call the set_value function to perform the task */
-                int error = set_value_1(key, value1, value2, value3,  &result_2, clnt);
-                if (!error) fprintf(stderr, "\nThe tuple was successfully inserted\n");
-                else fprintf(stderr, "\nError while inserting the tuple\n");
+                } else {
+                    fprintf(stderr, "\nThe tuple was successfully inserted\n");
+                }
                 break;
-            } // end case 2
-            case 3: {       /* obtain an existing tuple */
-                int key; char value1[VALUE1_MAX_STR_SIZE]; int value2; float value3;
+            }
 
+            case 3: {
+                int key;
                 /* ask for the key */
                 if (get_key(&key, ask_key_prompt) == -1) continue;
-
-                /* calling get_value service and checking errors */
-                int error = get_value_1(key, &result_3, clnt);
-                if (!error) fprintf(stderr, "\nThe tuple with key %d stores value 1 = %s, "
-                                            "value 2 = %d and value 3 = %f\n", key, result_3.value1, result_3.value2, result_3.value3);
-                else fprintf(stderr, "\nAn error happened when searching the tuple.\n");
+                retval_3 = get_value_1(key, &result_3, clnt);
+                if (retval_3 != RPC_SUCCESS) {
+                    clnt_perror(clnt, "call failed");
+                    fprintf(stderr, "\nAn error happened when searching the tuple.\n");
+                } else {
+                        fprintf(stderr, "\nThe tuple with key %d stores value 1 = %s, "
+                                        "value 2 = %d and value 3 = %f\n", key, result_3.value1, result_3.value2,
+                                result_3.value3);
+                }
                 break;
-            } // end case 3
-            case 4: {       /* modify an existing tuple */
-                int key; char value1[VALUE1_MAX_STR_SIZE]; int value2; float value3;
+            }
+
+            case 4: {
+                int key;
+                char value1[VALUE1_MAX_STR_SIZE];
+                int value2;
+                float value3;
 
                 /* ask for the values and key */
                 if (get_key_and_values(&key, value1, &value2, &value3) == -1) continue;
-
-                /* calling modify_value service and checking errors */
-                int error = modify_value_1(key, value1, value2, value3, &result_4, clnt);
-                if (!error) fprintf(stderr, "\nThe tuple with key %d was modified to value 1 = %s, "
-                                            "value 2 = %d and value 3 = %f\n", key, value1, value2, value3);
-                else fprintf(stderr, "\nError modifying the tuple\n");
+                retval_4 = modify_value_1(key, value1, value2, value3, &result_4, clnt);
+                if (retval_4 != RPC_SUCCESS) {
+                    clnt_perror(clnt, "call failed");
+                    fprintf(stderr, "\nError modifying the tuple\n");
+                } else {
+                    fprintf(stderr, "\nThe tuple with key %d was modified to value 1 = %s, "
+                                        "value 2 = %d and value 3 = %f\n", key, result_4.value1, result_4.value2, result_4.value3);
+                }
                 break;
-            } //end case 4
-            case 5: {       /* delete a tuple */
-                int key;
+            }
 
+            case 5: {
+                int key;
                 /* ask for the key */
                 if (get_key(&key, ask_key_delete_prompt) == -1) continue;
-
-                /* calling delete_key service and checking errors */
-                int error = delete_key_1(key, &result_5, clnt);
-                if (!error) fprintf(stderr, "\nThe tuple with key %d was deleted.\n", key);
-                else fprintf(stderr, "\nError deleting the tuple\n");
+                retval_5 = delete_key_1(key, &result_5, clnt);
+                if (retval_5 != RPC_SUCCESS) {
+                    clnt_perror(clnt, "call failed");
+                    fprintf(stderr, "\nError deleting the tuple\n");
+                }else{
+                    fprintf(stderr, "\nThe tuple with key %d was deleted.\n", key);
+                }
                 break;
-            } // end case 5
-            case 6: {       /* check if a tuple exists */
-                int key;
+            }
 
+            case 6: {
+                int key;
                 /* ask for the key */
                 if (get_key(&key, ask_key_exist_prompt) == -1) continue;
+                retval_6 = exist_1(key, &result_6, clnt);
+                if (retval_6 != RPC_SUCCESS) {
+                    clnt_perror(clnt, "call failed");
+                } else{
 
-                /* calling exist service and checking errors */
-                int error = exist_1(key, &result_6, clnt);
-                if (error == 1) fprintf(stderr, "\nA tuple with the key %d is already stored.\n", key);
-                else if (!error) fprintf(stderr, "\nThere are no tuples with the key %d stored.\n", key);
-                else fprintf(stderr, "\nCommunication error.\n");
+                    if (result_6 == 1) fprintf(stderr, "\nA tuple with the key %d is already stored.\n", key);
+                    else if (!result_6) fprintf(stderr, "\nThere are no tuples with the key %d stored.\n", key);
+                }
                 break;
-            } // end case 6
-            case 7: {       /* find out how many tuples are stored */
-                /* calling num_items service and checking errors */
-                int num_tuples = num_items_1(&result_7, clnt);
-                if (num_tuples >= 0) fprintf(stderr, "\nThere are %d tuples stored.\n", num_tuples);
-                else fprintf(stderr, "\nError counting the number of elements stored.\n");
+            }
+
+            case 7: {
+                retval_7 = num_items_1(&result_7, clnt);
+                if (retval_7 != RPC_SUCCESS) {
+                    clnt_perror(clnt, "call failed");
+                    fprintf(stderr, "\nError counting the number of elements stored.\n");
+                } else{
+                    /* calling num_items service and checking errors */
+                   fprintf(stderr, "\nThere are %d tuples stored.\n", result_7);
+
+                }
                 break;
-            } // end case 7
-            case 8: {       /* exit by changing the control var to 0 */
-                control_var = FALSE; break;
+            }
+
+            case 8: {
+                control_var = FALSE;
                 free(result_3.value1);
-            } // end case 8
+                free(result_4.value1);
+                break;
+            }
+
             default: break;
-        } // end switch
-    } // end outer while
+        }
+    }
+
+#ifndef	DEBUG
+    clnt_destroy (clnt);
+#endif	 /* DEBUG */
+}
+
+int
+main (int argc, char *argv[])
+{
+    char *host;
+    if (argc < 2) {
+        printf ("usage: %s server_host\n", argv[0]);
+        exit (1);
+    }
+    host = argv[1];
+    keys_1 (host);
     exit (0);
 }
