@@ -33,7 +33,7 @@ void delete_item(request_t *request, reply_t *reply);
 void item_exists(request_t *request, reply_t *reply);
 void get_num_items(reply_t *reply);
 
-
+pthread_mutex_t mutex_db;                   /* mutex for atomic operations on the DB */
 
 
 void set_server_error_code_std(reply_t *reply, const int req_error_code) {
@@ -51,10 +51,12 @@ bool_t
 init_1_svc(int *result, struct svc_req *rqstp)
 {
     bool_t retval = TRUE;
+    pthread_mutex_lock(&mutex_db);
     int req_error_code = db_empty_db();
+    pthread_mutex_unlock(&mutex_db);
     /* fill server reply */
-    set_server_error_code_std(result, req_error_code);
-
+    set_server_error_code_std(result->error, req_error_code);
+    
     return retval;
 }
 
@@ -62,10 +64,12 @@ bool_t
 set_value_1_svc(int key, char *value1, int value2, float value3, int *result,  struct svc_req *rqstp)
 {
     bool_t retval = TRUE;
+    pthread_mutex_lock(&mutex_db);
 
-    int req_error_code = db_write_item(request->item.key, request->item.value1,
-                                       &(request->item.value2),&(request->item.value3), CREATE);
+    int req_error_code = db_write_item(key, value1, &value2, &value3, CREATE);
+    pthread_mutex_unlock(&mutex_db);
 
+    set_server_error_code_std(result->error, req_error_code);
     return retval;
 }
 
@@ -73,11 +77,17 @@ bool_t
 get_value_1_svc(int key, item *result,  struct svc_req *rqstp)
 {
     bool_t retval = TRUE;
+    
     result->value1 = malloc(MAX_STR_SIZE);
+    pthread_mutex_lock(&mutex_db);
 
-    /*
-     * insert server code here
-     */
+    int req_error_code = db_read_item(key, result->value1, &(result->value2), &(result->value3));
+
+    pthread_mutex_unlock(&mutex_db);
+        
+    /* fill server reply */
+    //reply->item.key = request->item.key;
+    set_server_error_code_std(result->error, req_error_code);
 
     return retval;
 }
@@ -87,10 +97,13 @@ modify_value_1_svc(int key, char *value1, int value2, float value3, int *result,
 {
     bool_t retval = TRUE;
 
-    /*
-     * insert server code here
-     */
+    pthread_mutex_lock(&mutex_db);
 
+    int req_error_code = db_write_item(key, result->value1, &(result->value2), &(result->value3), MODIFY);
+
+    pthread_mutex_unlock(&mutex_db);
+
+    set_server_error_code_std(result->error, req_error_code);
     return retval;
 }
 
@@ -99,10 +112,13 @@ delete_key_1_svc(int key, int *result,  struct svc_req *rqstp)
 {
     bool_t retval = TRUE;
 
-    /*
-     * insert server code here
-     */
+    pthread_mutex_lock(&mutex_db);
 
+    int req_error_code = db_delete_item(key);
+
+    pthread_mutex_unlock(&mutex_db);
+
+    set_server_error_code_std(result->error, req_error_code);
     return retval;
 }
 
@@ -111,9 +127,18 @@ exist_1_svc(int key, int *result,  struct svc_req *rqstp)
 {
     bool_t retval = TRUE;
 
-    /*
-     * insert server code here
-     */
+    pthread_mutex_lock(&mutex_db);
+
+    int req_error_code = db_item_exists(key);
+
+    pthread_mutex_unlock(&mutex_db);
+
+    /* fill server reply */
+    switch (req_error_code) {
+        case 1: result->error = SRV_EXISTS; break;
+        case 0: result->error = SRV_NOT_EXISTS; break;
+        default: break;
+    }
 
     return retval;
 }
@@ -123,9 +148,18 @@ num_items_1_svc(int *result, struct svc_req *rqstp)
 {
     bool_t retval = TRUE;
 
-    /*
-     * insert server code here
-     */
+    pthread_mutex_lock(&mutex_db);
+
+    int num_items = db_get_num_items();
+    
+    pthread_mutex_unlock(&mutex_db);
+
+    /* fill server reply */
+    if (num_items == -1) reply->server_error_code = SRV_ERROR;
+    else {
+        result->error = SRV_SUCCESS;
+        rqstp->num_items = num_items;
+    }
 
     return retval;
 }
