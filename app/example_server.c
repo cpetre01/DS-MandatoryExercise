@@ -6,28 +6,17 @@
 
 #include "DS-MandatoryExercise/example.h"
 #include <stdlib.h>
-#include <strings.h>
-#include <stdio.h>
 #include "DS-MandatoryExercise/utils.h"
-#include "DS-MandatoryExercise/netUtils.h"
 #include "DS-MandatoryExercise/dbms/dbms.h"
 
-/* services */
-void init_db(reply_t *reply);
-void insert_item(request_t *request, reply_t *reply);
-void get_item(request_t *request, reply_t *reply);
-void modify_item(request_t *request, reply_t *reply);
-void delete_item(request_t *request, reply_t *reply);
-void item_exists(request_t *request, reply_t *reply);
-void get_num_items(reply_t *reply);
 
-void set_server_error_code_std(item *reply, const int req_error_code) {
-    /* most services follow this error code model */
+void set_error_code(int *result, const int req_error_code){
     switch (req_error_code) {
-        case 0: reply->error = SRV_SUCCESS; break;
-        case -1: reply->error = SRV_ERROR; break;
+        case 0: *result =  SRV_SUCCESS; break;
+        case -1: *result = SRV_ERROR; break;
         default: break;
     }
+
 }
 
 bool_t
@@ -35,12 +24,8 @@ init_1_svc(int *result, struct svc_req *rqstp)
 {
     bool_t retval = TRUE;
     int req_error_code = db_empty_db();
+    set_error_code(result, req_error_code);
     /* fill server reply */
-    switch (req_error_code) {
-        case 0: *result = SRV_SUCCESS; break;
-        case -1: *result = SRV_ERROR; break;
-        default: break;
-    }
     return retval;
 }
 
@@ -49,11 +34,7 @@ set_value_1_svc(int key, char *value1, int value2, float value3, int *result,  s
 {
     bool_t retval = TRUE;
     int req_error_code = db_write_item(key, value1, &value2, &value3, CREATE);
-    switch (req_error_code) {
-        case 0: *result = SRV_SUCCESS; break;
-        case -1: *result = SRV_ERROR; break;
-        default: break;
-    }
+    set_error_code(result, req_error_code);
     return retval;
 }
 
@@ -65,7 +46,7 @@ get_value_1_svc(int key, struct item *result,  struct svc_req *rqstp)
     int req_error_code = db_read_item(key, result->value1, &(result->value2), &(result->value3));
     /* fill server reply */
     switch (req_error_code) {
-        case 0: result->error = (char *) SRV_SUCCESS; break;
+        case 0: result->error = SRV_SUCCESS; break;
         case -1: result->error = SRV_ERROR; break;
         default: break;
     }
@@ -77,11 +58,7 @@ modify_value_1_svc(int key, char *value1, int value2, float value3, int *result,
 {
     bool_t retval = TRUE;
     int req_error_code = db_write_item(key,value1, &value2, &value3, MODIFY);
-    switch (req_error_code) {
-        case 0: *result = SRV_SUCCESS; break;
-        case -1: *result = SRV_ERROR; break;
-        default: break;
-    }
+    set_error_code(result, req_error_code);
     return retval;
 }
 
@@ -90,11 +67,7 @@ delete_key_1_svc(int key, int *result,  struct svc_req *rqstp)
 {
     bool_t retval = TRUE;
     int req_error_code = db_delete_item(key);
-    switch (req_error_code) {
-        case 0: *result = SRV_SUCCESS; break;
-        case -1: *result = SRV_ERROR; break;
-        default: break;
-    }
+    set_error_code(result, req_error_code);
     return retval;
 }
 
