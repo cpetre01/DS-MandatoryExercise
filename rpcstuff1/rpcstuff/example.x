@@ -3,7 +3,6 @@ struct item{
     int value2;
     float value3;
     int error;
-    unsigned num_items;
 };
 
 
