@@ -3,9 +3,9 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <errno.h>
-#include "DS-MandatoryExercise/utils.h"
-#include "DS-MandatoryExercise/dbms/dbmsUtils.h"
-#include "DS-MandatoryExercise/dbms/dbms.h"
+#include "../../include/DS-MandatoryExercise/utils.h"
+#include "../../include/DS-MandatoryExercise/dbms/dbmsUtils.h"
+#include "../../include/DS-MandatoryExercise/dbms/dbms.h"
 
 
 int db_list_items(void) {
