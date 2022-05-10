@@ -7,7 +7,7 @@
 
 # server app
 add_executable(${TARGET_SERVER})
-target_sources(${TARGET_SERVER} PRIVATE example_server.c ../src/rpc/example_xdr.c ../src/rpc/example_svc.c)
+target_sources(${TARGET_SERVER} PRIVATE rpc_server.c ../src/rpc/rpc_xdr.c ../src/rpc/rpc_svc.c)
 target_link_libraries(${TARGET_SERVER}
         PRIVATE pthread
                 ${TARGET_NET_UTILS}

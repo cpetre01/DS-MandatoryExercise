@@ -3,7 +3,7 @@
  * It was generated using rpcgen.
  */
 
-#include "DS-MandatoryExercise/example.h"
+#include "DS-MandatoryExercise/rpc.h"
 
 bool_t
 xdr_item (XDR *xdrs, item *objp)

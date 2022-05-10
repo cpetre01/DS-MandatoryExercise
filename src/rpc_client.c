@@ -6,7 +6,7 @@
 
 #include <stdio.h>
 #include "DS-MandatoryExercise/utils.h"
-#include "DS-MandatoryExercise/example.h"
+#include "DS-MandatoryExercise/rpc.h"
 
 const char display_actions_str[] = "The possible operations to perform are the following:\n"
                                    "1. Initialize DataBase\n"

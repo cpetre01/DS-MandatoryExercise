@@ -4,11 +4,13 @@
  * as a guideline for developing your own functions.
  */
 
-#include "DS-MandatoryExercise/example.h"
+#include "DS-MandatoryExercise/rpc.h"
 #include <stdlib.h>
 #include "DS-MandatoryExercise/utils.h"
 #include "DS-MandatoryExercise/dbms/dbms.h"
+#include <pthread.h>
 
+pthread_mutex_t lock_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void set_error_code(int *result, const int req_error_code){
     switch (req_error_code) {
@@ -23,7 +25,9 @@ bool_t
 init_1_svc(int *result, struct svc_req *rqstp)
 {
     bool_t retval = TRUE;
+    pthread_mutex_lock(&lock_mutex);
     int req_error_code = db_empty_db();
+    pthread_mutex_unlock(&lock_mutex);
     set_error_code(result, req_error_code);
     /* fill server reply */
     return retval;
@@ -33,7 +37,9 @@ bool_t
 set_value_1_svc(int key, char *value1, int value2, float value3, int *result,  struct svc_req *rqstp)
 {
     bool_t retval = TRUE;
+    pthread_mutex_lock(&lock_mutex);
     int req_error_code = db_write_item(key, value1, &value2, &value3, CREATE);
+    pthread_mutex_unlock(&lock_mutex);
     set_error_code(result, req_error_code);
     return retval;
 }
@@ -43,8 +49,10 @@ get_value_1_svc(int key, struct item *result,  struct svc_req *rqstp)
 {
     bool_t retval = TRUE;
     result->value1 = malloc(MAX_STR_SIZE);
+    pthread_mutex_lock(&lock_mutex);
     int req_error_code = db_read_item(key, result->value1, &(result->value2), &(result->value3));
     /* fill server reply */
+    pthread_mutex_unlock(&lock_mutex);
     switch (req_error_code) {
         case 0: result->error = SRV_SUCCESS; break;
         case -1: result->error = SRV_ERROR; break;
@@ -57,7 +65,9 @@ bool_t
 modify_value_1_svc(int key, char *value1, int value2, float value3, int *result,  struct svc_req *rqstp)
 {
     bool_t retval = TRUE;
+    pthread_mutex_lock(&lock_mutex);
     int req_error_code = db_write_item(key,value1, &value2, &value3, MODIFY);
+    pthread_mutex_unlock(&lock_mutex);
     set_error_code(result, req_error_code);
     return retval;
 }
@@ -66,7 +76,9 @@ bool_t
 delete_key_1_svc(int key, int *result,  struct svc_req *rqstp)
 {
     bool_t retval = TRUE;
+    pthread_mutex_lock(&lock_mutex);
     int req_error_code = db_delete_item(key);
+    pthread_mutex_unlock(&lock_mutex);
     set_error_code(result, req_error_code);
     return retval;
 }
@@ -76,7 +88,9 @@ exist_1_svc(int key, int *result,  struct svc_req *rqstp)
 {
 
     bool_t retval = TRUE;
+    pthread_mutex_lock(&lock_mutex);
     int req_error_code = db_item_exists(key);
+    pthread_mutex_unlock(&lock_mutex);
     /* fill server reply */
     switch (req_error_code) {
         case 1: *result = SRV_EXISTS; break;
@@ -90,7 +104,9 @@ bool_t
 num_items_1_svc(int *result, struct svc_req *rqstp)
 {
     bool_t retval = TRUE;
+    pthread_mutex_lock(&lock_mutex);
     int num_items = db_get_num_items();
+    pthread_mutex_unlock(&lock_mutex);
     /* fill server reply */
     if (num_items == -1) *result = SRV_ERROR;
     else {
