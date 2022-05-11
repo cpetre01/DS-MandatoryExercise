@@ -21,6 +21,7 @@ int init() {
     } else {
         if (result_1 == -1) {
             perror("\nThe Database has not been initialized");
+            exit(1);
         }
     }
 #ifndef DEBUG
@@ -50,6 +51,7 @@ int set_value(int key, char *value1, int value2, float value3) {
     } else {
         if (result_2 == -1) {
             fprintf(stderr, "\nError while inserting the tuple\n");
+            exit(1);
         }
     }
 
@@ -121,6 +123,7 @@ int modify_value(int key, char * value1, int value2, float value3){
     } else {
         if (result_4 == -1) {
             fprintf(stderr, "\nError modifying the tuple\n");
+            exit(1);
         }
     }
 #ifndef DEBUG
@@ -153,6 +156,7 @@ int delete_key (int key){
     }else{
         if (result_5 == -1) {
             fprintf(stderr, "\nError deleting the tuple\n");
+            exit(1);
         }
     }
 #ifndef DEBUG
@@ -214,6 +218,7 @@ int num_items (){
     } else{
         if (result_7 == -1) {
             fprintf(stderr, "\nError counting the number of elements stored.\n");
+            exit(1);
         }
         fprintf(stderr, "\nThere are %d tuples stored.\n", result_7);
 

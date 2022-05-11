@@ -80,6 +80,7 @@ main (int argc, char *argv[]) {
     enum clnt_stat retval_2;
     enum clnt_stat retval_3;
     struct item result_3;
+    result_3.value1 = malloc(255);
     enum clnt_stat retval_4;
     enum clnt_stat retval_5;
     enum clnt_stat retval_6;
@@ -193,7 +194,7 @@ main (int argc, char *argv[]) {
 
             case 8: {
                 control_var = FALSE;
-                //free(result_3.value1);
+                free(result_3.value1);
                 break;
             }
             default:
