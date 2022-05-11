@@ -5,6 +5,7 @@
 #include <errno.h>
 #include "../include/DS-MandatoryExercise/utils.h"
 
+#define TRUE 1
 
 int str_to_num(const char *value_str, void *value, const char type) {
     /* function that casts a given string value_str to a number;

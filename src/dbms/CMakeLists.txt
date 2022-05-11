@@ -6,6 +6,4 @@ target_sources(${TARGET_DBMS}
                     dbmsUtils.c
         PUBLIC      ../utils.c
         )
-# using PUBLIC propagates this directory to server target
-# which needs it to include dbms.h
 target_include_directories(${TARGET_DBMS} PUBLIC ../../include)

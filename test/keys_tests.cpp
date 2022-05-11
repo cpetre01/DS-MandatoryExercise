@@ -4,7 +4,7 @@
 
 extern "C" {
 #include "DS-MandatoryExercise/utils.h"
-#include "DS-MandatoryExercise/keys.h"
+#include "DS-MandatoryExercise/rpc_keys.h"
 }
 
 /* test error codes */

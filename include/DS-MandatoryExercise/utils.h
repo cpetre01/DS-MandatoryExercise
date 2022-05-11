@@ -2,20 +2,20 @@
 #define UTILS_H
 
 /* utilities */
-#define TRUE 1
-#define FALSE 0
+//#define TRUE 1
+//#define FALSE 0
 #define MAX_STR_SIZE 512            /* generic string size */
 #define VALUE1_MAX_STR_SIZE 256     /* size of value1 string */
 #define DB_NAME "db"                /* database directory name */
 
-/* services: operation codes */
-#define INIT 'a'
-#define SET_VALUE 'b'
-#define GET_VALUE 'c'
-#define MODIFY_VALUE 'd'
-#define DELETE_KEY 'e'
-#define EXIST 'f'
-#define NUM_ITEMS 'g'
+///* services: operation codes */
+//#define INIT 'a'
+//#define SET_VALUE 'b'
+//#define GET_VALUE 'c'
+//#define MODIFY_VALUE 'd'
+//#define DELETE_KEY 'e'
+//#define EXIST 'f'
+//#define NUM_ITEMS 'g'
 
 /* server error codes */
 #define SRV_ERROR 0
