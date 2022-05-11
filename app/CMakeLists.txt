@@ -1,9 +1,9 @@
 # client and server apps
 
 # client app
-#add_executable(${TARGET_CLIENT})
-#target_sources(${TARGET_CLIENT} PRIVATE client.c)
-#target_link_libraries(${TARGET_CLIENT} PRIVATE ${TARGET_KEYS})
+add_executable(${TARGET_CLIENT})
+target_sources(${TARGET_CLIENT} PRIVATE rpc_client.c)
+target_link_libraries(${TARGET_CLIENT} PRIVATE ${TARGET_KEYS})
 
 # server app
 add_executable(${TARGET_SERVER})

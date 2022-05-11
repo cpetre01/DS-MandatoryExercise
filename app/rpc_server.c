@@ -28,8 +28,8 @@ init_1_svc(int *result, struct svc_req *rqstp)
     pthread_mutex_lock(&lock_mutex);
     int req_error_code = db_empty_db();
     pthread_mutex_unlock(&lock_mutex);
-    set_error_code(result, req_error_code);
     /* fill server reply */
+    set_error_code(result, req_error_code);
     return retval;
 }
 
@@ -40,6 +40,7 @@ set_value_1_svc(int key, char *value1, int value2, float value3, int *result,  s
     pthread_mutex_lock(&lock_mutex);
     int req_error_code = db_write_item(key, value1, &value2, &value3, CREATE);
     pthread_mutex_unlock(&lock_mutex);
+    /* fill server reply */
     set_error_code(result, req_error_code);
     return retval;
 }
@@ -51,8 +52,8 @@ get_value_1_svc(int key, struct item *result,  struct svc_req *rqstp)
     result->value1 = malloc(MAX_STR_SIZE);
     pthread_mutex_lock(&lock_mutex);
     int req_error_code = db_read_item(key, result->value1, &(result->value2), &(result->value3));
-    /* fill server reply */
     pthread_mutex_unlock(&lock_mutex);
+    /* fill server reply */
     switch (req_error_code) {
         case 0: result->error = SRV_SUCCESS; break;
         case -1: result->error = SRV_ERROR; break;
@@ -68,6 +69,7 @@ modify_value_1_svc(int key, char *value1, int value2, float value3, int *result,
     pthread_mutex_lock(&lock_mutex);
     int req_error_code = db_write_item(key,value1, &value2, &value3, MODIFY);
     pthread_mutex_unlock(&lock_mutex);
+    /* fill server reply */
     set_error_code(result, req_error_code);
     return retval;
 }
@@ -79,6 +81,7 @@ delete_key_1_svc(int key, int *result,  struct svc_req *rqstp)
     pthread_mutex_lock(&lock_mutex);
     int req_error_code = db_delete_item(key);
     pthread_mutex_unlock(&lock_mutex);
+    /* fill server reply */
     set_error_code(result, req_error_code);
     return retval;
 }
