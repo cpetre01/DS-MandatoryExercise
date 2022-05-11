@@ -20,9 +20,9 @@ int init() {
 
     } else {
         if (result_1 == -1) {
-            perror("\nThe Database has not been initialized");
-            exit(1);
+            return -1;
         }
+        return 0;
     }
 #ifndef DEBUG
     clnt_destroy (clnt);
@@ -50,9 +50,9 @@ int set_value(int key, char *value1, int value2, float value3) {
 
     } else {
         if (result_2 == -1) {
-            fprintf(stderr, "\nError while inserting the tuple\n");
-            exit(1);
+            return -1;
         }
+        return 0;
     }
 
 #ifndef DEBUG
@@ -87,12 +87,13 @@ int get_value (int key, char *value1, int *value2, float *value3){
 
     } else {
         if (result_3.error == -1){
-            fprintf(stderr, "\nAn error happened when searching the tuple.\n");
+            return -1;
         }
         strcpy( value1, result_3.value1);
         *value2 = result_3.value2;
         *value3 = result_3.value3;
         free(result_3.value1);
+        return 0;
     }
 
 #ifndef DEBUG
@@ -124,9 +125,9 @@ int modify_value(int key, char * value1, int value2, float value3){
 
     } else {
         if (result_4 == -1) {
-            fprintf(stderr, "\nError modifying the tuple\n");
-            exit(1);
+            return -1;
         }
+        return 0;
     }
 #ifndef DEBUG
     clnt_destroy (clnt);
@@ -157,9 +158,9 @@ int delete_key (int key){
 
     }else{
         if (result_5 == -1) {
-            fprintf(stderr, "\nError deleting the tuple\n");
-            exit(1);
+            return -1;
         }
+        return 0;
     }
 #ifndef DEBUG
     clnt_destroy (clnt);
@@ -189,8 +190,8 @@ int exist(int key){
         clnt_perror(clnt, "call failed");
 
     } else{
-        if (result_6 == 1) fprintf(stderr, "\nA tuple with the key %d is already stored.\n", key);
-        else if (!result_6) fprintf(stderr, "\nThere are no tuples with the key %d stored.\n", key);
+        if (result_6 == 1) return 1;
+        else if (!result_6)  return 0;
     }
 #ifndef DEBUG
     clnt_destroy (clnt);
@@ -219,10 +220,10 @@ int num_items (){
         clnt_perror(clnt, "call failed");
     } else{
         if (result_7 == -1) {
-            fprintf(stderr, "\nError counting the number of elements stored.\n");
-            exit(1);
+            return -1;
         }
         fprintf(stderr, "\nThere are %d tuples stored.\n", result_7);
+        return 0;
 
     }
 #ifndef DEBUG

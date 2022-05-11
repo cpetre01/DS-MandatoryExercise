@@ -99,7 +99,7 @@ main (int argc, char *argv[]) {
             case 1: {
                 retval_1 = init();
                 if (retval_1 != 0) {
-                    clnt_perror(clnt, "call failed");
+                    perror("\nThe Database has not been initialized");
                 }
                 fprintf(stderr, "\nThe Database has been initialized\n");
                 break;
@@ -116,7 +116,7 @@ main (int argc, char *argv[]) {
                 if (get_key_and_values(&key, value1, &value2, &value3) == -1) continue;
                 retval_2 = set_value(key, value1, value2, value3);
                 if (retval_2 != 0) {
-                    clnt_perror(clnt, "call failed");
+                    fprintf(stderr, "\nError while inserting the tuple\n");
                 }
                 fprintf(stderr, "\nThe tuple was successfully inserted\n");
                 break;
@@ -131,7 +131,7 @@ main (int argc, char *argv[]) {
                 if (get_key(&key, ask_key_prompt) == -1) continue;
                 retval_3 = get_value(key, value1, &value2, &value3);
                 if (retval_3 != 0) {
-                    clnt_perror(clnt, "call failed");
+                    fprintf(stderr, "\nAn error happened when searching the tuple.\n");
                 }
                 fprintf(stderr, "\nThe tuple with key %d stores value 1 = %s, "
                                 "value 2 = %d and value 3 = %f\n", key, value1, value2, value3);
@@ -147,7 +147,7 @@ main (int argc, char *argv[]) {
                 if (get_key_and_values(&key, value1, &value2, &value3) == -1) continue;
                 retval_4 = modify_value(key, value1, value2, value3);
                 if (retval_4 != 0) {
-                    clnt_perror(clnt, "call failed");
+                    fprintf(stderr, "\nError modifying the tuple\n");
 
                 }
                 fprintf(stderr, "\nThe tuple with key %d was modified to value 1 = %s, "
@@ -161,7 +161,7 @@ main (int argc, char *argv[]) {
                 if (get_key(&key, ask_key_delete_prompt) == -1) continue;
                 retval_5 = delete_key(key);
                 if (retval_5 != 0) {
-                    clnt_perror(clnt, "call failed");
+                    fprintf(stderr, "\nError deleting the tuple\n");
                 }
                 fprintf(stderr, "\nThe tuple with key %d was deleted.\n", key);
                 break;
@@ -172,17 +172,17 @@ main (int argc, char *argv[]) {
                 /* ask for the key */
                 if (get_key(&key, ask_key_exist_prompt) == -1) continue;
                 retval_6 = exist(key);
-                if (retval_6 != 0) {
-                    clnt_perror(clnt, "call failed");
-                }
+                if (retval_6 == 1) fprintf(stderr, "\nA tuple with the key %d is already stored.\n", key);
+                else if (!retval_6) fprintf(stderr, "\nThere are no tuples with the key %d stored.\n", key);
+                else fprintf(stderr, "\nCommunication error.\n");
+
                 break;
             }
 
             case 7: {
                 retval_7 = num_items();
-                if (retval_7 != 0) {
-                    clnt_perror(clnt, "call failed");
-                }
+                if (retval_7 < 0)  fprintf(stderr, "\nError counting the number of elements stored.\n");
+
                 break;
             }
 
