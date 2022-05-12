@@ -1,5 +1,5 @@
 #include <DS-MandatoryExercise/rpc.h>
-
+#include "DS-MandatoryExercise/utils.h"
 
 int init() {
     char *host;
@@ -17,17 +17,14 @@ int init() {
     retval_1 = init_1(&result_1, clnt);
     if (retval_1 != RPC_SUCCESS) {
         clnt_perror(clnt, "call failed");
+        return -1;
 
-    } else {
-        if (result_1 == -1) {
-            return -1;
-        }
-        return 0;
+    } else{
+        return (result_1 == SRV_ERROR) ? -1 : 0;
     }
 #ifndef DEBUG
     clnt_destroy (clnt);
 #endif   /* DEBUG */
-    return retval_1;
 }
 
 
@@ -47,18 +44,15 @@ int set_value(int key, char *value1, int value2, float value3) {
     retval_2 = set_value_1(key, value1, value2, value3, &result_2, clnt);
     if (retval_2 != RPC_SUCCESS) {
         clnt_perror(clnt, "call failed");
+        return -1;
 
-    } else {
-        if (result_2 == -1) {
-            return -1;
-        }
-        return 0;
+    } else{
+        return (result_2 == SRV_ERROR) ? -1 : 0;
     }
 
 #ifndef DEBUG
     clnt_destroy (clnt);
 #endif   /* DEBUG */
-    return retval_2;
 }
 
 
@@ -84,9 +78,10 @@ int get_value (int key, char *value1, int *value2, float *value3){
     retval_3 = get_value_1(key, &result_3, clnt);
     if (retval_3 != RPC_SUCCESS) {
         clnt_perror(clnt, "call failed");
+        return -1;
 
     } else {
-        if (result_3.error == -1){
+        if (result_3.error == SRV_ERROR){
             return -1;
         }
         strcpy( value1, result_3.value1);
@@ -99,7 +94,6 @@ int get_value (int key, char *value1, int *value2, float *value3){
 #ifndef DEBUG
     clnt_destroy (clnt);
 #endif   /* DEBUG */
-    return retval_3;
 }
 
 
@@ -122,17 +116,14 @@ int modify_value(int key, char * value1, int value2, float value3){
     retval_4 = modify_value_1(key, value1, value2, value3, &result_4, clnt);
     if (retval_4 != RPC_SUCCESS) {
         clnt_perror(clnt, "call failed");
+        return -1;
 
-    } else {
-        if (result_4 == -1) {
-            return -1;
-        }
-        return 0;
+    } else{
+        return (result_4 == SRV_ERROR) ? -1 : 0;
     }
 #ifndef DEBUG
     clnt_destroy (clnt);
 #endif   /* DEBUG */
-    return retval_4;
 }
 
 
@@ -155,17 +146,14 @@ int delete_key (int key){
     retval_5 = delete_key_1(key, &result_5, clnt);
     if (retval_5 != RPC_SUCCESS) {
         clnt_perror(clnt, "call failed");
+        return -1;
 
-    }else{
-        if (result_5 == -1) {
-            return -1;
-        }
-        return 0;
+    } else{
+        return (result_5 == SRV_ERROR) ? -1 : 0;
     }
 #ifndef DEBUG
     clnt_destroy (clnt);
 #endif   /* DEBUG */
-    return retval_5;
 }
 
 
@@ -188,15 +176,15 @@ int exist(int key){
     retval_6 = exist_1(key, &result_6, clnt);
     if (retval_6 != RPC_SUCCESS) {
         clnt_perror(clnt, "call failed");
+        return -1;
 
     } else{
-        if (result_6 == 1) return 1;
-        else if (!result_6)  return 0;
+        if(result_6 == SRV_EXISTS) return SRV_EXISTS;
+        return SRV_NOT_EXISTS;
     }
 #ifndef DEBUG
     clnt_destroy (clnt);
 #endif   /* DEBUG */
-    return retval_6;
 }
 
 
@@ -216,18 +204,18 @@ int num_items (){
     }
 #endif    /* DEBUG */
     retval_7 = num_items_1(&result_7, clnt);
+    fprintf(stderr,"result in keys is %d\n", result_7);
     if (retval_7 != RPC_SUCCESS) {
         clnt_perror(clnt, "call failed");
+        return -1;
     } else{
         if (result_7 == -1) {
             return -1;
         }
-        fprintf(stderr, "\nThere are %d tuples stored.\n", result_7);
-        return 0;
+        return result_7;
 
     }
 #ifndef DEBUG
     clnt_destroy (clnt);
 #endif   /* DEBUG */
-    return retval_7;
 }

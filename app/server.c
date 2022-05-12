@@ -111,7 +111,7 @@ num_items_1_svc(int *result, struct svc_req *rqstp)
     int num_items = db_get_num_items();
     pthread_mutex_unlock(&lock_mutex);
     /* fill server reply */
-    if (num_items == -1) *result = SRV_ERROR;
+    if (num_items == -1) *result = -1;
     else {
         *result = num_items;
         return SRV_SUCCESS;

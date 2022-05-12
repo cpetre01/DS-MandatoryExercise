@@ -70,12 +70,11 @@ int get_key_and_values(int *key, char *value1, int *value2, float *value3) {
 
 int
 main (int argc, char *argv[]) {
-    CLIENT *clnt;
     enum clnt_stat retval_1;
     enum clnt_stat retval_2;
     enum clnt_stat retval_3;
     struct item result_3;
-    result_3.value1 = malloc(255);
+    result_3.value1 = malloc(VALUE1_MAX_STR_SIZE);
     enum clnt_stat retval_4;
     enum clnt_stat retval_5;
     enum clnt_stat retval_6;
@@ -101,7 +100,7 @@ main (int argc, char *argv[]) {
                 if (retval_1 != 0) {
                     perror("\nThe Database has not been initialized");
                 }
-                fprintf(stderr, "\nThe Database has been initialized\n");
+                else fprintf(stderr, "\nThe Database has been initialized\n");
                 break;
             }
 
@@ -118,7 +117,7 @@ main (int argc, char *argv[]) {
                 if (retval_2 != 0) {
                     fprintf(stderr, "\nError while inserting the tuple\n");
                 }
-                fprintf(stderr, "\nThe tuple was successfully inserted\n");
+                else fprintf(stderr, "\nThe tuple was successfully inserted\n");
                 break;
             }
 
@@ -133,7 +132,7 @@ main (int argc, char *argv[]) {
                 if (retval_3 != 0) {
                     fprintf(stderr, "\nAn error happened when searching the tuple.\n");
                 }
-                fprintf(stderr, "\nThe tuple with key %d stores value 1 = %s, "
+                else fprintf(stderr, "\nThe tuple with key %d stores value 1 = %s, "
                                 "value 2 = %d and value 3 = %f\n", key, value1, value2, value3);
                 break;
             }
@@ -150,7 +149,7 @@ main (int argc, char *argv[]) {
                     fprintf(stderr, "\nError modifying the tuple\n");
 
                 }
-                fprintf(stderr, "\nThe tuple with key %d was modified to value 1 = %s, "
+                else fprintf(stderr, "\nThe tuple with key %d was modified to value 1 = %s, "
                                 "value 2 = %d and value 3 = %f\n", key, value1, value2, value3);
                 break;
             }
@@ -163,7 +162,7 @@ main (int argc, char *argv[]) {
                 if (retval_5 != 0) {
                     fprintf(stderr, "\nError deleting the tuple\n");
                 }
-                fprintf(stderr, "\nThe tuple with key %d was deleted.\n", key);
+                else fprintf(stderr, "\nThe tuple with key %d was deleted.\n", key);
                 break;
             }
 
@@ -181,8 +180,9 @@ main (int argc, char *argv[]) {
 
             case 7: {
                 retval_7 = num_items();
-                if (retval_7 < 0)  fprintf(stderr, "\nError counting the number of elements stored.\n");
-
+                fprintf(stderr, "the result in client is %d\n", retval_7);
+                if (retval_7 < 0)  {fprintf(stderr, "\nError counting the number of elements stored.\n");}
+                else {fprintf(stderr, "\nThere are %d tuples stored.\n", retval_7);}
                 break;
             }
 

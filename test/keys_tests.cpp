@@ -4,7 +4,7 @@
 
 extern "C" {
 #include "DS-MandatoryExercise/utils.h"
-#include "DS-MandatoryExercise/rpc_keys.h"
+#include "DS-MandatoryExercise/keys.h"
 }
 
 /* test error codes */
@@ -59,14 +59,11 @@ TEST(keys_tests, test_set_value_value1_too_long) {
                       "12345678901234567890123456789012345678901234567890123456789012345678901234567890\0";
     int value2_1 = 11;
     float value3_1 = 11.1f;
-    set_value(key_1, value1_1, value2_1, value3_1);
 
-    /* success: retrieve tuple & check value1: it should be shorter that the one we tried to write */
-    char value1_2[VALUE1_MAX_STR_SIZE]; int value2_2; float value3_2;
+    /* success: check that it does not exist */
+    ASSERT_EQ(set_value(key_1, value1_1, value2_1, value3_1), ERROR);
+    ASSERT_EQ(exist(key_1), NOT_EXISTS);        /* sanity check: tuple exists */
 
-    ASSERT_EQ(exist(key_1), EXISTS);        /* sanity check: tuple exists */
-    get_value(key_1, value1_2, &value2_2, &value3_2);
-    ASSERT_EQ(strlen(value1_1) > strlen(value1_2), true);
 }
 
 
@@ -201,8 +198,8 @@ TEST(keys_tests, test_exists) {
     /* the key does not exist */
     int key_2 = 22;
     ASSERT_EQ(exist(key_2), NOT_EXISTS);
-}
 
+}
 
 TEST(keys_tests, test_num_items) {
     /* testing num_items service: checking how many tuples exist */
