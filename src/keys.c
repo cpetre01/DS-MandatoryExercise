@@ -27,28 +27,35 @@ int connect_to_server(void) {
     struct sockaddr_in server_addr;
     struct hostent *hp;
     int server_port;
+    number_t number;
 
     const char *server_ip = getenv("IP_TUPLES");
 
     if (!server_ip) {
-        fprintf(stderr, "getenv error\n"); return -1;
+        fprintf(stderr, "getenv error\n");
+        return -1;
     }
 
-    if (str_to_num(getenv("PORT_TUPLES"), (void *) &server_port, INT) == -1) {
-        perror("Invalid server port"); return -1;
+    number = str_to_num(getenv("PORT_TUPLES"), INT);
+    if (number.err_code == -1) {
+        perror("Invalid server port");
+        return -1;
     }
+    server_port = number.i;
 
     /* create client socket */
     client_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (client_socket < 0) {
-        perror("Error creating socket"); return -1;
+        perror("Error creating socket");
+        return -1;
     }
 
     /* obtain server address */
     bzero((char*) &server_addr, sizeof server_addr);
     hp = gethostbyname(server_ip);
     if (!hp) {
-        perror("Error getting hostname"); return -1;
+        perror("Error getting hostname");
+        return -1;
     }
     memcpy (&(server_addr.sin_addr), hp->h_addr, hp->h_length);
     server_addr.sin_family = AF_INET;
@@ -56,8 +63,10 @@ int connect_to_server(void) {
 
     /* connecting to server */
     if (connect(client_socket, (struct sockaddr *) &server_addr, sizeof(server_addr)) == -1) {
-        perror("Error connecting to server"); return -1;
+        perror("Error connecting to server");
+        return -1;
     }
+
     return 0;
 }
 

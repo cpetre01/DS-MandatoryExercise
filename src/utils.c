@@ -1,59 +1,56 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
 #include "DS-MandatoryExercise/utils.h"
 
 
-int str_to_num(const char *value_str, void *value, const char type) {
-    /* function that casts a given string value_str to a number;
-     * writes cast value to value pointer; this value pointer
-     * should be a pointer to the desired number type.
+number_t str_to_num(const char *string, const char type) {
+    /* function that casts a given string to a specified number type;
+     * returns a union that contains the converted number;
      * Currently supported types: int, float */
     errno = 0;
 
-    char * endptr;                  /* used for castings */
-    char error[MAX_STR_SIZE];       /* used to display errors */
-    void *cast_value;               /* this points to cast value */
-    size_t result_size;             /* used to determine the size of the cast value in memcpy call */
+    char *endptr;                   /* used for castings */
+    char error[MAX_STR_SIZE];
+    number_t number;
 
-    /* auxiliary variables to cast value */
-    int value_str_to_int;
-    float value_str_to_float;
-
-    if (!strlen(value_str)) {
-        fprintf(stderr, "String is empty\n"); return -1;
+    if (!strlen(string)) {
+        fprintf(stderr, "String is empty\n");
+        number.err_code = -1;
+        return number;
     }
 
-    /* cast value */
+    /* cast string to specified type */
     switch (type) {
         case INT:
-            value_str_to_int = (int)strtol(value_str, &endptr, 10);
-            cast_value = (void *) &value_str_to_int;
+            number.i = (int) strtol(string, &endptr, 10);
             strcpy(error, "strtol");
-            result_size = sizeof(int);
+            number.err_code = 0;
             break;
         case FLOAT:
-            value_str_to_float = strtof(value_str, &endptr);
-            cast_value = (void *) &value_str_to_float;
+            number.f = strtof(string, &endptr);
             strcpy(error, "strtof");
-            result_size = sizeof(float);
+            number.err_code = 0;
             break;
-        default: fprintf(stderr, "Invalid casting type\n"); return -1;
+        default:
+            fprintf(stderr, "Invalid casting type\n");
+            number.err_code = -1;
+            return number;
     }
 
     /* check casting errors */
     if (errno) {
-        perror(error); return -1;
-    }
-    if (endptr == value_str) {
-        fprintf(stderr, "No digits were found\n"); return -1;
+        perror(error);
+        number.err_code = -1;
+    } else if (endptr == string) {
+        fprintf(stderr, "No digits were found\n");
+        number.err_code = -1;
     }
 
-    /* cast succeeded: set value */
-    memcpy(value, cast_value, result_size);
-    return 0;
+    return number;
 }
 
 
@@ -106,7 +103,7 @@ ssize_t read_line(const int d, char *buffer, const int buf_space) {
 
     bytes_read_total = 0;
     /* read from fd */
-    while (TRUE) {
+    while (true) {
         bytes_read = read(d, &ch, 1);	/* read a byte */
 
         /* check what's been read */

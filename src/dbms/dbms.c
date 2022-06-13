@@ -18,11 +18,13 @@ int db_list_items(void) {
     }
 
     while ((dir_ent = readdir(db)) != NULL) {
-        if (!strcmp(dir_ent->d_name, ".") || !strcmp(dir_ent->d_name, "..")) continue;
+        if (!strcmp(dir_ent->d_name, ".") || !strcmp(dir_ent->d_name, ".."))
+            continue;
         printf("%s\n", dir_ent->d_name);
     }
 
-    closedir(db); return 0;
+    closedir(db);
+    return 0;
 }
 
 
@@ -38,11 +40,13 @@ int db_get_num_items(void) {
     int num_items = 0;
 
     while ((dir_ent = readdir(db)) != NULL) {
-        if (!strcmp(dir_ent->d_name, ".") || !strcmp(dir_ent->d_name, "..")) continue;
+        if (!strcmp(dir_ent->d_name, ".") || !strcmp(dir_ent->d_name, ".."))
+            continue;
         num_items++;
     }
 
-    closedir(db); return num_items;
+    closedir(db);
+    return num_items;
 }
 
 
@@ -60,16 +64,19 @@ int db_empty_db(void) {
 
     /* go through and delete all key files */
     while ((dir_ent = readdir(db)) != NULL) {
-        if (!strcmp(dir_ent->d_name, ".") || !strcmp(dir_ent->d_name, "..")) continue;
+        if (!strcmp(dir_ent->d_name, ".") || !strcmp(dir_ent->d_name, ".."))
+            continue;
 
         if (remove(dir_ent->d_name) == -1) {
             perror("Couldn't delete entire DB");
-            chdir(".."); closedir(db); return -1;
+            chdir(".."); closedir(db);
+            return -1;
         }
     }
 
     /* change back to executable's directory and finish */
-    chdir(".."); closedir(db); return 0;
+    chdir(".."); closedir(db);
+    return 0;
 }
 
 
@@ -90,6 +97,7 @@ int db_read_item(const int key, char *value1, int *value2, float *value3) {
 
     /* open key file */
     int key_fd = open_keyfile(key, READ);
+    number_t number;
 
     /* error if there is no file associated with that key */
     if (key_fd == -1) {
@@ -99,28 +107,38 @@ int db_read_item(const int key, char *value1, int *value2, float *value3) {
     }
 
     /* read value1 */
-    if (read_value_from_keyfile(key_fd, value1, VALUE1_MAX_STR_SIZE) == -1) return -1;
+    if (read_value_from_keyfile(key_fd, value1, VALUE1_MAX_STR_SIZE) == -1)
+        return -1;
 
     /* read value2 */
     char value2_str[MAX_STR_SIZE];
-    if (read_value_from_keyfile(key_fd, value2_str, MAX_STR_SIZE) == -1) return -1;
+    if (read_value_from_keyfile(key_fd, value2_str, MAX_STR_SIZE) == -1)
+        return -1;
 
     /* cast value2_str to int */
-    if (str_to_num(value2_str, (void *) value2, INT) == -1) {
-        close(key_fd); return -1;
+    number = str_to_num(value2_str, INT);
+    if (number.err_code == -1) {
+        close(key_fd);
+        return -1;
     }
+    *value2 = number.i;
 
     /* now read value3 */
     char value3_str[MAX_STR_SIZE];
-    if (read_value_from_keyfile(key_fd, value3_str, MAX_STR_SIZE) == -1) return -1;
+    if (read_value_from_keyfile(key_fd, value3_str, MAX_STR_SIZE) == -1)
+        return -1;
 
     /* cast value3_str to float */
-    if (str_to_num(value3_str, (void *) value3, FLOAT) == -1) {
-        close(key_fd); return -1;
+    number = str_to_num(value3_str, FLOAT);
+    if (number.err_code == -1) {
+        close(key_fd);
+        return -1;
     }
+    *value3 = number.f;
 
     /* all three values were read at this point, so close file and return */
-    close(key_fd); return 0;
+    close(key_fd);
+    return 0;
 }
 
 

@@ -2,8 +2,6 @@
 #define UTILS_H
 
 /* utilities */
-#define TRUE 1
-#define FALSE 0
 #define MAX_STR_SIZE 512            /* generic string size */
 #define VALUE1_MAX_STR_SIZE 256     /* size of value1 string */
 #define DB_NAME "db"                /* database directory name */
@@ -32,7 +30,15 @@
 /* number casting stuff */
 #define INT 'i'
 #define FLOAT 'f'
-int str_to_num(const char *value_str, void *value, char type);
+typedef struct {
+    union {
+        int i;
+        float f;
+    };
+    int err_code;
+} number_t;
+
+number_t str_to_num(const char *string, char type);
 
 /* file & socket stuff */
 int send_msg(int d, char *buffer, int len);

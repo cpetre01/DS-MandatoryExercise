@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include "DS-MandatoryExercise/utils.h"
 #include "DS-MandatoryExercise/keys.h"
 
@@ -33,12 +34,17 @@ int get_key_and_values(int *key, char *value1, int *value2, float *value3);
 
 int get_key(int *key, const char *prompt_str) {
     char key_str[MAX_STR_SIZE];
+    number_t number;
 
     /* ask for the key */
     printf("%s: ", prompt_str); scanf("%s", key_str);
-    if (str_to_num(key_str, (void *) key, INT) == -1) {
-        fprintf(stderr, "%s\n", int_required_error); return -1;
+
+    number = str_to_num(key_str, INT);
+    if (number.err_code == -1) {
+        fprintf(stderr, "%s\n", int_required_error);
+        return -1;
     }
+    *key = number.i;
 
     return 0;
 }
@@ -46,42 +52,55 @@ int get_key(int *key, const char *prompt_str) {
 
 int get_key_and_values(int *key, char *value1, int *value2, float *value3) {
     char value2_str[MAX_STR_SIZE]; char value3_str[MAX_STR_SIZE];
+    number_t number;
 
     /* ask for the key */
-    if (get_key(key, ask_key_prompt) == -1) return -1;
+    if (get_key(key, ask_key_prompt) == -1)
+        return -1;
 
     /* ask for the values */
     printf("%s: ", ask_value1_prompt); scanf("%s", value1);
+
     printf("%s: ", ask_value2_prompt); scanf("%s", value2_str);
-    if (str_to_num(value2_str, (void *) value2, INT) == -1) {
-        fprintf(stderr, "%s\n", int_required_error); return -1;
+
+    number = str_to_num(value2_str, INT);
+    if (number.err_code == -1) {
+        fprintf(stderr, "%s\n", int_required_error);
+        return -1;
     }
+    *value2 = number.i;
+
     printf("%s: ", ask_value3_prompt); scanf("%s", value3_str);
-    if (str_to_num(value3_str, (void *) value3, FLOAT) == -1) {
-        fprintf(stderr, "%s\n", float_required_error); return -1;
+
+    number = str_to_num(value3_str, FLOAT);
+    if (number.err_code == -1) {
+        fprintf(stderr, "%s\n", float_required_error);
+        return -1;
     }
+    *value3 = number.f;
 
     return 0;
 }
 
 
 int main() {
-    int control_var = TRUE;
+    int control_var = true;
+    char action_str[ACTION_STR_LEN];
+    number_t action_num;
 
     /* loop to control client requests */
     while (control_var) {
-        /* display available actions */
-        int action; char action_str[ACTION_STR_LEN];
         printf("\n%s\n", display_actions_str);
-
-        /* ask for an action */
         printf("Please, insert the number of the operation to perform: "); scanf("%s", action_str);
-        while ((str_to_num(action_str, (void *) &action, INT) == -1) || (action < 1) || (action > 8)) {
+
+        action_num = str_to_num(action_str, INT);
+        while ((action_num.err_code == -1) || (action_num.i < 1) || (action_num.i > 8)) {
             fprintf(stderr, "%s", action_error); scanf("%s", action_str);
+            action_num = str_to_num(action_str, INT);
         } // end inner while
 
         /* continue with chosen action */
-        switch (action) {
+        switch (action_num.i) {
             case 1: {       /* initializing server db */
                 if (!init()) fprintf(stderr, "\nThe Database has been initialized\n");
                 else perror("\nThe Database has not been initialized");
@@ -154,11 +173,11 @@ int main() {
                 /* calling num_items service and checking errors */
                 int num_tuples = num_items();
                 if (num_tuples >= 0) fprintf(stderr, "\nThere are %d tuples stored.\n", num_tuples);
-                else fprintf(stderr, "\nError counting the number of elements stored.\n");
+                else fprintf(stderr, "\nError counting the action_num of elements stored.\n");
                 break;
             } // end case 7
             case 8: {       /* exit by changing the control var to 0 */
-                control_var = FALSE; break;
+                control_var = false; break;
             } // end case 8
             default: break;
         } // end switch

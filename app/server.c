@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <strings.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -53,7 +54,7 @@ void set_server_error_code_std(reply_t *reply, const int req_error_code) {
 
 
 void * service_thread(void *args) {
-    while (TRUE) {
+    while (true) {
         int client_socket;
         /* copy client socket descriptor and free the original */
         pthread_mutex_lock(&mutex_conn_q);
@@ -275,17 +276,22 @@ void shutdown_server() {
 int main(int argc, char **argv) {
     struct sockaddr_in server_addr, client_addr;
     socklen_t addr_size = sizeof(struct sockaddr_in);
+    int server_port;
     int server_sd, client_sd;
     int val = 1;
+    number_t number;
 
     if (argc != 2) {
-        fprintf(stderr, "Usage server <PORT>\n"); return -1;
+        fprintf(stderr, "Usage server <PORT>\n");
+        return -1;
     }
 
-    int server_port;
-    if (str_to_num(argv[1], (void *) &server_port, INT) == -1) {
-        perror("Invalid server port"); return -1;
+    number = str_to_num(argv[1], INT);
+    if (number.err_code == -1) {
+        perror("Invalid server port");
+        return -1;
     }
+    server_port = number.i;
 
     /* set up connection queue */
     pthread_mutex_init(&mutex_conn_q, NULL);
@@ -332,7 +338,7 @@ int main(int argc, char **argv) {
         pthread_create(&thread_pool[i], &th_attr, service_thread, NULL);
     }
 
-    while (TRUE) {
+    while (true) {
         printf("Press Ctrl + C to shut down server\n");
         printf("Waiting for connections...\n");
 
