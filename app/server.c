@@ -8,8 +8,8 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 #include <signal.h>
-#include "DS-MandatoryExercise/utils.h"
-#include "DS-MandatoryExercise/netUtils.h"
+#include "DS-MandatoryExercise/util.h"
+#include "DS-MandatoryExercise/netUtil.h"
 #include "DS-MandatoryExercise/dbms/dbms.h"
 
 /* prototypes */

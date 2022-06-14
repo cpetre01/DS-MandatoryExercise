@@ -4,7 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
-#include "DS-MandatoryExercise/utils.h"
+#include "DS-MandatoryExercise/util.h"
 
 
 number_t str_to_num(const char *string, const char type) {

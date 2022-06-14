@@ -5,8 +5,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include "DS-MandatoryExercise/utils.h"
-#include "DS-MandatoryExercise/netUtils.h"
+#include "DS-MandatoryExercise/util.h"
+#include "DS-MandatoryExercise/netUtil.h"
 #include "DS-MandatoryExercise/keys.h"
 
 

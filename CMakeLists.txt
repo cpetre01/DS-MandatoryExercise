@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.18)
 
 project(DS-MandatoryExercise
-        VERSION 2.0
+        VERSION 2.0.1
         DESCRIPTION "Mandatory Exercise with sockets"
-        LANGUAGES C CXX)
+        LANGUAGES C CXX
+        )
 
 # set target names
 
@@ -12,7 +13,7 @@ set(TARGET_CLIENT client)
 set(TARGET_SERVER server)
 
 # libraries
-set(TARGET_NET_UTILS netUtils)
+set(TARGET_NET_UTIL netUtil)
 set(TARGET_KEYS keys)
 set(TARGET_DBMS dbms)
 

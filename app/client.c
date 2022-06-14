@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include "DS-MandatoryExercise/utils.h"
+#include "DS-MandatoryExercise/util.h"
 #include "DS-MandatoryExercise/keys.h"
 
 /* some common messages to print */

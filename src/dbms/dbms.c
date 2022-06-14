@@ -3,8 +3,8 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <errno.h>
-#include "DS-MandatoryExercise/utils.h"
-#include "DS-MandatoryExercise/dbms/dbmsUtils.h"
+#include "DS-MandatoryExercise/util.h"
+#include "DS-MandatoryExercise/dbms/dbmsUtil.h"
 #include "DS-MandatoryExercise/dbms/dbms.h"
 
 

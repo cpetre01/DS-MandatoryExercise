@@ -3,7 +3,7 @@
 #include <cstdlib>
 
 extern "C" {
-#include "DS-MandatoryExercise/utils.h"
+#include "DS-MandatoryExercise/util.h"
 #include "DS-MandatoryExercise/keys.h"
 }
 

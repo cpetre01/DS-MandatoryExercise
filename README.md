@@ -17,13 +17,13 @@ Project Structure:
 
             dbms.h: function prototypes used for DB management; server-side API
 
-            dbmsUtils.h: function prototypes called internally in the dbms module
+            dbmsUtil.h: function prototypes called internally in the dbms module
 
         keys.h: header for keys library; client-side API
         
-        netUtils.h: header for netUtils library; contains function prototypes used to send and receive stuff; network API used by both server and client
+        netUtil.h: header for netUtil library; contains function prototypes used to send and receive stuff; network API used by both server and client
 
-        utils.h: types, constants and function prototypes used throughout the project; useful stuff
+        util.h: types, constants and function prototypes used throughout the project; useful stuff
 
     src: library source code and auxiliary source files
 
@@ -31,13 +31,13 @@ Project Structure:
     
             dbms.c: source code for DB management; server-side API
     
-            dbmsUtils.c: source code for the function prototypes defined in dbmsUtils.h
+            dbmsUtil.c: source code for the function prototypes defined in dbmsUtil.h
     
         keys.c: source code for keys library; client-side API
         
-        netUtils.c: source code for netUtils library; network API
+        netUtil.c: source code for netUtil library; network API
     
-        utils.c: source code for the function prototypes defined in utils.h
+        util.c: source code for the function prototypes defined in util.h
 
     test: unittests with GoogleTest
         

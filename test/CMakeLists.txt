@@ -9,6 +9,7 @@ target_link_libraries(${TARGET_KEYS_TESTS}
         PRIVATE gtest_main
                 ${TARGET_KEYS}
         )
+
 add_test(
         NAME ${TARGET_KEYS_TESTS}
         COMMAND ${TARGET_KEYS_TESTS}
@@ -21,10 +22,11 @@ set(TARGET_STR_TO_NUM str_to_num_tests)
 add_executable(${TARGET_STR_TO_NUM})
 target_sources(${TARGET_STR_TO_NUM}
         PRIVATE str_to_num_tests.cpp
-                ../src/utils.c
+                ../src/util.c
         )
-target_include_directories(${TARGET_STR_TO_NUM} PRIVATE ../include)
 target_link_libraries(${TARGET_STR_TO_NUM} PRIVATE gtest_main)
+target_include_directories(${TARGET_STR_TO_NUM} PRIVATE ../include)
+
 add_test(
         NAME ${TARGET_STR_TO_NUM}
         COMMAND ${TARGET_STR_TO_NUM}

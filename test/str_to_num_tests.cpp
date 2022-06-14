@@ -2,7 +2,7 @@
 #include "gtest/gtest.h"
 
 extern "C" {
-#include <DS-MandatoryExercise/utils.h>
+#include <DS-MandatoryExercise/util.h>
 }
 
 /* test error codes */
